@@ -25,8 +25,6 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">abstractmethod</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deepcopy</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">gpytorch</span>
@@ -255,8 +253,6 @@
         <span class="k">if</span> <span class="n">train_inputs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_train_inputs</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># setting device on copy to not change original</span>
-            <span class="n">train_inputs</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">train_inputs</span><span class="p">)</span>
             <span class="k">for</span> <span class="nb">input</span> <span class="ow">in</span> <span class="n">train_inputs</span><span class="p">:</span>
                 <span class="nb">input</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
 
@@ -287,9 +283,7 @@
         <span class="k">if</span> <span class="n">train_targets</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_train_targets</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># setting device on copy to not change original</span>
-            <span class="n">train_targets</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">train_targets</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_train_targets</span> <span class="o">=</span> <span class="n">train_targets</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_train_targets</span> <span class="o">=</span> <span class="n">train_targets</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
 
 <div class="viewcode-block" id="AEPsychModelDeviceMixin.predict"><a class="viewcode-back" href="../../../models.html#aepsych.models.base.AEPsychModelDeviceMixin.predict">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>

@@ -29,7 +29,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">Config</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.factory</span><span class="w"> </span><span class="kn">import</span> <span class="n">default_mean_covar_factory</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.models.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">AEPsychMixin</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.models.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">AEPsychModelDeviceMixin</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">_process_bounds</span><span class="p">,</span> <span class="n">get_dims</span><span class="p">,</span> <span class="n">get_optimizer_options</span><span class="p">,</span> <span class="n">promote_0d</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.utils_logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">getLogger</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">botorch.fit</span><span class="w"> </span><span class="kn">import</span> <span class="n">fit_gpytorch_mll</span>
@@ -40,7 +40,7 @@
 <span class="n">logger</span> <span class="o">=</span> <span class="n">getLogger</span><span class="p">()</span>
 
 
-<div class="viewcode-block" id="PairwiseProbitModel"><a class="viewcode-back" href="../../../models.html#aepsych.models.PairwiseProbitModel">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">PairwiseProbitModel</span><span class="p">(</span><span class="n">PairwiseGP</span><span class="p">,</span> <span class="n">AEPsychMixin</span><span class="p">):</span>
+<div class="viewcode-block" id="PairwiseProbitModel"><a class="viewcode-back" href="../../../models.html#aepsych.models.PairwiseProbitModel">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">PairwiseProbitModel</span><span class="p">(</span><span class="n">PairwiseGP</span><span class="p">,</span> <span class="n">AEPsychModelDeviceMixin</span><span class="p">):</span>
     <span class="n">_num_outputs</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="n">stimuli_per_trial</span> <span class="o">=</span> <span class="mi">2</span>
     <span class="n">outcome_type</span> <span class="o">=</span> <span class="s2">"binary"</span>
@@ -81,7 +81,10 @@
                 <span class="n">comparisons</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">comparison</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">comparisons</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">comparison</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-        <span class="k">return</span> <span class="n">unique_coords</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">LongTensor</span><span class="p">(</span><span class="n">comparisons</span><span class="p">)</span>
+
+        <span class="n">datapoints</span> <span class="o">=</span> <span class="n">unique_coords</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+        <span class="n">comps</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">LongTensor</span><span class="p">(</span><span class="n">comparisons</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">datapoints</span><span class="p">,</span> <span class="n">comps</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -182,18 +185,6 @@
         <span class="n">starttime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
         <span class="n">fit_gpytorch_mll</span><span class="p">(</span><span class="n">mll</span><span class="p">,</span> <span class="n">optimizer_kwargs</span><span class="o">=</span><span class="n">optimizer_kwargs</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Fit done, time=</span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">starttime</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="PairwiseProbitModel.update"><a class="viewcode-back" href="../../../models.html#aepsych.models.PairwiseProbitModel.update">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">train_x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">train_y</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">warmstart</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Perform a warm-start update of the model from previous fit.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            train_x (torch.Tensor): Train X.</span>
-<span class="sd">            train_y (torch.Tensor): Train Y.</span>
-<span class="sd">            warmstart (bool): If True, warm-start model fitting with current parameters. Defaults to True.</span>
-<span class="sd">        """</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_x</span><span class="p">,</span> <span class="n">train_y</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="PairwiseProbitModel.predict"><a class="viewcode-back" href="../../../models.html#aepsych.models.PairwiseProbitModel.predict">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
