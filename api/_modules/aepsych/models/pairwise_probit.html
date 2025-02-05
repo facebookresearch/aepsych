@@ -170,8 +170,10 @@
             <span class="c1"># figure out how long evaluating a single samp</span>
             <span class="n">starttime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
             <span class="n">_</span> <span class="o">=</span> <span class="n">mll</span><span class="p">(</span><span class="bp">self</span><span class="p">(</span><span class="n">datapoints</span><span class="p">),</span> <span class="n">comparisons</span><span class="p">)</span>
-            <span class="n">single_eval_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">starttime</span>
-            <span class="n">n_eval</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">max_fit_time</span> <span class="o">/</span> <span class="n">single_eval_time</span><span class="p">)</span>
+            <span class="n">single_eval_time</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">starttime</span> <span class="o">+</span> <span class="mf">1e-6</span>
+            <span class="p">)</span>  <span class="c1"># add an epsilon to avoid divide by zero</span>
+            <span class="n">n_eval</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">max_fit_time</span> <span class="o">/</span> <span class="p">(</span><span class="n">single_eval_time</span><span class="p">))</span>
 
             <span class="n">optimizer_kwargs</span><span class="p">[</span><span class="s2">"options"</span><span class="p">][</span><span class="s2">"maxfun"</span><span class="p">]</span> <span class="o">=</span> <span class="n">n_eval</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"fit maxfun is </span><span class="si">{</span><span class="n">n_eval</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
