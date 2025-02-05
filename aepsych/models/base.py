@@ -7,8 +7,6 @@
 from __future__ import annotations
 
 import time
-from abc import abstractmethod
-from copy import deepcopy
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import gpytorch
@@ -237,8 +235,6 @@ class AEPsychModelDeviceMixin(AEPsychMixin):
         if train_inputs is None:
             self._train_inputs = None
         else:
-            # setting device on copy to not change original
-            train_inputs = deepcopy(train_inputs)
             for input in train_inputs:
                 input.to(self.device)
 
@@ -269,9 +265,7 @@ class AEPsychModelDeviceMixin(AEPsychMixin):
         if train_targets is None:
             self._train_targets = None
         else:
-            # setting device on copy to not change original
-            train_targets = deepcopy(train_targets).to(self.device)
-            self._train_targets = train_targets
+            self._train_targets = train_targets.to(self.device)
 
     def predict(
         self,
