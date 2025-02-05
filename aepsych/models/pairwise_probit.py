@@ -289,9 +289,7 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
         Returns:
             GPClassificationModel: Configured class instance.
         """
-        options = options or {}
-        options.update(super().get_config_options(config, name, options))
-        name = name or cls.__name__
+        options = super().get_config_options(config, name, options)
 
         # no way of passing mean into PairwiseGP right now
         if "mean_module" in options:
@@ -300,15 +298,5 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
         # This model doesn't take flexible likelihoods
         if "likelihood" in options:
             del options["likelihood"]
-
-        lb = config.gettensor(name, "lb")
-        ub = config.gettensor(name, "ub")
-
-        options.update(
-            {
-                "lb": lb,
-                "ub": ub,
-            }
-        )
 
         return options

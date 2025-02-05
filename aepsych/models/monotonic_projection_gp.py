@@ -98,7 +98,7 @@ class MonotonicProjectionGP(GPClassificationModel):
         lb: torch.Tensor,
         ub: torch.Tensor,
         dim: int,
-        monotonic_dims: List[int],
+        monotonic_dims: Optional[List[int]] = None,
         monotonic_grid_size: int = 20,
         min_f_val: Optional[float] = None,
         mean_module: Optional[gpytorch.means.Mean] = None,
@@ -115,8 +115,8 @@ class MonotonicProjectionGP(GPClassificationModel):
             lb (torch.Tensor): Lower bounds of the parameters.
             ub (torch.Tensor): Upper bounds of the parameters.
             dim (int, optional): The number of dimensions in the parameter space.
-            monotonic_dims (List[int]): A list of the dimensions on which monotonicity should
-                be enforced.
+            monotonic_dims (List[int], optional): A list of the dimensions on which monotonicity should
+                be enforced. If not set, it will default to [-1].
             monotonic_grid_size (int): The size of the grid, s, in 1. above. Defaults to 20.
             min_f_val (float, optional): If provided, maintains this minimum in the projection in 5. Defaults to None.
             mean_module (gpytorch.means.Mean, optional): GP mean class. Defaults to a constant with a normal prior. Defaults to None.
@@ -130,6 +130,9 @@ class MonotonicProjectionGP(GPClassificationModel):
             max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,
                 there is no limit to the fitting time. Defaults to None.
         """
+        if monotonic_dims is None:
+            monotonic_dims = [-1]
+
         assert len(monotonic_dims) > 0
         self.monotonic_dims = [int(d) for d in monotonic_dims]
         self.mon_grid_size = monotonic_grid_size
@@ -217,46 +220,3 @@ class MonotonicProjectionGP(GPClassificationModel):
         if self.min_f_val is not None:
             samps = samps.clamp(min=self.min_f_val)
         return samps
-
-    @classmethod
-    def get_config_options(
-        cls,
-        config: Config,
-        name: Optional[str] = None,
-        options: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
-        """Get configuration options for the model.
-
-        Args:
-            config (Config): Configuration object.
-            name (str, optional): Name of the model, defaults to None.
-            options (Dict[str, Any], optional): Additional options, defaults to None.
-
-        Returns:
-            Dict[str, Any]: Configuration options for the model.
-        """
-        options = options or {}
-        options.update(super().get_config_options(config, name, options))
-
-        name = name or cls.__name__
-
-        lb = config.gettensor(name, "lb")
-        ub = config.gettensor(name, "ub")
-
-        monotonic_dims: List[int] = config.getlist(
-            name, "monotonic_dims", fallback=[-1]
-        )
-        monotonic_grid_size = config.getint(name, "monotonic_grid_size", fallback=20)
-        min_f_val = config.getfloat(name, "min_f_val", fallback=None)
-
-        options.update(
-            {
-                "lb": lb,
-                "ub": ub,
-                "monotonic_dims": monotonic_dims,
-                "monotonic_grid_size": monotonic_grid_size,
-                "min_f_val": min_f_val,
-            }
-        )
-
-        return options

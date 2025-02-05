@@ -255,7 +255,7 @@ class SemiParametricGPModel(VariationalGPModel):
         mean_module: Optional[gpytorch.means.Mean] = None,
         covar_module: Optional[gpytorch.kernels.Kernel] = None,
         likelihood: Optional[Any] = None,
-        slope_mean: float = 2,
+        slope_mean: float = 2.0,
         inducing_point_method: Optional[InducingPointAllocator] = None,
         inducing_size: int = 100,
         max_fit_time: Optional[float] = None,
@@ -319,41 +319,6 @@ class SemiParametricGPModel(VariationalGPModel):
             inducing_point_method=inducing_point_method,
             optimizer_options=optimizer_options,
         )
-
-    @classmethod
-    def get_config_options(
-        cls,
-        config: Config,
-        name: Optional[str] = None,
-        options: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
-        """Get configuration options for the model.
-
-        Args:
-            config (Config): Configuration object.
-            name (str, optional): Name of the model, defaults to None.
-            options (Dict[str, Any], optional): Additional options, defaults to None.
-
-        Returns:
-            Dict[str, Any]: Configuration options for the model.
-        """
-
-        options = options or {}
-        options.update(super().get_config_options(config, name, options))
-
-        name = name or cls.__name__
-
-        stim_dim = config.getint(name, "stim_dim", fallback=0)
-        slope_mean = config.getfloat(name, "slope_mean", fallback=2)
-
-        options.update(
-            {
-                "stim_dim": stim_dim,
-                "slope_mean": slope_mean,
-            }
-        )
-
-        return options
 
     def fit(
         self,
@@ -619,9 +584,7 @@ class HadamardSemiPModel(VariationalGPModel):
         Returns:
             Dict[str, Any]: Configuration options for the model.
         """
-
-        options = options or {}
-        options.update(super().get_config_options(config, name, options))
+        options = super().get_config_options(config, name, options)
 
         # This model has special modules
         if "mean_module" in options:
@@ -629,26 +592,6 @@ class HadamardSemiPModel(VariationalGPModel):
 
         if "covar_module" in options:
             del options["covar_module"]
-
-        name = name or cls.__name__
-
-        slope_mean_module = config.getobj(name, "slope_mean_module", fallback=None)
-        slope_covar_module = config.getobj(name, "slope_covar_module", fallback=None)
-        offset_mean_module = config.getobj(name, "offset_mean_module", fallback=None)
-        offset_covar_module = config.getobj(name, "offset_covar_module", fallback=None)
-        stim_dim = config.getint(name, "stim_dim", fallback=0)
-        slope_mean = config.getfloat(name, "slope_mean", fallback=2)
-
-        options.update(
-            {
-                "stim_dim": stim_dim,
-                "slope_mean_module": slope_mean_module,
-                "slope_covar_module": slope_covar_module,
-                "offset_mean_module": offset_mean_module,
-                "offset_covar_module": offset_covar_module,
-                "slope_mean": slope_mean,
-            }
-        )
 
         return options
 
