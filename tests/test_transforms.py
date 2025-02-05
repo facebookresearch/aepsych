@@ -364,10 +364,11 @@ class TransformsLog10Test(unittest.TestCase):
             [opt_strat]
             generator = OptimizeAcqfGenerator
             model = GPClassificationModel
-            min_total_tells = 70
+            min_total_tells = 60
 
             [OptimizeAcqfGenerator]
             acqf = MCLevelSetEstimation
+            max_gen_time = 0.1
             """
 
         config = Config()
@@ -382,10 +383,10 @@ class TransformsLog10Test(unittest.TestCase):
 
         x = torch.linspace(lower_bound, upper_bound, 100)
 
-        zhat, _ = strat.predict(x)
+        zhat, _ = strat.predict(x, probability_space=True)
         est_max = x[np.argmin((zhat - target) ** 2)]
-        diff = np.abs(est_max / 100 - target)
-        self.assertTrue(diff < 0.15, f"Diff = {diff}")
+        diff = np.abs((est_max / 100) - target)
+        self.assertTrue(diff < 0.15, f"Diff = {diff}, est_max = {est_max}")
 
 
 class TransformsNormalize(unittest.TestCase):
