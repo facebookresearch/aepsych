@@ -45,26 +45,3 @@ class FixedAllocator(BaseAllocator):
 
         self.last_allocator_used = self.__class__
         return self.points
-
-    @classmethod
-    def get_config_options(
-        cls,
-        config: Config,
-        name: Optional[str] = None,
-        options: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
-        """Get configuration options for the FixedAllocator.
-
-        Args:
-            config (Config): Configuration object.
-            name (str, optional): Name of the allocator, defaults to None.
-            options (Dict[str, Any], optional): Additional options, defaults to None.
-
-        Returns:
-            Dict[str, Any]: Configuration options for the FixedAllocator.
-        """
-        options = super().get_config_options(config=config, name=name, options=options)
-
-        options["points"] = config.gettensor("FixedAllocator", "points")
-
-        return options
