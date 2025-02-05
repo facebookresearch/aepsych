@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import time
+from abc import abstractmethod
 from copy import deepcopy
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
@@ -20,7 +21,7 @@ from botorch.fit import fit_gpytorch_mll, fit_gpytorch_mll_scipy
 from botorch.models.gpytorch import GPyTorchModel
 from botorch.posteriors import TransformedPosterior
 from gpytorch.mlls import MarginalLogLikelihood
-
+from torch.nn import Module
 
 logger = getLogger()
 
@@ -132,45 +133,42 @@ class AEPsychMixin(GPyTorchModel, ConfigurableMixin):
         Returns:
             Dict[str, Any]: a dictionary of the search criteria described in the experiment's config
         """
-        options = options or {}
+        # NOTE: This get_config_options implies there should be an __init__ in this base
+        # class, but because the exact order of superclasses in this class's
+        # subclasses is very particular to ensure the MRO is exactly right, we cannot
+        # have a __init__ here. Expect the arguments, dim, mean_module, covar_module,
+        # likelihood, max_fit_time, and options. Look at subclasses for typing.
+
+        options = super().get_config_options(config=config, name=name, options=options)
 
         name = name or cls.__name__
 
-        dim = config.getint(name, "dim", fallback=None)
-        if dim is None:
-            dim = get_dims(config)
+        # Missing dims
+        if "dim" not in options:
+            options["dim"] = get_dims(config)
 
-        mean_covar_factory = config.getobj(
-            name, "mean_covar_factory", fallback=default_mean_covar_factory
-        )
+        # Missing mean/covar modules
+        if (
+            options.get("mean_module", None) is None
+            and options.get("mean_module", None) is None
+        ):
+            # Get the factory
+            mean_covar_factory = config.getobj(
+                name, "mean_covar_factory", fallback=default_mean_covar_factory
+            )
 
-        mean, covar = mean_covar_factory(
-            config, stimuli_per_trial=cls.stimuli_per_trial
-        )
-        max_fit_time = config.getfloat(name, "max_fit_time", fallback=None)
+            mean_module, covar_module = mean_covar_factory(
+                config, stimuli_per_trial=cls.stimuli_per_trial
+            )
 
-        likelihood_cls = config.getobj(name, "likelihood", fallback=None)
+            options["mean_module"] = mean_module
+            options["covar_module"] = covar_module
 
-        if likelihood_cls is not None:
-            if hasattr(likelihood_cls, "from_config"):
-                likelihood = likelihood_cls.from_config(config)
-            else:
-                likelihood = likelihood_cls()
-        else:
-            likelihood = None  # fall back to __init__ default
+        if "likelihood" in options and isinstance(options["likelihood"], type):
+            options["likelihood"] = options["likelihood"]()  # Initialize it
 
-        optimizer_options = get_optimizer_options(config, name)
-
-        options.update(
-            {
-                "dim": dim,
-                "mean_module": mean,
-                "covar_module": covar,
-                "max_fit_time": max_fit_time,
-                "likelihood": likelihood,
-                "optimizer_options": optimizer_options,
-            }
-        )
+        # Get optimize options, this is necessarily bespoke
+        options["optimizer_options"] = get_optimizer_options(config, name)
 
         return options
 
