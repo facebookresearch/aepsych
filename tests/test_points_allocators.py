@@ -101,7 +101,9 @@ class TestInducingPointAllocators(unittest.TestCase):
 
         self.assertIs(model.inducing_point_method.last_allocator_used, KMeansAllocator)
         inducing_points = model.variational_strategy.inducing_points
-        self.assertTrue(inducing_points.shape == (9, 2))
+        self.assertTrue(
+            inducing_points.shape == (9, 2), f"shape is {inducing_points.shape}"
+        )
         # We made ints, so mod 1 should be 0s, so we know these were the original inputs
         self.assertTrue(torch.all(inducing_points % 1 == 0))
 
