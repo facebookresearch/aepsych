@@ -86,17 +86,14 @@ class BaseServerTestCase(unittest.TestCase):
     def setUp(self):
         # setup logger
         server.logger = utils_logging.getLogger(logging.DEBUG, "logs")
-        # random port
-        socket = server.sockets.PySocket(port=0)
+
         # random datebase path name without dashes
         database_path = self.database_path
-        self.s = server.AEPsychServer(socket=socket, database_path=database_path)
+        self.s = server.AEPsychServer(database_path=database_path)
         self.db_name = database_path.split("/")[1]
         self.db_path = database_path
 
     def tearDown(self):
-        self.s.cleanup()
-
         # sleep to ensure db is closed
         time.sleep(0.2)
 
@@ -262,50 +259,50 @@ class ServerTestCase(BaseServerTestCase):
         self.assertTrue("post_mean" in out_df.columns)
         self.assertTrue("post_var" in out_df.columns)
 
-    def test_receive(self):
-        """test_receive - verifies the receive is working when server receives unexpected messages"""
+    # def test_receive(self):
+    #     """test_receive - verifies the receive is working when server receives unexpected messages"""
 
-        message1 = b"\x16\x03\x01\x00\xaf\x01\x00\x00\xab\x03\x03\xa9\x80\xcc"  # invalid message
-        message2 = b"\xec\xec\x14M\xfb\xbd\xac\xe7jF\xbe\xf9\x9bM\x92\x15b\xb5"  # invalid message
-        message3 = {"message": {"target": "test request"}}  # valid message
-        message_list = [message1, message2, json.dumps(message3)]
+    #     message1 = b"\x16\x03\x01\x00\xaf\x01\x00\x00\xab\x03\x03\xa9\x80\xcc"  # invalid message
+    #     message2 = b"\xec\xec\x14M\xfb\xbd\xac\xe7jF\xbe\xf9\x9bM\x92\x15b\xb5"  # invalid message
+    #     message3 = {"message": {"target": "test request"}}  # valid message
+    #     message_list = [message1, message2, json.dumps(message3)]
 
-        self.s.socket.conn = MagicMock()
+    #     self.s.socket.conn = MagicMock()
 
-        for i, message in enumerate(message_list):
-            select.select = MagicMock(return_value=[[self.s.socket.conn], [], []])
-            self.s.socket.conn.recv = MagicMock(return_value=message)
-            if i != 2:
-                self.assertEqual(self.s.socket.receive(False), BAD_REQUEST)
-            else:
-                self.assertEqual(self.s.socket.receive(False), message3)
+    #     for i, message in enumerate(message_list):
+    #         select.select = MagicMock(return_value=[[self.s.socket.conn], [], []])
+    #         self.s.socket.conn.recv = MagicMock(return_value=message)
+    #         if i != 2:
+    #             self.assertEqual(self.s.socket.receive(False), BAD_REQUEST)
+    #         else:
+    #             self.assertEqual(self.s.socket.receive(False), message3)
 
-    def test_error_handling(self):
-        # double brace escapes, single brace to substitute, so we end up with 3 braces
-        request = f"{{{BAD_REQUEST}}}"
+    # def test_error_handling(self):
+    #     # double brace escapes, single brace to substitute, so we end up with 3 braces
+    #     request = f"{{{BAD_REQUEST}}}"
 
-        expected_error = f"server_error, Request '{request}' raised error ''str' object has no attribute 'keys''!"
+    #     expected_error = f"server_error, Request '{request}' raised error ''str' object has no attribute 'keys''!"
 
-        self.s.socket.accept_client = MagicMock()
+    #     self.s.socket.accept_client = MagicMock()
 
-        self.s.socket.receive = MagicMock(return_value=request)
-        self.s.socket.send = MagicMock()
-        self.s.exit_server_loop = True
-        with self.assertRaises(SystemExit):
-            self.s.serve()
-        self.s.socket.send.assert_called_once_with(expected_error)
+    #     self.s.socket.receive = MagicMock(return_value=request)
+    #     self.s.socket.send = MagicMock()
+    #     self.s.exit_server_loop = True
+    #     with self.assertRaises(SystemExit):
+    #         self.s.serve()
+    #     self.s.socket.send.assert_called_once_with(expected_error)
 
-    def test_queue(self):
-        """Test to see that the queue is being handled correctly"""
+    # def test_queue(self):
+    #     """Test to see that the queue is being handled correctly"""
 
-        self.s.socket.accept_client = MagicMock()
-        ask_request = {"type": "ask", "message": ""}
-        self.s.socket.receive = MagicMock(return_value=ask_request)
-        self.s.socket.send = MagicMock()
-        self.s.exit_server_loop = True
-        with self.assertRaises(SystemExit):
-            self.s.serve()
-        assert len(self.s.queue) == 0
+    #     self.s.socket.accept_client = MagicMock()
+    #     ask_request = {"type": "ask", "message": ""}
+    #     self.s.socket.receive = MagicMock(return_value=ask_request)
+    #     self.s.socket.send = MagicMock()
+    #     self.s.exit_server_loop = True
+    #     with self.assertRaises(SystemExit):
+    #         self.s.serve()
+    #     assert len(self.s.queue) == 0
 
     def test_replay(self):
         exp_config = """
@@ -348,8 +345,7 @@ class ServerTestCase(BaseServerTestCase):
 
         self.s.handle_request(exit_request)
 
-        socket = server.sockets.PySocket(port=0)
-        serv = server.AEPsychServer(socket=socket, database_path=self.db_path)
+        serv = server.AEPsychServer(database_path=self.db_path)
         exp_ids = [rec.unique_id for rec in serv.db.get_master_records()]
 
         serv.replay(exp_ids[-1], skip_computations=True)

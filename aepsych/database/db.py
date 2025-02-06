@@ -19,7 +19,7 @@ import pandas as pd
 from aepsych.config import Config
 from aepsych.strategy import Strategy
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.orm.session import close_all_sessions
 
 logger = logging.getLogger()
@@ -45,33 +45,22 @@ class Database:
         else:
             logger.info(f"No DB found at {db_path}, creating a new DB!")
 
-        self._engine = self.get_engine()
+        self._full_db_path = Path(self._db_dir)
+        self._full_db_path.mkdir(parents=True, exist_ok=True)
+        self._full_db_path = self._full_db_path.joinpath(self._db_name)
+
+        self._engine = create_engine(f"sqlite:///{self._full_db_path.as_posix()}")
+
+        # create the table metadata and tables
+        tables.Base.metadata.create_all(self._engine)
+
+        # Create a session to be start and closed on each use
+        self.session = scoped_session(
+            sessionmaker(bind=self._engine, expire_on_commit=False)
+        )
 
         if update and self.is_update_required():
             self.perform_updates()
-
-    def get_engine(self) -> sessionmaker:
-        """Get the engine for the database.
-
-        Returns:
-            sessionmaker: The sessionmaker object for the database.
-        """
-        if not hasattr(self, "_engine") or self._engine is None:
-            self._full_db_path = Path(self._db_dir)
-            self._full_db_path.mkdir(parents=True, exist_ok=True)
-            self._full_db_path = self._full_db_path.joinpath(self._db_name)
-
-            self._engine = create_engine(f"sqlite:///{self._full_db_path.as_posix()}")
-
-            # create the table metadata and tables
-            tables.Base.metadata.create_all(self._engine)
-
-            # create an ongoing session to be used. Provides a conduit
-            # to the db so the instantiated objects work properly.
-            Session = sessionmaker(bind=self.get_engine())
-            self._session = Session()
-
-        return self._engine
 
     def delete_db(self) -> None:
         """Delete the database."""
@@ -106,21 +95,6 @@ class Database:
         tables.DbParamTable.update(self._engine)
         tables.DbOutcomeTable.update(self._engine)
 
-    @contextmanager
-    def session_scope(self):
-        """Provide a transactional scope around a series of operations."""
-        Session = sessionmaker(bind=self.get_engine())
-        session = Session()
-        try:
-            yield session
-            session.commit()
-        except Exception as err:
-            logger.error(f"db session use failed: {err}")
-            session.rollback()
-            raise
-        finally:
-            session.close()
-
     # @retry(stop_max_attempt_number=8, wait_exponential_multiplier=1.8)
     def execute_sql_query(self, query: str, vals: Dict[str, str]) -> List[Any]:
         """Execute an arbitrary query written in sql.
@@ -132,7 +106,7 @@ class Database:
         Returns:
             List[Any]: The results of the query.
         """
-        with self.session_scope() as session:
+        with self.session() as session:
             return session.execute(query, vals).all()
 
     def get_master_records(self) -> List[tables.DBMasterTable]:
@@ -141,7 +115,8 @@ class Database:
         Returns:
             List[tables.DBMasterTable]: The list of master records.
         """
-        records = self._session.query(tables.DBMasterTable).all()
+        with self.session() as session:
+            records = session.query(tables.DBMasterTable).all()
         return records
 
     def get_master_record(self, master_id: int) -> Optional[tables.DBMasterTable]:
@@ -153,11 +128,12 @@ class Database:
         Returns:
             tables.DBMasterTable or None: The master record or None if it doesn't exist.
         """
-        records = (
-            self._session.query(tables.DBMasterTable)
-            .filter(tables.DBMasterTable.unique_id == master_id)
-            .all()
-        )
+        with self.session as session:
+            records = (
+                session.query(tables.DBMasterTable)
+                .filter(tables.DBMasterTable.unique_id == master_id)
+                .all()
+            )
 
         if 0 < len(records):
             return records[0]
@@ -290,6 +266,13 @@ class Database:
 
         return []
 
+    @staticmethod
+    def _add_commit(session, obj):
+        # Helps guarantee duplicated objects across session can still be written
+        merged = session.merge(obj)
+        session.add(merged)
+        session.commit()
+
     def record_setup(
         self,
         description: str = None,
@@ -312,33 +295,35 @@ class Database:
         Returns:
             str: The experiment id.
         """
-        self.get_engine()
+        with self.session() as session:
 
-        master_table = tables.DBMasterTable()
-        master_table.experiment_description = description
-        master_table.experiment_name = name
-        master_table.experiment_id = exp_id if exp_id is not None else str(uuid.uuid4())
-        master_table.participant_id = (
-            par_id if par_id is not None else str(uuid.uuid4())
-        )
-        master_table.extra_metadata = extra_metadata
-        self._session.add(master_table)
+            master_table = tables.DBMasterTable()
+            master_table.experiment_description = description
+            master_table.experiment_name = name
+            master_table.experiment_id = (
+                exp_id if exp_id is not None else str(uuid.uuid4())
+            )
+            master_table.participant_id = (
+                par_id if par_id is not None else str(uuid.uuid4())
+            )
+            master_table.extra_metadata = extra_metadata
 
-        logger.debug(f"record_setup = [{master_table}]")
+            session.add(master_table)
 
-        record = tables.DbReplayTable()
-        record.message_type = "setup"
-        record.message_contents = request
+            logger.debug(f"record_setup = [{master_table}]")
 
-        if request is not None and "extra_info" in request:
-            record.extra_info = request["extra_info"]
+            record = tables.DbReplayTable()
+            record.message_type = "setup"
+            record.message_contents = request
 
-        record.timestamp = datetime.datetime.now()
-        record.parent = master_table
-        logger.debug(f"record_setup = [{record}]")
+            if request is not None and "extra_info" in request:
+                record.extra_info = request["extra_info"]
 
-        self._session.add(record)
-        self._session.commit()
+            record.timestamp = datetime.datetime.now()
+            record.parent = master_table
+            logger.debug(f"record_setup = [{record}]")
+
+            self._add_commit(session, record)
 
         # return the master table if it has a link to the list of child rows
         # tis needs to be passed into all future calls to link properly
@@ -354,19 +339,19 @@ class Database:
             type (str): The type of the message.
             request (Dict[str, Any]): The request.
         """
-        # create a linked setup table
-        record = tables.DbReplayTable()
-        record.message_type = type
-        record.message_contents = request
+        with self.session() as session:
+            # create a linked setup table
+            record = tables.DbReplayTable()
+            record.message_type = type
+            record.message_contents = request
 
-        if "extra_info" in request:
-            record.extra_info = request["extra_info"]
+            if "extra_info" in request:
+                record.extra_info = request["extra_info"]
 
-        record.timestamp = datetime.datetime.now()
-        record.parent = master_table
+            record.timestamp = datetime.datetime.now()
+            record.parent = master_table
 
-        self._session.add(record)
-        self._session.commit()
+            self._add_commit(session, record)
 
     def record_raw(
         self,
@@ -386,19 +371,19 @@ class Database:
         Returns:
             tables.DbRawTable: The raw entry.
         """
-        raw_entry = tables.DbRawTable()
-        raw_entry.model_data = model_data
+        with self.session() as session:
+            raw_entry = tables.DbRawTable()
+            raw_entry.model_data = model_data
 
-        if timestamp is None:
-            raw_entry.timestamp = datetime.datetime.now()
-        else:
-            raw_entry.timestamp = timestamp
-        raw_entry.parent = master_table
+            if timestamp is None:
+                raw_entry.timestamp = datetime.datetime.now()
+            else:
+                raw_entry.timestamp = timestamp
+            raw_entry.parent = master_table
 
-        raw_entry.extra_data = json.dumps(extra_data)
+            raw_entry.extra_data = json.dumps(extra_data)
 
-        self._session.add(raw_entry)
-        self._session.commit()
+            self._add_commit(session, raw_entry)
 
         return raw_entry
 
@@ -412,14 +397,14 @@ class Database:
             param_name (str): The parameter name.
             param_value (str): The parameter value.
         """
-        param_entry = tables.DbParamTable()
-        param_entry.param_name = param_name
-        param_entry.param_value = param_value
+        with self.session() as session:
+            param_entry = tables.DbParamTable()
+            param_entry.param_name = param_name
+            param_entry.param_value = param_value
 
-        param_entry.parent = raw_table
+            param_entry.parent = raw_table
 
-        self._session.add(param_entry)
-        self._session.commit()
+            self._add_commit(session, param_entry)
 
     def record_outcome(
         self, raw_table: tables.DbRawTable, outcome_name: str, outcome_value: float
@@ -431,14 +416,14 @@ class Database:
             outcome_name (str): The outcome name.
             outcome_value (float): The outcome value.
         """
-        outcome_entry = tables.DbOutcomeTable()
-        outcome_entry.outcome_name = outcome_name
-        outcome_entry.outcome_value = outcome_value
+        with self.session() as session:
+            outcome_entry = tables.DbOutcomeTable()
+            outcome_entry.outcome_name = outcome_name
+            outcome_entry.outcome_value = outcome_value
 
-        outcome_entry.parent = raw_table
+            outcome_entry.parent = raw_table
 
-        self._session.add(outcome_entry)
-        self._session.commit()
+            self._add_commit(session, outcome_entry)
 
     def record_strat(self, master_table: tables.DBMasterTable, strat: Strategy) -> None:
         """Record a strategy in the database.
@@ -447,13 +432,13 @@ class Database:
             master_table (tables.DBMasterTable): The master table.
             strat (Strategy): The strategy.
         """
-        strat_entry = tables.DbStratTable()
-        strat_entry.strat = strat
-        strat_entry.timestamp = datetime.datetime.now()
-        strat_entry.parent = master_table
+        with self.session() as session:
+            strat_entry = tables.DbStratTable()
+            strat_entry.strat = strat
+            strat_entry.timestamp = datetime.datetime.now()
+            strat_entry.parent = master_table
 
-        self._session.add(strat_entry)
-        self._session.commit()
+            self._add_commit(session, strat_entry)
 
     def record_config(self, master_table: tables.DBMasterTable, config: Config) -> None:
         """Record a config in the database.
@@ -462,13 +447,13 @@ class Database:
             master_table (tables.DBMasterTable): The master table.
             config (Config): The config.
         """
-        config_entry = tables.DbConfigTable()
-        config_entry.config = config
-        config_entry.timestamp = datetime.datetime.now()
-        config_entry.parent = master_table
+        with self.session() as session:
+            config_entry = tables.DbConfigTable()
+            config_entry.config = config
+            config_entry.timestamp = datetime.datetime.now()
+            config_entry.parent = master_table
 
-        self._session.add(config_entry)
-        self._session.commit()
+            self._add_commit(session, config_entry)
 
     def summarize_experiments(self) -> pd.DataFrame:
         """Provides a summary of the experiments contained in the database as a pandas dataframe.
