@@ -12,6 +12,29 @@ import os
 logger = logging.getLogger()
 
 
+class ColorFormatter(logging.Formatter):
+    grey = "\x1b[0;30m"
+    white = "\x1b[0;37m"
+    yellow = "\x1b[33;20m"
+    red = "\x1b[31;20m"
+    bold_red = "\x1b[31;1m"
+    reset = "\x1b[0m"
+    my_format = "%(asctime)-15s [%(levelname)-7s] %(message)s"
+
+    FORMATS = {
+        logging.DEBUG: reset + grey + my_format,
+        logging.INFO: reset + white + my_format,
+        logging.WARNING: reset + yellow + my_format,
+        logging.ERROR: reset + red + my_format,
+        logging.CRITICAL: reset + bold_red + my_format,
+    }
+
+    def format(self, record):
+        log_fmt = self.FORMATS.get(record.levelno)
+        formatter = logging.Formatter(log_fmt)
+        return formatter.format(record)
+
+
 def getLogger(level=logging.INFO, log_path: str = "logs") -> logging.Logger:
     """Get a logger with the specified level and log path.
 
@@ -22,13 +45,12 @@ def getLogger(level=logging.INFO, log_path: str = "logs") -> logging.Logger:
     Returns:
         logger: a logger object.
     """
-    my_format = "%(asctime)-15s [%(levelname)-7s] %(message)s"
     os.makedirs(log_path, exist_ok=True)
 
     logging_config = {
         "version": 1,
         "disable_existing_loggers": True,
-        "formatters": {"standard": {"format": my_format}},
+        "formatters": {"standard": {"()": ColorFormatter}},
         "handlers": {
             "default": {
                 "level": level,
@@ -38,7 +60,7 @@ def getLogger(level=logging.INFO, log_path: str = "logs") -> logging.Logger:
             "file": {
                 "class": "logging.FileHandler",
                 "level": logging.DEBUG,
-                "filename": f"{log_path}/bayes_opt_server.log",
+                "filename": f"{log_path}/aepsych_server.log",
                 "formatter": "standard",
             },
         },
