@@ -19,184 +19,18 @@ from botorch.fit import fit_gpytorch_mll, fit_gpytorch_mll_scipy
 from botorch.models.gpytorch import GPyTorchModel
 from botorch.posteriors import TransformedPosterior
 from gpytorch.mlls import MarginalLogLikelihood
-from torch.nn import Module
 
 logger = getLogger()
 
 
-class AEPsychMixin(GPyTorchModel, ConfigurableMixin):
+class AEPsychModelMixin(GPyTorchModel, ConfigurableMixin):
     """Mixin class that provides AEPsych-specific utility methods."""
 
     extremum_solver = "Nelder-Mead"
     outcome_types: List[str] = []
-    train_inputs: Optional[Tuple[torch.Tensor]]
-    train_targets: Optional[torch.Tensor]
-    stimuli_per_trial: int = 1
-
-    def set_train_data(
-        self,
-        inputs: Optional[torch.Tensor] = None,
-        targets: Optional[torch.Tensor] = None,
-        strict: bool = False,
-    ):
-        """
-        Set the training data for the model.
-
-        Args:
-            inputs (torch.Tensor, optional):  The new training inputs.
-            targets (torch.Tensor, optional): The new training targets.
-            strict (bool):  Default is False. Ignored, just for compatibility.
-
-        input transformers. TODO: actually use this arg or change input transforms
-        to not require it.
-        """
-        if inputs is not None:
-            self.train_inputs = (inputs,)
-
-        if targets is not None:
-            self.train_targets = targets
-
-    def forward(self, x: torch.Tensor) -> gpytorch.distributions.MultivariateNormal:
-        """Evaluate GP
-
-        Args:
-            x (torch.Tensor): Tensor of points at which GP should be evaluated.
-
-        Returns:
-            gpytorch.distributions.MultivariateNormal: Distribution object
-                holding mean and covariance at x.
-        """
-        mean_x = self.mean_module(x)
-        covar_x = self.covar_module(x)
-        pred = gpytorch.distributions.MultivariateNormal(mean_x, covar_x)
-        return pred
-
-    def _fit_mll(
-        self,
-        mll: MarginalLogLikelihood,
-        optimizer_kwargs: Optional[Dict[str, Any]] = None,
-        optimizer: Callable = fit_gpytorch_mll_scipy,
-        **kwargs,
-    ) -> None:
-        """Fits the model by maximizing the marginal log likelihood.
-
-        Args:
-            mll (MarginalLogLikelihood): Marginal log likelihood object.
-            optimizer_kwargs (Dict[str, Any], optional): Keyword arguments for the optimizer.
-            optimizer (Callable): Optimizer to use. Defaults to fit_gpytorch_mll_scipy.
-        """
-        self.train()
-        train_x, train_y = mll.model.train_inputs[0], mll.model.train_targets
-        optimizer_kwargs = {} if optimizer_kwargs is None else optimizer_kwargs.copy()
-        max_fit_time = kwargs.pop("max_fit_time", self.max_fit_time)
-        if max_fit_time is not None:
-            if "options" not in optimizer_kwargs:
-                optimizer_kwargs["options"] = {}
-
-            # figure out how long evaluating a single samp
-            starttime = time.time()
-            _ = mll(self(train_x), train_y)
-            single_eval_time = (
-                time.time() - starttime + 1e-6
-            )  # add an epsilon to avoid divide by zero
-            n_eval = int(max_fit_time / single_eval_time)
-
-            optimizer_kwargs["options"]["maxfun"] = n_eval
-            logger.info(f"fit maxfun is {n_eval}")
-
-        starttime = time.time()
-        res = fit_gpytorch_mll(
-            mll, optimizer=optimizer, optimizer_kwargs=optimizer_kwargs, **kwargs
-        )
-        return res
-
-    @classmethod
-    def get_config_options(
-        cls,
-        config: Config,
-        name: Optional[str] = None,
-        options: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
-        """.
-
-        Args:
-            config (Config): Config to look for options in.
-            name (str, optional): The name of the strategy to warm start (Not actually optional here.)
-            options (Dict[str, Any], optional): options are ignored.
-
-        Raises:
-            ValueError: the name of the strategy is necessary to identify warm start search criteria.
-            KeyError: the config specified this strategy should be warm started but the associated config section wasn't defined.
-
-        Returns:
-            Dict[str, Any]: a dictionary of the search criteria described in the experiment's config
-        """
-        # NOTE: This get_config_options implies there should be an __init__ in this base
-        # class, but because the exact order of superclasses in this class's
-        # subclasses is very particular to ensure the MRO is exactly right, we cannot
-        # have a __init__ here. Expect the arguments, dim, mean_module, covar_module,
-        # likelihood, max_fit_time, and options. Look at subclasses for typing.
-
-        options = super().get_config_options(config=config, name=name, options=options)
-
-        name = name or cls.__name__
-
-        # Missing dims
-        if "dim" not in options:
-            options["dim"] = get_dims(config)
-
-        # Missing mean/covar modules
-        if (
-            options.get("mean_module", None) is None
-            and options.get("mean_module", None) is None
-        ):
-            # Get the factory
-            mean_covar_factory = config.getobj(
-                name, "mean_covar_factory", fallback=default_mean_covar_factory
-            )
-
-            mean_module, covar_module = mean_covar_factory(
-                config, stimuli_per_trial=cls.stimuli_per_trial
-            )
-
-            options["mean_module"] = mean_module
-            options["covar_module"] = covar_module
-
-        if "likelihood" in options and isinstance(options["likelihood"], type):
-            options["likelihood"] = options["likelihood"]()  # Initialize it
-
-        # Get optimize options, this is necessarily bespoke
-        options["optimizer_options"] = get_optimizer_options(config, name)
-
-        return options
-
-
-class AEPsychModelDeviceMixin(AEPsychMixin):
     _train_inputs: Optional[Tuple[torch.Tensor]]
     _train_targets: Optional[torch.Tensor]
-
-    def set_train_data(
-        self,
-        inputs: Optional[torch.Tensor] = None,
-        targets: Optional[torch.Tensor] = None,
-        strict: bool = False,
-    ) -> None:
-        """Set the training data for the model.
-
-        Args:
-            inputs (torch.Tensor, optional): The new training inputs X.
-            targets (torch.Tensor, optional): The new training targets Y.
-            strict (bool): Whether to strictly enforce the device of the inputs and targets.
-
-        input transformers. TODO: actually use this arg or change input transforms
-        to not require it.
-        """
-        # Move to same device to ensure the right device
-        if inputs is not None:
-            self._train_inputs = (inputs.to(self.device),)
-
-        if targets is not None:
-            self._train_targets = targets.to(self.device)
+    stimuli_per_trial: int = 1
 
     @property
     def device(self) -> torch.device:
@@ -267,14 +101,95 @@ class AEPsychModelDeviceMixin(AEPsychMixin):
         else:
             self._train_targets = train_targets.to(self.device)
 
+    def forward(self, x: torch.Tensor) -> gpytorch.distributions.MultivariateNormal:
+        """Evaluate GP
+
+        Args:
+            x (torch.Tensor): Tensor of points at which GP should be evaluated.
+
+        Returns:
+            gpytorch.distributions.MultivariateNormal: Distribution object
+                holding mean and covariance at x.
+        """
+        mean_x = self.mean_module(x)
+        covar_x = self.covar_module(x)
+        pred = gpytorch.distributions.MultivariateNormal(mean_x, covar_x)
+        return pred
+
+    def _fit_mll(
+        self,
+        mll: MarginalLogLikelihood,
+        optimizer_kwargs: Optional[Dict[str, Any]] = None,
+        optimizer: Callable = fit_gpytorch_mll_scipy,
+        **kwargs,
+    ) -> None:
+        """Fits the model by maximizing the marginal log likelihood.
+
+        Args:
+            mll (MarginalLogLikelihood): Marginal log likelihood object.
+            optimizer_kwargs (Dict[str, Any], optional): Keyword arguments for the optimizer.
+            optimizer (Callable): Optimizer to use. Defaults to fit_gpytorch_mll_scipy.
+        """
+        self.train()
+        train_x, train_y = mll.model.train_inputs[0], mll.model.train_targets
+        optimizer_kwargs = {} if optimizer_kwargs is None else optimizer_kwargs.copy()
+        max_fit_time = kwargs.pop("max_fit_time", self.max_fit_time)
+        if max_fit_time is not None:
+            if "options" not in optimizer_kwargs:
+                optimizer_kwargs["options"] = {}
+
+            # figure out how long evaluating a single samp
+            starttime = time.time()
+            _ = mll(self(train_x), train_y)
+            single_eval_time = (
+                time.time() - starttime + 1e-6
+            )  # add an epsilon to avoid divide by zero
+            n_eval = int(max_fit_time / single_eval_time)
+
+            optimizer_kwargs["options"]["maxfun"] = n_eval
+            logger.info(f"fit maxfun is {n_eval}")
+
+        starttime = time.time()
+        res = fit_gpytorch_mll(
+            mll, optimizer=optimizer, optimizer_kwargs=optimizer_kwargs, **kwargs
+        )
+        return res
+
+    def set_train_data(
+        self,
+        inputs: Optional[torch.Tensor] = None,
+        targets: Optional[torch.Tensor] = None,
+        strict: bool = False,
+    ) -> None:
+        """Set the training data for the model.
+
+        Args:
+            inputs (torch.Tensor, optional): The new training inputs X.
+            targets (torch.Tensor, optional): The new training targets Y.
+            strict (bool): Whether to strictly enforce the device of the inputs and targets.
+
+        input transformers. TODO: actually use this arg or change input transforms
+        to not require it.
+        """
+        # Move to same device to ensure the right device
+        if inputs is not None:
+            self._train_inputs = (inputs.to(self.device),)
+
+        if targets is not None:
+            self._train_targets = targets.to(self.device)
+
     def predict(
         self,
         x: torch.Tensor,
+        *args,
+        **kwargs,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """Query the model for posterior mean and variance.
 
         Args:
             x (torch.Tensor): Points at which to predict from the model.
+            *args: Positional arguments for model-specific predict args.
+            **kwargs: Keyword arguments for model-specific predict kwargs.
 
         Returns:
             Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at queries points.
@@ -285,7 +200,7 @@ class AEPsychModelDeviceMixin(AEPsychMixin):
             mean = post.mean.squeeze()
             var = post.variance.squeeze()
 
-        return promote_0d(mean.to(self.device)), promote_0d(var.to(self.device))
+        return mean.to(self.device), var.to(self.device)
 
     def predict_transform(
         self,
@@ -338,3 +253,65 @@ class AEPsychModelDeviceMixin(AEPsychMixin):
             train_y (torch.Tensor): Responses.
         """
         return self.fit(train_x, train_y, **kwargs)
+
+    @classmethod
+    def get_config_options(
+        cls,
+        config: Config,
+        name: Optional[str] = None,
+        options: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        """.
+
+        Args:
+            config (Config): Config to look for options in.
+            name (str, optional): The name of the strategy to warm start (Not actually optional here.)
+            options (Dict[str, Any], optional): options are ignored.
+
+        Raises:
+            ValueError: the name of the strategy is necessary to identify warm start search criteria.
+            KeyError: the config specified this strategy should be warm started but the associated config section wasn't defined.
+
+        Returns:
+            Dict[str, Any]: a dictionary of the search criteria described in the experiment's config
+        """
+        name = name or cls.__name__
+        options = super().get_config_options(config, name, options)
+
+        dim = config.getint(name, "dim", fallback=None)
+        if dim is None:
+            dim = get_dims(config)
+
+        mean_covar_factory = config.getobj(
+            name, "mean_covar_factory", fallback=default_mean_covar_factory
+        )
+
+        mean, covar = mean_covar_factory(
+            config, stimuli_per_trial=cls.stimuli_per_trial
+        )
+        max_fit_time = config.getfloat(name, "max_fit_time", fallback=None)
+
+        likelihood_cls = config.getobj(name, "likelihood", fallback=None)
+
+        if likelihood_cls is not None:
+            if hasattr(likelihood_cls, "from_config"):
+                likelihood = likelihood_cls.from_config(config)
+            else:
+                likelihood = likelihood_cls()
+        else:
+            likelihood = None  # fall back to __init__ default
+
+        optimizer_options = get_optimizer_options(config, name)
+
+        options.update(
+            {
+                "dim": dim,
+                "mean_module": mean,
+                "covar_module": covar,
+                "max_fit_time": max_fit_time,
+                "likelihood": likelihood,
+                "optimizer_options": optimizer_options,
+            }
+        )
+
+        return options
