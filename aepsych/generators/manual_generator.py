@@ -11,7 +11,7 @@ from typing import Any, Dict, Optional
 import torch
 from aepsych.config import Config
 from aepsych.generators.base import AEPsychGenerator
-from aepsych.models.base import AEPsychMixin
+from aepsych.models.base import AEPsychModelMixin
 from aepsych.utils import _process_bounds
 from torch.quasirandom import SobolEngine
 
@@ -53,14 +53,14 @@ class ManualGenerator(AEPsychGenerator):
     def gen(
         self,
         num_points: int = 1,
-        model: Optional[AEPsychMixin] = None,  # included for API compatibility
+        model: Optional[AEPsychModelMixin] = None,  # included for API compatibility
         fixed_features: Optional[Dict[int, float]] = None,
         **kwargs,  # Ignored
     ) -> torch.Tensor:
         """Query next point(s) to run by quasi-randomly sampling the parameter space.
         Args:
             num_points (int): Number of points to query. Defaults to 1.
-            model (AEPsychMixin, optional): Model to use for generating points. Not used in this generator. Defaults to None.
+            model (AEPsychModelMixin, optional): Model to use for generating points. Not used in this generator. Defaults to None.
             fixed_features (Dict[int, float], optional): Ignored, kept for consistent
                 API.
             **kwargs: Ignored, API compatibility
