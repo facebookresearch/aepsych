@@ -14,7 +14,7 @@ from aepsych.acquisition import MCLevelSetEstimation
 from aepsych.acquisition.lookahead import LookaheadAcquisitionFunction
 from aepsych.config import Config
 from aepsych.generators.base import AcqfGenerator
-from aepsych.models.model_protocol import ModelProtocol
+from aepsych.models.base import AEPsychModelMixin
 from aepsych.utils_logging import getLogger
 from botorch.acquisition import AcquisitionFunction
 from botorch.optim import optimize_acqf
@@ -60,14 +60,14 @@ class OptimizeAcqfGenerator(AcqfGenerator):
     def gen(
         self,
         num_points: int,
-        model: ModelProtocol,
+        model: AEPsychModelMixin,
         fixed_features: Optional[Dict[int, float]] = None,
         **gen_options,
     ) -> torch.Tensor:
         """Query next point(s) to run by optimizing the acquisition function.
         Args:
             num_points (int): Number of points to query.
-            model (ModelProtocol): Fitted model of the data.
+            model (AEPsychModelMixin): Fitted model of the data.
             fixed_features (Dict[int, float], optional): The values where the specified
                 parameters should be at when generating. Should be a dictionary where
                 the keys are the indices of the parameters to fix and the values are the
@@ -116,7 +116,7 @@ class OptimizeAcqfGenerator(AcqfGenerator):
     def _gen(
         self,
         num_points: int,
-        model: ModelProtocol,
+        model: AEPsychModelMixin,
         acqf: AcquisitionFunction,
         fixed_features: Optional[Dict[int, float]] = None,
         **gen_options: Dict[str, Any],
@@ -126,7 +126,7 @@ class OptimizeAcqfGenerator(AcqfGenerator):
 
         Args:
             num_points (int): Number of points to query.
-            model (ModelProtocol): Fitted model of the data.
+            model (AEPsychModelMixin): Fitted model of the data.
             acqf (AcquisitionFunction): Acquisition function.
             fixed_features (Dict[int, float], optional): The values where the specified
                 parameters should be at when generating. Should be a dictionary where

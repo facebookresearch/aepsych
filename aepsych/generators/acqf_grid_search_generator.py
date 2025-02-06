@@ -10,11 +10,10 @@ from typing import Dict, Optional
 
 import numpy as np
 import torch
-from aepsych.models.model_protocol import ModelProtocol
+from aepsych.generators.grid_eval_acqf_generator import GridEvalAcqfGenerator
+from aepsych.models.base import AEPsychModelMixin
 from aepsych.utils_logging import getLogger
 from numpy.random import choice
-
-from .grid_eval_acqf_generator import GridEvalAcqfGenerator
 
 logger = getLogger()
 
@@ -25,7 +24,7 @@ class AcqfGridSearchGenerator(GridEvalAcqfGenerator):
     def _gen(
         self,
         num_points: int,
-        model: ModelProtocol,
+        model: AEPsychModelMixin,
         fixed_features: Optional[Dict[int, float]] = None,
         **gen_options,
     ) -> torch.Tensor:
@@ -34,7 +33,7 @@ class AcqfGridSearchGenerator(GridEvalAcqfGenerator):
 
         Args:
             num_points (int): The number of points to query.
-            model (ModelProtocol): The fitted model used to evaluate the acquisition function.
+            model (AEPsychModelMixin): The fitted model used to evaluate the acquisition function.
             fixed_features: (Dict[int, float], optional): Parameters that are fixed to specific values.
             gen_options (dict): Additional options for generating points, including:
                 - "seed": Random seed for reproducibility.

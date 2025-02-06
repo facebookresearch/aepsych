@@ -16,7 +16,6 @@ if "CI" in os.environ or "SANDCASTLE" in os.environ:
 
 import numpy as np
 from aepsych.config import Config
-from aepsych.models.monotonic_projection_gp import MonotonicProjectionGP
 from aepsych.transforms import ParameterTransformedModel
 from sklearn.datasets import make_classification
 
@@ -26,7 +25,7 @@ class MonotonicProjectionGPtest(unittest.TestCase):
         np.random.seed(1)
         torch.manual_seed(1)
         X, y = make_classification(
-            n_samples=25,
+            n_samples=100,
             n_features=3,
             n_redundant=0,
             n_informative=3,
@@ -53,7 +52,7 @@ class MonotonicProjectionGPtest(unittest.TestCase):
 
         [MonotonicProjectionGP]
         monotonic_dims = [0, 1]
-        inducing_size=10
+        inducing_size=100
 
         [default_mean_covar_factory]
         lengthscale_prior = gamma
@@ -61,6 +60,7 @@ class MonotonicProjectionGPtest(unittest.TestCase):
         """
         config = Config(config_str=config_str)
         model = ParameterTransformedModel.from_config(config, "MonotonicProjectionGP")
+        model.cuda()
         model.fit(X, y)
 
         # Check that it is monotonic in both dims
@@ -103,34 +103,6 @@ class MonotonicProjectionGPtest(unittest.TestCase):
         # And in samples
         samps = model.sample(Xtest, num_samples=10)
         self.assertTrue(samps.min().item() >= 4.9)
-
-    def test_from_config(self):
-        config_str = """
-        [common]
-        parnames = [x, y]
-        lb = [0, 0]
-        ub = [1, 1]
-        stimuli_per_trial = 1
-        outcome_types = [binary]
-
-        strategy_names = [init_strat]
-
-        [init_strat]
-        generator = OptimizeAcqfGenerator
-        model = MonotonicProjectionGP
-
-        [MonotonicProjectionGP]
-        monotonic_dims = [0]
-        monotonic_grid_size = 10
-        min_f_val = 0.1
-        """
-        config = Config(config_str=config_str)
-
-        model = MonotonicProjectionGP.from_config(config)
-
-        self.assertEqual(model.monotonic_dims, [0])
-        self.assertEqual(model.mon_grid_size, 10)
-        self.assertEqual(model.min_f_val, 0.1)
 
 
 if __name__ == "__main__":

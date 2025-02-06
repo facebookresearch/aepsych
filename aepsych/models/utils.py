@@ -11,7 +11,7 @@ from typing import Mapping, Optional, Tuple, Union
 
 import numpy as np
 import torch
-from aepsych.models.model_protocol import ModelProtocol
+from aepsych.models.base import AEPsychModelMixin
 from aepsych.utils import dim_grid, get_jnd_multid, promote_0d
 from botorch.acquisition import PosteriorMean
 from botorch.acquisition.objective import (
@@ -159,7 +159,7 @@ def get_extremum(
 
 
 def get_min(
-    model: ModelProtocol,
+    model: AEPsychModelMixin,
     bounds: torch.Tensor,
     locked_dims: Optional[Mapping[int, float]] = None,
     probability_space: bool = False,
@@ -168,7 +168,7 @@ def get_min(
 ) -> Tuple[float, torch.Tensor]:
     """Return the minimum of the modeled function, subject to constraints
     Args:
-        model (ModelProtocol): AEPsychModel to get the minimum of.
+        model (AEPsychModelMixin): AEPsychModel to get the minimum of.
         bounds (torch.Tensor): Bounds of the space to find the minimum.
         locked_dims (Mapping[int, float], optional): Dimensions to fix, so that the
             inverse is along a slice of the full surface.
@@ -193,7 +193,7 @@ def get_min(
 
 
 def get_max(
-    model: ModelProtocol,
+    model: AEPsychModelMixin,
     bounds: torch.Tensor,
     locked_dims: Optional[Mapping[int, float]] = None,
     probability_space: bool = False,
@@ -203,7 +203,7 @@ def get_max(
     """Return the maximum of the modeled function, subject to constraints
 
     Args:
-        model (ModelProtocol): AEPsychModel to get the maximum of.
+        model (AEPsychModelMixin): AEPsychModel to get the maximum of.
         bounds (torch.Tensor): Bounds of the space to find the maximum.
         locked_dims (Mapping[int, float], optional): Dimensions to fix, so that the
             inverse is along a slice of the full surface. Defaults to None.
@@ -228,7 +228,7 @@ def get_max(
 
 
 def inv_query(
-    model: ModelProtocol,
+    model: AEPsychModelMixin,
     y: Union[float, torch.Tensor],
     bounds: torch.Tensor,
     locked_dims: Optional[Mapping[int, float]] = None,
@@ -241,7 +241,7 @@ def inv_query(
     Return nearest x such that f(x) = queried y, and also return the
         value of f at that point.
     Args:
-        model (ModelProtocol): AEPsychModel to get the find the inverse from y.
+        model (AEPsychModelMixin): AEPsychModel to get the find the inverse from y.
         y (Union[float, torch.Tensor]): Points at which to find the inverse.
         bounds (torch.Tensor): Lower and upper bounds of the search space.
         locked_dims (Mapping[int, float], optional): Dimensions to fix, so that the
@@ -288,7 +288,7 @@ def inv_query(
 
 
 def get_jnd(
-    model: ModelProtocol,
+    model: AEPsychModelMixin,
     lb: torch.Tensor,
     ub: torch.Tensor,
     dim: int,
@@ -311,7 +311,7 @@ def get_jnd(
     Both definitions are equivalent for linear psychometric functions.
 
     Args:
-        model (ModelProtocol): Model to use for prediction.
+        model (AEPsychModelMixin): Model to use for prediction.
         lb (torch.Tensor): Lower bounds of the input space.
         ub (torch.Tensor): Upper bounds of the input space.
         dim (int): Dimensionality of the input space.
@@ -389,7 +389,7 @@ def get_jnd(
 
 
 def p_below_threshold(
-    model: ModelProtocol, x: torch.Tensor, f_thresh: torch.Tensor
+    model: AEPsychModelMixin, x: torch.Tensor, f_thresh: torch.Tensor
 ) -> torch.Tensor:
     """Compute the probability that the latent function is below a threshold.
 
@@ -417,7 +417,7 @@ def bernoulli_probit_prob_transform(mean: torch.Tensor, var: torch.Tensor):
         mean (torch.Tensor): The latent variance of a Bernoulli-probit model evaluated at a set of query points.
 
     Returns:
-        Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at queries points in probability space.
+        Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at query points in probability space.
     """
     fmean = mean.squeeze()
     fvar = var.squeeze()

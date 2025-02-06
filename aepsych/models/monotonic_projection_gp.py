@@ -176,14 +176,17 @@ class MonotonicProjectionGP(GPClassificationModel):
             # using numpy because torch doesn't support vectorized linspace,
             # pytorch/issues/61292
             grid: Union[np.ndarray, torch.Tensor] = np.linspace(
-                self.lb[dim],
-                X[:, dim].numpy(),
+                self.lb[dim].cpu().numpy(),
+                X[:, dim].cpu().numpy(),
                 s + 1,
             )  # (s+1 x n)
             grid = torch.tensor(grid[:-1, :], dtype=X.dtype)  # Drop x; (s x n)
             X_aug[(1 + i * s) : (1 + (i + 1) * s), :, dim] = grid
         # X_aug[0, :, :] is X, and then subsequent indices are points in the grids
         # Predict marginal distributions on X_aug
+
+        X = X.to(self.device)
+        X_aug = X_aug.to(self.device)
         with torch.no_grad():
             post_aug = super().posterior(X=X_aug)
         mu_aug = post_aug.mean.squeeze()  # (m*s+1 x n)
@@ -198,12 +201,13 @@ class MonotonicProjectionGP(GPClassificationModel):
         # Adjust the whole covariance matrix to accomadate the projected marginals
         with torch.no_grad():
             post = super().posterior(X=X)
-            R = cov2corr(post.distribution.covariance_matrix.squeeze().numpy())
-            S_proj = torch.tensor(corr2cov(R, sigma_proj.numpy()), dtype=X.dtype)
+            R = cov2corr(post.distribution.covariance_matrix.squeeze().cpu().numpy())
+            S_proj = torch.tensor(corr2cov(R, sigma_proj.cpu().numpy()), dtype=X.dtype)
         mvn_proj = gpytorch.distributions.MultivariateNormal(
-            mu_proj.unsqueeze(0),
-            S_proj.unsqueeze(0),
+            mu_proj.unsqueeze(0).to(self.device),
+            S_proj.unsqueeze(0).to(self.device),
         )
+
         return GPyTorchPosterior(mvn_proj)
 
     def sample(self, x: torch.Tensor, num_samples: int) -> torch.Tensor:

@@ -13,7 +13,7 @@ import gpytorch
 import torch
 from aepsych.config import Config
 from aepsych.factory.default import default_mean_covar_factory
-from aepsych.models.base import AEPsychModelDeviceMixin
+from aepsych.models.base import AEPsychModelMixin
 from aepsych.utils import get_dims, get_optimizer_options, promote_0d
 from aepsych.utils_logging import getLogger
 from gpytorch.likelihoods import GaussianLikelihood, Likelihood
@@ -22,7 +22,7 @@ from gpytorch.models import ExactGP
 logger = getLogger()
 
 
-class GPRegressionModel(AEPsychModelDeviceMixin, ExactGP):
+class GPRegressionModel(AEPsychModelMixin, ExactGP):
     """GP Regression model for continuous outcomes, using exact inference."""
 
     _num_outputs = 1

@@ -15,8 +15,7 @@ import numpy as np
 import torch
 from aepsych.config import Config, ConfigurableMixin
 from aepsych.generators.base import AcqfGenerator, AEPsychGenerator
-from aepsych.models.base import AEPsychMixin
-from aepsych.models.model_protocol import ModelProtocol
+from aepsych.models.base import AEPsychModelMixin
 from aepsych.transforms.ops import Fixed, Log10Plus, NormalizeScale, Round
 from aepsych.transforms.ops.base import Transform
 from aepsych.utils import get_bounds
@@ -377,7 +376,7 @@ class ParameterTransformedGenerator(ParameterTransformWrapper, ConfigurableMixin
     def gen(
         self,
         num_points: int = 1,
-        model: Optional[AEPsychMixin] = None,
+        model: Optional[AEPsychModelMixin] = None,
         fixed_features: Optional[Dict[int, float]] = None,
         **kwargs,
     ) -> torch.Tensor:
@@ -385,7 +384,7 @@ class ParameterTransformedGenerator(ParameterTransformWrapper, ConfigurableMixin
 
         Args:
             num_points (int): Number of points to query, defaults to 1.
-            model (AEPsychMixin, optional): The model to use to generate points, can be
+            model (AEPsychModelMixin, optional): The model to use to generate points, can be
                 None if no model is needed.
             fixed_features: (Dict[int, float], optional): Parameters that are fixed to specific values.
             **kwargs: Kwargs to pass to the generator's generator.
@@ -524,11 +523,11 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
     untransforms any outputs from the model back to raw parameter space.
     """
 
-    _base_obj: ModelProtocol
+    _base_obj: AEPsychModelMixin
 
     def __init__(
         self,
-        model: Union[Type, ModelProtocol],
+        model: Union[Type, AEPsychModelMixin],
         transforms: ChainedInputTransform = ChainedInputTransform(**{}),
         **kwargs: Any,
     ) -> None:
@@ -547,7 +546,7 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
         The object's name will be ParameterTransformed<Model.__name__>.
 
         Args:
-            model (Union[Type, ModelProtocol]): Model to wrap, this could either be a
+            model (Union[Type, AEPsychModelMixin]): Model to wrap, this could either be a
                 completely initialized model or just the model class. An initialized
                 model is expected to have been initialized in the transformed
                 parameter space (i.e., bounds are transformed). If a model class is
@@ -597,9 +596,7 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
         return wrapper
 
     @_promote_1d
-    def predict(
-        self, x: torch.Tensor, **kwargs
-    ) -> Union[torch.Tensor, Tuple[torch.Tensor]]:
+    def predict(self, x: torch.Tensor, **kwargs) -> Tuple[torch.Tensor, torch.Tensor]:
         """Query the model on its posterior given transformed x.
 
         Args:
@@ -608,7 +605,7 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
             **kwargs: Keyword arguments to pass to the model.predict() call.
 
         Returns:
-            Union[Tensor, Tuple[Tensor]]: At least one Tensor will be returned.
+            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at query points.
         """
         x = self.transforms.transform(x)
         return self._base_obj.predict(x, **kwargs)
@@ -616,7 +613,7 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
     @_promote_1d
     def predict_probability(
         self, x: torch.Tensor, **kwargs
-    ) -> Union[torch.Tensor, Tuple[torch.Tensor]]:
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
         """Query the model on its posterior given transformed x and return units in
         response probability space.
 
@@ -626,7 +623,7 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
             **kwargs: Keyword arguments to pass to the model.predict() call.
 
         Returns:
-            Union[Tensor, Tuple[Tensor]]: At least one Tensor will be returned.
+            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at query points.
         """
         x = self.transforms.transform(x)
         return self._base_obj.predict_probability(x, **kwargs)

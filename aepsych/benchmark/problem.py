@@ -9,7 +9,7 @@ from typing import Any, Dict, List, Union
 
 import numpy as np
 import torch
-from aepsych.models.model_protocol import ModelProtocol
+from aepsych.models.base import AEPsychModelMixin
 from aepsych.models.utils import p_below_threshold
 from aepsych.strategy import SequentialStrategy
 from aepsych.utils import make_scaled_sobol
@@ -78,11 +78,11 @@ class Problem:
         """
         return bernoulli.rvs(self.p(x))
 
-    def f_hat(self, model: ModelProtocol) -> torch.Tensor:
+    def f_hat(self, model: AEPsychModelMixin) -> torch.Tensor:
         """Generate mean predictions from the model over the evaluation grid.
 
         Args:
-            model (TensoModelProtocolr): Model to evaluate.
+            model (AEPsychModelMixin): Model to evaluate.
 
         Returns:
             torch.Tensor: Posterior mean from underlying model over the evaluation grid.
@@ -109,11 +109,11 @@ class Problem:
         normal_dist = torch.distributions.Normal(0, 1)
         return normal_dist.cdf(self.f_true)
 
-    def p_hat(self, model: ModelProtocol) -> torch.Tensor:
+    def p_hat(self, model: AEPsychModelMixin) -> torch.Tensor:
         """Generate mean predictions from the model over the evaluation grid.
 
         Args:
-            model (TensoModelProtocolr): Model to evaluate.
+            model (AEPsychModelMixin): Model to evaluate.
 
         Returns:
             torch.Tensor: Posterior mean from underlying model over the evaluation grid.
@@ -171,9 +171,9 @@ class Problem:
         # eval in samp-based expectation over posterior instead of just mean
         fsamps = model.sample(self.eval_grid, num_samples=1000)
         try:
-            psamps = (
-                model.sample(self.eval_grid, num_samples=1000, probability_space=True)  # type: ignore
-            )
+            psamps = model.sample(
+                self.eval_grid, num_samples=1000, probability_space=True
+            )  # type: ignore
         except (
             TypeError
         ):  # vanilla models don't have proba_space samps, TODO maybe we should add them

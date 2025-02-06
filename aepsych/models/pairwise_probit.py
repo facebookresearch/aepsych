@@ -11,7 +11,7 @@ import gpytorch
 import torch
 from aepsych.config import Config
 from aepsych.factory import default_mean_covar_factory
-from aepsych.models.base import AEPsychModelDeviceMixin
+from aepsych.models.base import AEPsychModelMixin
 from aepsych.utils import _process_bounds, get_dims, get_optimizer_options, promote_0d
 from aepsych.utils_logging import getLogger
 from botorch.fit import fit_gpytorch_mll
@@ -22,7 +22,7 @@ from torch.distributions import Normal
 logger = getLogger()
 
 
-class PairwiseProbitModel(PairwiseGP, AEPsychModelDeviceMixin):
+class PairwiseProbitModel(PairwiseGP, AEPsychModelMixin):
     _num_outputs = 1
     stimuli_per_trial = 2
     outcome_type = "binary"
@@ -184,7 +184,7 @@ class PairwiseProbitModel(PairwiseGP, AEPsychModelDeviceMixin):
             rereference (str): How to sample. Options are "x_min", "x_max", "f_min", "f_max". Defaults to "x_min".
 
         Returns:
-            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at queries points.
+            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at query points.
         """
         if rereference is not None:
             samps = self.sample(x, num_samples, rereference)
@@ -217,7 +217,7 @@ class PairwiseProbitModel(PairwiseGP, AEPsychModelDeviceMixin):
             rereference (str): How to sample. Options are "x_min", "x_max", "f_min", "f_max". Defaults to "x_min".
 
         Returns:
-            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at queries points.
+            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at query points.
         """
         return self.predict(
             x, probability_space=True, num_samples=num_samples, rereference=rereference
