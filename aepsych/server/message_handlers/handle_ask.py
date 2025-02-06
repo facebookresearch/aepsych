@@ -10,7 +10,7 @@ from collections.abc import Mapping
 
 import aepsych.utils_logging as utils_logging
 
-logger = utils_logging.getLogger(logging.INFO)
+logger = utils_logging.getLogger()
 
 
 def handle_ask(server, request):

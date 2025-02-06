@@ -13,7 +13,7 @@ import sys
 import aepsych.database.db as db
 import aepsych.utils_logging as utils_logging
 
-logger = utils_logging.getLogger(logging.INFO)
+logger = utils_logging.getLogger()
 
 
 def get_next_filename(folder, fname, ext):
