@@ -10,7 +10,7 @@ from collections.abc import Mapping
 
 import aepsych.utils_logging as utils_logging
 
-logger = utils_logging.getLogger(logging.INFO)
+logger = utils_logging.getLogger()
 
 
 def handle_ask(server, request):
@@ -18,7 +18,7 @@ def handle_ask(server, request):
     "config" -- dictionary with config (keys are strings, values are floats)
     "is_finished" -- bool, true if the strat is finished
     """
-    logger.debug("got ask message!")
+    logger.info("got ask message!")
     if server._pregen_asks:
         params = server._pregen_asks.pop()
     else:

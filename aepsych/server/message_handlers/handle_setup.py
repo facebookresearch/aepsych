@@ -14,7 +14,7 @@ from aepsych.extensions import ExtensionManager
 from aepsych.strategy import SequentialStrategy
 from aepsych.version import __version__
 
-logger = utils_logging.getLogger(logging.INFO)
+logger = utils_logging.getLogger()
 
 
 def _configure(server, config):
@@ -22,7 +22,9 @@ def _configure(server, config):
     server.extensions = ExtensionManager.from_config(config)
     server.extensions.load()
 
-    server._pregen_asks = []  # TODO: Allow each strategy to have its own stack of pre-generated asks
+    server._pregen_asks = (
+        []
+    )  # TODO: Allow each strategy to have its own stack of pre-generated asks
 
     parnames = config.getlist("common", "parnames", element_type=str)
     server.parnames = parnames
@@ -68,7 +70,7 @@ def configure(server, config=None, **config_args):
 
 
 def handle_setup(server, request):
-    logger.debug("got setup message!")
+    logger.info("got setup message!")
     ### make a temporary config object to derive parameters because server handles config after table
     if (
         "config_str" in request["message"].keys()
