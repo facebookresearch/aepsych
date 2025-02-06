@@ -31,7 +31,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">Config</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.factory.default</span><span class="w"> </span><span class="kn">import</span> <span class="n">default_mean_covar_factory</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.models.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">AEPsychModelDeviceMixin</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.models.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">AEPsychModelMixin</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_dims</span><span class="p">,</span> <span class="n">get_optimizer_options</span><span class="p">,</span> <span class="n">promote_0d</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.utils_logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">getLogger</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">gpytorch.likelihoods</span><span class="w"> </span><span class="kn">import</span> <span class="n">GaussianLikelihood</span><span class="p">,</span> <span class="n">Likelihood</span>
@@ -40,7 +40,7 @@
 <span class="n">logger</span> <span class="o">=</span> <span class="n">getLogger</span><span class="p">()</span>
 
 
-<div class="viewcode-block" id="GPRegressionModel"><a class="viewcode-back" href="../../../models.html#aepsych.models.GPRegressionModel">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">GPRegressionModel</span><span class="p">(</span><span class="n">AEPsychModelDeviceMixin</span><span class="p">,</span> <span class="n">ExactGP</span><span class="p">):</span>
+<div class="viewcode-block" id="GPRegressionModel"><a class="viewcode-back" href="../../../models.html#aepsych.models.GPRegressionModel">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">GPRegressionModel</span><span class="p">(</span><span class="n">AEPsychModelMixin</span><span class="p">,</span> <span class="n">ExactGP</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""GP Regression model for continuous outcomes, using exact inference."""</span>
 
     <span class="n">_num_outputs</span> <span class="o">=</span> <span class="mi">1</span>

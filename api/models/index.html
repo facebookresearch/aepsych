@@ -23,8 +23,8 @@
 <section id="module-aepsych.models.base">
 <span id="aepsych-models-base-module"></span><h2>aepsych.models.base module<a class="headerlink" href="#module-aepsych.models.base" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="aepsych.models.base.AEPsychMixin">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.models.base.</span></span><span class="sig-name descname"><span class="pre">AEPsychMixin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/base.html#AEPsychMixin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.base.AEPsychMixin" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="aepsych.models.base.AEPsychModelMixin">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.models.base.</span></span><span class="sig-name descname"><span class="pre">AEPsychModelMixin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/base.html#AEPsychModelMixin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.base.AEPsychModelMixin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">GPyTorchModel</span></code>, <a class="reference internal" href="config.html#aepsych.config.ConfigurableMixin" title="aepsych.config.ConfigurableMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConfigurableMixin</span></code></a></p>
 <p>Mixin class that provides AEPsych-specific utility methods.</p>
 <dl class="field-list simple">
@@ -39,44 +39,59 @@
 </dd>
 </dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.models.base.AEPsychMixin.extremum_solver">
-<span class="sig-name descname"><span class="pre">extremum_solver</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Nelder-Mead'</span></em><a class="headerlink" href="#aepsych.models.base.AEPsychMixin.extremum_solver" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="aepsych.models.base.AEPsychModelMixin.extremum_solver">
+<span class="sig-name descname"><span class="pre">extremum_solver</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Nelder-Mead'</span></em><a class="headerlink" href="#aepsych.models.base.AEPsychModelMixin.extremum_solver" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.models.base.AEPsychMixin.outcome_types">
-<span class="sig-name descname"><span class="pre">outcome_types</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#aepsych.models.base.AEPsychMixin.outcome_types" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="aepsych.models.base.AEPsychModelMixin.outcome_types">
+<span class="sig-name descname"><span class="pre">outcome_types</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#aepsych.models.base.AEPsychModelMixin.outcome_types" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.models.base.AEPsychMixin.train_inputs">
-<span class="sig-name descname"><span class="pre">train_inputs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aepsych.models.base.AEPsychMixin.train_inputs" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="aepsych.models.base.AEPsychModelMixin.stimuli_per_trial">
+<span class="sig-name descname"><span class="pre">stimuli_per_trial</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#aepsych.models.base.AEPsychModelMixin.stimuli_per_trial" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.models.base.AEPsychMixin.train_targets">
-<span class="sig-name descname"><span class="pre">train_targets</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aepsych.models.base.AEPsychMixin.train_targets" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.models.base.AEPsychMixin.stimuli_per_trial">
-<span class="sig-name descname"><span class="pre">stimuli_per_trial</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#aepsych.models.base.AEPsychMixin.stimuli_per_trial" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="aepsych.models.base.AEPsychMixin.set_train_data">
-<span class="sig-name descname"><span class="pre">set_train_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/base.html#AEPsychMixin.set_train_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.base.AEPsychMixin.set_train_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the training data for the model.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.models.base.AEPsychModelMixin.device">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">device</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">device</span></em><a class="headerlink" href="#aepsych.models.base.AEPsychModelMixin.device" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the device of the model.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>inputs</strong> (<em>torch.Tensor</em><em>, </em><em>optional</em>) – The new training inputs.</p></li>
-<li><p><strong>targets</strong> (<em>torch.Tensor</em><em>, </em><em>optional</em>) – The new training targets.</p></li>
-<li><p><strong>strict</strong> (<em>bool</em>) – Default is False. Ignored, just for compatibility.</p></li>
-</ul>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Device of the model.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>torch.device</p>
 </dd>
 </dl>
-<p>input transformers. TODO: actually use this arg or change input transforms
-to not require it.</p>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.models.base.AEPsychModelMixin.train_inputs">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">train_inputs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Tensor</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aepsych.models.base.AEPsychModelMixin.train_inputs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the training inputs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Training inputs.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Optional[Tuple[torch.Tensor]]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.models.base.AEPsychModelMixin.train_targets">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">train_targets</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tensor</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aepsych.models.base.AEPsychModelMixin.train_targets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the training targets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Training targets.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Optional[torch.Tensor]</p>
+</dd>
+</dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="aepsych.models.base.AEPsychMixin.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/base.html#AEPsychMixin.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.base.AEPsychMixin.forward" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="aepsych.models.base.AEPsychModelMixin.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/base.html#AEPsychModelMixin.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.base.AEPsychModelMixin.forward" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluate GP</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -95,8 +110,101 @@ to not require it.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="aepsych.models.base.AEPsychMixin.get_config_options">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_config_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/base.html#AEPsychMixin.get_config_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.base.AEPsychMixin.get_config_options" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="aepsych.models.base.AEPsychModelMixin.set_train_data">
+<span class="sig-name descname"><span class="pre">set_train_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/base.html#AEPsychModelMixin.set_train_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.base.AEPsychModelMixin.set_train_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the training data for the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>torch.Tensor</em><em>, </em><em>optional</em>) – The new training inputs X.</p></li>
+<li><p><strong>targets</strong> (<em>torch.Tensor</em><em>, </em><em>optional</em>) – The new training targets Y.</p></li>
+<li><p><strong>strict</strong> (<em>bool</em>) – Whether to strictly enforce the device of the inputs and targets.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+<p>input transformers. TODO: actually use this arg or change input transforms
+to not require it.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.models.base.AEPsychModelMixin.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/base.html#AEPsychModelMixin.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.base.AEPsychModelMixin.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Query the model for posterior mean and variance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>torch.Tensor</em>) – Points at which to predict from the model.</p></li>
+<li><p><strong>*args</strong> – Positional arguments for model-specific predict args.</p></li>
+<li><p><strong>**kwargs</strong> – Keyword arguments for model-specific predict kwargs.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Posterior mean and variance at queries points.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tuple[torch.Tensor, torch.Tensor]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.models.base.AEPsychModelMixin.predict_transform">
+<span class="sig-name descname"><span class="pre">predict_transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformed_posterior_cls</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">transform_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/base.html#AEPsychModelMixin.predict_transform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.base.AEPsychModelMixin.predict_transform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Query the model for posterior mean and variance under some tranformation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>torch.Tensor</em>) – Points at which to predict from the model.</p></li>
+<li><p><strong>transformed_posterior_cls</strong> (<em>TransformedPosterior type</em><em>, </em><em>optional</em>) – The type of transformation to apply to the posterior.
+Note that you should give TransformedPosterior itself, rather than an instance. Defaults to None, in which case no
+transformation is applied.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Transformed posterior mean and variance at queries points.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tuple[torch.Tensor, torch.Tensor]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.models.base.AEPsychModelMixin.sample">
+<span class="sig-name descname"><span class="pre">sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_samples</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/base.html#AEPsychModelMixin.sample"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.base.AEPsychModelMixin.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample from underlying model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>torch.Tensor</em>) – Points at which to sample.</p></li>
+<li><p><strong>num_samples</strong> (<em>int</em>) – Number of samples to return.</p></li>
+<li><p><strong>ignored</strong> (<em>kwargs are</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Posterior samples [num_samples x dim]</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.models.base.AEPsychModelMixin.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_y</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/base.html#AEPsychModelMixin.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.base.AEPsychModelMixin.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform a warm-start update of the model from previous fit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>train_x</strong> (<em>torch.Tensor</em>) – Inputs.</p></li>
+<li><p><strong>train_y</strong> (<em>torch.Tensor</em>) – Responses.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.models.base.AEPsychModelMixin.get_config_options">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_config_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/base.html#AEPsychModelMixin.get_config_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.base.AEPsychModelMixin.get_config_options" title="Permalink to this definition">¶</a></dt>
 <dd><p>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -117,150 +225,6 @@ to not require it.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>Dict[str, Any]</p>
-</dd>
-</dl>
-</dd></dl>
-</dd></dl>
-<dl class="py class">
-<dt class="sig sig-object py" id="aepsych.models.base.AEPsychModelDeviceMixin">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.models.base.</span></span><span class="sig-name descname"><span class="pre">AEPsychModelDeviceMixin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/base.html#AEPsychModelDeviceMixin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.base.AEPsychModelDeviceMixin" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#aepsych.models.base.AEPsychMixin" title="aepsych.models.base.AEPsychMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">AEPsychMixin</span></code></a></p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>args</strong> (<em>Any</em>) – </p></li>
-<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Any</em></p>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="aepsych.models.base.AEPsychModelDeviceMixin.set_train_data">
-<span class="sig-name descname"><span class="pre">set_train_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/base.html#AEPsychModelDeviceMixin.set_train_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.base.AEPsychModelDeviceMixin.set_train_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the training data for the model.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>inputs</strong> (<em>torch.Tensor</em><em>, </em><em>optional</em>) – The new training inputs X.</p></li>
-<li><p><strong>targets</strong> (<em>torch.Tensor</em><em>, </em><em>optional</em>) – The new training targets Y.</p></li>
-<li><p><strong>strict</strong> (<em>bool</em>) – Whether to strictly enforce the device of the inputs and targets.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
-</dd>
-</dl>
-<p>input transformers. TODO: actually use this arg or change input transforms
-to not require it.</p>
-</dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="aepsych.models.base.AEPsychModelDeviceMixin.device">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">device</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">device</span></em><a class="headerlink" href="#aepsych.models.base.AEPsychModelDeviceMixin.device" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the device of the model.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Device of the model.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>torch.device</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="aepsych.models.base.AEPsychModelDeviceMixin.train_inputs">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">train_inputs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Tensor</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aepsych.models.base.AEPsychModelDeviceMixin.train_inputs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the training inputs.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Training inputs.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>Optional[Tuple[torch.Tensor]]</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="aepsych.models.base.AEPsychModelDeviceMixin.train_targets">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">train_targets</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tensor</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aepsych.models.base.AEPsychModelDeviceMixin.train_targets" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the training targets.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Training targets.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>Optional[torch.Tensor]</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="aepsych.models.base.AEPsychModelDeviceMixin.predict">
-<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/base.html#AEPsychModelDeviceMixin.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.base.AEPsychModelDeviceMixin.predict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Query the model for posterior mean and variance.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>x</strong> (<em>torch.Tensor</em>) – Points at which to predict from the model.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Posterior mean and variance at queries points.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Tuple[torch.Tensor, torch.Tensor]</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="aepsych.models.base.AEPsychModelDeviceMixin.predict_transform">
-<span class="sig-name descname"><span class="pre">predict_transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformed_posterior_cls</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">transform_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/base.html#AEPsychModelDeviceMixin.predict_transform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.base.AEPsychModelDeviceMixin.predict_transform" title="Permalink to this definition">¶</a></dt>
-<dd><p>Query the model for posterior mean and variance under some tranformation.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> (<em>torch.Tensor</em>) – Points at which to predict from the model.</p></li>
-<li><p><strong>transformed_posterior_cls</strong> (<em>TransformedPosterior type</em><em>, </em><em>optional</em>) – The type of transformation to apply to the posterior.
-Note that you should give TransformedPosterior itself, rather than an instance. Defaults to None, in which case no
-transformation is applied.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Transformed posterior mean and variance at queries points.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Tuple[torch.Tensor, torch.Tensor]</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="aepsych.models.base.AEPsychModelDeviceMixin.sample">
-<span class="sig-name descname"><span class="pre">sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_samples</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/base.html#AEPsychModelDeviceMixin.sample"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.base.AEPsychModelDeviceMixin.sample" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sample from underlying model.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> (<em>torch.Tensor</em>) – Points at which to sample.</p></li>
-<li><p><strong>num_samples</strong> (<em>int</em>) – Number of samples to return.</p></li>
-<li><p><strong>ignored</strong> (<em>kwargs are</em>) – </p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Posterior samples [num_samples x dim]</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>torch.Tensor</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="aepsych.models.base.AEPsychModelDeviceMixin.update">
-<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_y</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/base.html#AEPsychModelDeviceMixin.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.base.AEPsychModelDeviceMixin.update" title="Permalink to this definition">¶</a></dt>
-<dd><p>Perform a warm-start update of the model from previous fit.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>train_x</strong> (<em>torch.Tensor</em>) – Inputs.</p></li>
-<li><p><strong>train_y</strong> (<em>torch.Tensor</em>) – Responses.</p></li>
-</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -659,7 +623,7 @@ transformation is applied.</p></li>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.models.GPRegressionModel">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.models.</span></span><span class="sig-name descname"><span class="pre">GPRegressionModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/gp_regression.html#GPRegressionModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.GPRegressionModel" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#aepsych.models.base.AEPsychModelDeviceMixin" title="aepsych.models.base.AEPsychModelDeviceMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">AEPsychModelDeviceMixin</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ExactGP</span></code></p>
+<dd><p>Bases: <a class="reference internal" href="#aepsych.models.base.AEPsychModelMixin" title="aepsych.models.base.AEPsychModelMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">AEPsychModelMixin</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ExactGP</span></code></p>
 <p>GP Regression model for continuous outcomes, using exact inference.</p>
 <p>Initialize the GP regression model</p>
 <dl class="field-list simple">
@@ -1118,7 +1082,7 @@ response probability instead of latent function value. Defaults to False.</p></l
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.models.PairwiseProbitModel">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.models.</span></span><span class="sig-name descname"><span class="pre">PairwiseProbitModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/pairwise_probit.html#PairwiseProbitModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.PairwiseProbitModel" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PairwiseGP</span></code>, <a class="reference internal" href="#aepsych.models.base.AEPsychModelDeviceMixin" title="aepsych.models.base.AEPsychModelDeviceMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">AEPsychModelDeviceMixin</span></code></a></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PairwiseGP</span></code>, <a class="reference internal" href="#aepsych.models.base.AEPsychModelMixin" title="aepsych.models.base.AEPsychModelMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">AEPsychModelMixin</span></code></a></p>
 <p>Initialize the PairwiseProbitModel</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1247,7 +1211,7 @@ from a configuration. TODO: document how this works in some tutorial.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.models.VariationalGPModel">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.models.</span></span><span class="sig-name descname"><span class="pre">VariationalGPModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/variationalgp.html#VariationalGPModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.VariationalGPModel" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#aepsych.models.base.AEPsychModelDeviceMixin" title="aepsych.models.base.AEPsychModelDeviceMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">AEPsychModelDeviceMixin</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ApproximateGP</span></code></p>
+<dd><p>Bases: <a class="reference internal" href="#aepsych.models.base.AEPsychModelMixin" title="aepsych.models.base.AEPsychModelMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">AEPsychModelMixin</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ApproximateGP</span></code></p>
 <p>Base GP model with variational inference</p>
 <p>Initialize the GP Classification model</p>
 <dl class="field-list simple">

@@ -59,6 +59,7 @@
 <span class="sd">           - Sigma_sq: (b x m) covariance between Xstar and each point in Xq.</span>
 <span class="sd">    """</span>
     <span class="c1"># Evaluate posterior and extract needed components</span>
+    <span class="n">Xq</span> <span class="o">=</span> <span class="n">Xq</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">Xstar</span><span class="p">)</span>
     <span class="n">Xext</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="n">Xstar</span><span class="p">,</span> <span class="n">Xq</span><span class="p">),</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">2</span><span class="p">)</span>
     <span class="n">posterior</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">posterior</span><span class="p">(</span><span class="n">Xext</span><span class="p">,</span> <span class="n">posterior_transform</span><span class="o">=</span><span class="n">posterior_transform</span><span class="p">)</span>
     <span class="n">mu</span> <span class="o">=</span> <span class="n">posterior</span><span class="o">.</span><span class="n">mean</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span>

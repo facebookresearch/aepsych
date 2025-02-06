@@ -33,7 +33,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">Config</span><span class="p">,</span> <span class="n">ConfigurableMixin</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.generators.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">AcqfGenerator</span><span class="p">,</span> <span class="n">AEPsychGenerator</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.models.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">AEPsychMixin</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.models.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">AEPsychModelMixin</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.models.model_protocol</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelProtocol</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.transforms.ops</span><span class="w"> </span><span class="kn">import</span> <span class="n">Fixed</span><span class="p">,</span> <span class="n">Log10Plus</span><span class="p">,</span> <span class="n">NormalizeScale</span><span class="p">,</span> <span class="n">Round</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.transforms.ops.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Transform</span>
@@ -395,7 +395,7 @@
 <div class="viewcode-block" id="ParameterTransformedGenerator.gen"><a class="viewcode-back" href="../../../transforms.html#aepsych.transforms.parameters.ParameterTransformedGenerator.gen">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">gen</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">num_points</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
-        <span class="n">model</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AEPsychMixin</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">model</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AEPsychModelMixin</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fixed_features</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
@@ -403,7 +403,7 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            num_points (int): Number of points to query, defaults to 1.</span>
-<span class="sd">            model (AEPsychMixin, optional): The model to use to generate points, can be</span>
+<span class="sd">            model (AEPsychModelMixin, optional): The model to use to generate points, can be</span>
 <span class="sd">                None if no model is needed.</span>
 <span class="sd">            fixed_features: (Dict[int, float], optional): Parameters that are fixed to specific values.</span>
 <span class="sd">            **kwargs: Kwargs to pass to the generator's generator.</span>
