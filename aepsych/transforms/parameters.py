@@ -15,7 +15,7 @@ import numpy as np
 import torch
 from aepsych.config import Config, ConfigurableMixin
 from aepsych.generators.base import AcqfGenerator, AEPsychGenerator
-from aepsych.models.base import AEPsychMixin
+from aepsych.models.base import AEPsychModelMixin
 from aepsych.models.model_protocol import ModelProtocol
 from aepsych.transforms.ops import Fixed, Log10Plus, NormalizeScale, Round
 from aepsych.transforms.ops.base import Transform
@@ -377,7 +377,7 @@ class ParameterTransformedGenerator(ParameterTransformWrapper, ConfigurableMixin
     def gen(
         self,
         num_points: int = 1,
-        model: Optional[AEPsychMixin] = None,
+        model: Optional[AEPsychModelMixin] = None,
         fixed_features: Optional[Dict[int, float]] = None,
         **kwargs,
     ) -> torch.Tensor:
@@ -385,7 +385,7 @@ class ParameterTransformedGenerator(ParameterTransformWrapper, ConfigurableMixin
 
         Args:
             num_points (int): Number of points to query, defaults to 1.
-            model (AEPsychMixin, optional): The model to use to generate points, can be
+            model (AEPsychModelMixin, optional): The model to use to generate points, can be
                 None if no model is needed.
             fixed_features: (Dict[int, float], optional): Parameters that are fixed to specific values.
             **kwargs: Kwargs to pass to the generator's generator.

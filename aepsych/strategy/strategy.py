@@ -14,7 +14,7 @@ import numpy as np
 import torch
 from aepsych.config import Config, ConfigurableMixin
 from aepsych.generators.base import AEPsychGenerator
-from aepsych.models.base import AEPsychMixin
+from aepsych.models.base import AEPsychModelMixin
 from aepsych.models.utils import get_max, get_min, inv_query
 from aepsych.strategy.utils import ensure_model_is_fresh
 from aepsych.transforms import (
@@ -45,7 +45,7 @@ class Strategy(ConfigurableMixin):
         dim: Optional[int] = None,
         min_total_tells: int = 0,
         min_asks: int = 0,
-        model: Optional[AEPsychMixin] = None,
+        model: Optional[AEPsychModelMixin] = None,
         use_gpu_modeling: bool = False,
         use_gpu_generating: bool = False,
         refit_every: int = 1,
@@ -371,7 +371,9 @@ class Strategy(ConfigurableMixin):
         return val, arg
 
     @ensure_model_is_fresh
-    def predict(self, x: torch.Tensor, probability_space: bool = False) -> torch.Tensor:
+    def predict(
+        self, x: torch.Tensor, probability_space: bool = False
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
         """Predict the output value(s) for the given input(s).
 
         Args:
@@ -379,21 +381,19 @@ class Strategy(ConfigurableMixin):
             probability_space (bool): Whether to return the output in probability space. Defaults to False.
 
         Returns:
-            torch.Tensor: The predicted output value(s).
+            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at queries points.
         """
         assert self.model is not None, "model is None! Cannot predict without a model!"
         self.model.to(self.model_device)
         return self.model.predict(x=x, probability_space=probability_space)
 
     @ensure_model_is_fresh
-    def sample(
-        self, x: torch.Tensor, num_samples: Optional[int] = None
-    ) -> torch.Tensor:
+    def sample(self, x: torch.Tensor, num_samples: int = 1000) -> torch.Tensor:
         """Sample the output value(s) for the given input(s).
 
         Args:
             x (torch.Tensor): The input value(s).
-            num_samples (int, optional): The number of samples to generate. Defaults to None.
+            num_samples (int): The number of samples to generate. Defaults to 1000.
 
         Returns:
             torch.Tensor: The sampled output value(s).
@@ -443,9 +443,9 @@ class Strategy(ConfigurableMixin):
                 self.model is not None
             ), "model is None! Cannot predict without a model!"
             fmean, _ = self.model.predict(self.eval_grid, probability_space=True)
-            meets_post_range = (
-                (fmean.max() - fmean.min()) >= self.min_post_range
-            ).item()
+            meets_post_range = bool(
+                ((fmean.max() - fmean.min()) >= self.min_post_range).item()
+            )
         else:
             meets_post_range = True
         finished = (

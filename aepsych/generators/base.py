@@ -11,7 +11,7 @@ from typing import Any, Dict, Generic, Optional, Protocol, runtime_checkable, Ty
 
 import torch
 from aepsych.config import Config, ConfigurableMixin
-from aepsych.models.base import AEPsychMixin
+from aepsych.models.base import AEPsychModelMixin
 from botorch.acquisition import (
     AcquisitionFunction,
     LogNoisyExpectedImprovement,
@@ -23,7 +23,7 @@ from botorch.acquisition.preference import AnalyticExpectedUtilityOfBestOption
 
 from ..models.model_protocol import ModelProtocol
 
-AEPsychModelType = TypeVar("AEPsychModelType", bound=AEPsychMixin)
+AEPsychModelType = TypeVar("AEPsychModelType", bound=AEPsychModelMixin)
 
 
 @runtime_checkable

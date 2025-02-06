@@ -13,7 +13,7 @@ import gpytorch
 import torch
 from aepsych.config import Config
 from aepsych.factory.default import default_mean_covar_factory
-from aepsych.models.base import AEPsychModelDeviceMixin
+from aepsych.models.base import AEPsychModelMixin
 from aepsych.models.inducing_points import GreedyVarianceReduction
 from aepsych.models.inducing_points.base import InducingPointAllocator
 from aepsych.utils_logging import getLogger
@@ -24,7 +24,7 @@ from gpytorch.variational import CholeskyVariationalDistribution, VariationalStr
 logger = getLogger()
 
 
-class VariationalGPModel(AEPsychModelDeviceMixin, ApproximateGP):
+class VariationalGPModel(AEPsychModelMixin, ApproximateGP):
     """Base GP model with variational inference"""
 
     _batch_size = 1
