@@ -13,7 +13,7 @@ logger = utils_logging.getLogger()
 
 
 def handle_params(server, request):
-    logger.debug("got parameters message!")
+    logger.info("got parameters message!")
     if not server.is_performing_replay:
         server.db.record_message(
             master_table=server._db_master_record, type="parameters", request=request
