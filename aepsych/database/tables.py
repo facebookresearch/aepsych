@@ -49,10 +49,16 @@ class DBMasterTable(Base):
 
     extra_metadata = Column(String(4096))  # JSON-formatted metadata
 
-    children_replay = relationship("DbReplayTable", back_populates="parent")
-    children_strat = relationship("DbStratTable", back_populates="parent")
-    children_config = relationship("DbConfigTable", back_populates="parent")
-    children_raw = relationship("DbRawTable", back_populates="parent")
+    children_replay = relationship(
+        "DbReplayTable", lazy="subquery", back_populates="parent"
+    )
+    children_strat = relationship(
+        "DbStratTable", lazy="subquery", back_populates="parent"
+    )
+    children_config = relationship(
+        "DbConfigTable", lazy="subquery", back_populates="parent"
+    )
+    children_raw = relationship("DbRawTable", lazy="subquery", back_populates="parent")
 
     @classmethod
     def from_sqlite(cls, row: Dict[str, Any]) -> "DBMasterTable":
@@ -185,7 +191,9 @@ class DbReplayTable(Base):
     extra_info = Column(PickleType(pickler=pickle))
 
     master_table_id = Column(Integer, ForeignKey("master.unique_id"))
-    parent = relationship("DBMasterTable", back_populates="children_replay")
+    parent = relationship(
+        "DBMasterTable", lazy="subquery", back_populates="children_replay"
+    )
 
     __mapper_args__ = {}
 
@@ -297,7 +305,9 @@ class DbStratTable(Base):
     strat = Column(PickleType(pickler=pickle))
 
     master_table_id = Column(Integer, ForeignKey("master.unique_id"))
-    parent = relationship("DBMasterTable", back_populates="children_strat")
+    parent = relationship(
+        "DBMasterTable", lazy="subquery", back_populates="children_strat"
+    )
 
     @classmethod
     def from_sqlite(cls, row: Dict[str, Any]) -> "DbStratTable":
@@ -356,7 +366,9 @@ class DbConfigTable(Base):
     config = Column(PickleType(pickler=pickle))
 
     master_table_id = Column(Integer, ForeignKey("master.unique_id"))
-    parent = relationship("DBMasterTable", back_populates="children_config")
+    parent = relationship(
+        "DBMasterTable", lazy="subquery", back_populates="children_config"
+    )
 
     @classmethod
     def from_sqlite(cls, row: Dict[str, Any]) -> "DbConfigTable":
@@ -420,9 +432,15 @@ class DbRawTable(Base):
     extra_data = Column(PickleType(pickler=pickle))
 
     master_table_id = Column(Integer, ForeignKey("master.unique_id"))
-    parent = relationship("DBMasterTable", back_populates="children_raw")
-    children_param = relationship("DbParamTable", back_populates="parent")
-    children_outcome = relationship("DbOutcomeTable", back_populates="parent")
+    parent = relationship(
+        "DBMasterTable", lazy="subquery", back_populates="children_raw"
+    )
+    children_param = relationship(
+        "DbParamTable", lazy="subquery", back_populates="parent"
+    )
+    children_outcome = relationship(
+        "DbOutcomeTable", lazy="subquery", back_populates="parent"
+    )
 
     @classmethod
     def from_sqlite(cls, row: Dict[str, Any]) -> "DbRawTable":
@@ -654,7 +672,9 @@ class DbParamTable(Base):
     param_value = Column(String(50))
 
     iteration_id = Column(Integer, ForeignKey("raw_data.unique_id"))
-    parent = relationship("DbRawTable", back_populates="children_param")
+    parent = relationship(
+        "DbRawTable", lazy="subquery", back_populates="children_param"
+    )
 
     @classmethod
     def from_sqlite(cls, row: Dict[str, Any]) -> "DbParamTable":
@@ -720,7 +740,9 @@ class DbOutcomeTable(Base):
     outcome_value = Column(Float)
 
     iteration_id = Column(Integer, ForeignKey("raw_data.unique_id"))
-    parent = relationship("DbRawTable", back_populates="children_outcome")
+    parent = relationship(
+        "DbRawTable", lazy="subquery", back_populates="children_outcome"
+    )
 
     @classmethod
     def from_sqlite(cls, row: Dict[str, Any]) -> "DbOutcomeTable":
