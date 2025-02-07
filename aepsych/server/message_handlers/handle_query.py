@@ -11,7 +11,7 @@ import aepsych.utils_logging as utils_logging
 import numpy as np
 import torch
 
-logger = utils_logging.getLogger(logging.INFO)
+logger = utils_logging.getLogger()
 
 
 def handle_query(server, request):

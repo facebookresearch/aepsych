@@ -15,7 +15,7 @@ import dill
 import pandas as pd
 import torch
 
-logger = utils_logging.getLogger(logging.INFO)
+logger = utils_logging.getLogger()
 DEFAULT_DESC = "default description"
 DEFAULT_NAME = "default name"
 
