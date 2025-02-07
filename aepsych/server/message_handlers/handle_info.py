@@ -22,7 +22,7 @@ def handle_info(server, request: Dict[str, Any]) -> Dict[str, Any]:
     Returns:
         Dict[str, Any]: Returns dictionary containing the current state of the experiment
     """
-    logger.debug("got info message!")
+    logger.info("got info message!")
 
     ret_val = info(server)
 

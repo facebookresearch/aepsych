@@ -15,7 +15,7 @@ logger = utils_logging.getLogger()
 def handle_can_model(server, request):
     # Check if the strategy has finished initialization; i.e.,
     # if it has a model and data to fit (strat.can_fit)
-    logger.debug("got can_model message!")
+    logger.info("got can_model message!")
     if not server.is_performing_replay:
         server.db.record_message(
             master_table=server._db_master_record, type="can_model", request=request

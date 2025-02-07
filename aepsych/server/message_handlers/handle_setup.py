@@ -70,7 +70,7 @@ def configure(server, config=None, **config_args):
 
 
 def handle_setup(server, request):
-    logger.debug("got setup message!")
+    logger.info("got setup message!")
     ### make a temporary config object to derive parameters because server handles config after table
     if (
         "config_str" in request["message"].keys()

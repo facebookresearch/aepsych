@@ -21,7 +21,7 @@ DEFAULT_NAME = "default name"
 
 
 def handle_tell(server, request):
-    logger.debug("got tell message!")
+    logger.info("got tell message!")
 
     if not server.is_performing_replay:
         server.db.record_message(
