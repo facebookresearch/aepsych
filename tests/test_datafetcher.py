@@ -98,9 +98,6 @@ class DataFetcherTestCase(unittest.TestCase):
         # setup logger
         server.logger = utils_logging.getLogger(logging.DEBUG, "logs")
 
-        # random port
-        socket = server.sockets.PySocket(port=0)
-
         database_path = Path(__file__).parent / "test_databases" / "1000_outcome.db"
 
         dst_db_path = Path("./{}.db".format(str(uuid.uuid4().hex)))
@@ -109,7 +106,7 @@ class DataFetcherTestCase(unittest.TestCase):
         time.sleep(0.1)
         self.assertTrue(dst_db_path.is_file())
 
-        self.s = server.AEPsychServer(socket=socket, database_path=dst_db_path)
+        self.s = server.AEPsychServer(database_path=dst_db_path)
 
         setup_message = {
             "type": "setup",
@@ -125,8 +122,6 @@ class DataFetcherTestCase(unittest.TestCase):
 
     def tearDown(self):
         time.sleep(0.1)
-
-        self.s.cleanup()
         self.s.db.delete_db()
 
     def test_create_from_config(self):
