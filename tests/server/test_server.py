@@ -89,7 +89,7 @@ class AsyncServerTestBase(unittest.IsolatedAsyncioTestCase):
         port = 5555
 
         # setup logger
-        server.logger = utils_logging.getLogger(logging.DEBUG, "logs")
+        server.logger = utils_logging.getLogger("unittests")
 
         # random datebase path name without dashes
         database_path = self.database_path
