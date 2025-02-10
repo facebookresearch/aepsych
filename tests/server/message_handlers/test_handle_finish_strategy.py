@@ -7,10 +7,10 @@
 
 import unittest
 
-from ..test_server import BaseServerTestCase, dummy_config
+from ..test_server import AsyncServerTestBase, dummy_config
 
 
-class ResumeTestCase(BaseServerTestCase):
+class ResumeTestCase(AsyncServerTestBase):
     def test_handle_finish_strategy(self):
         setup_request = {
             "type": "setup",

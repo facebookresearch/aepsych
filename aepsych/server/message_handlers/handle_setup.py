@@ -14,7 +14,7 @@ from aepsych.extensions import ExtensionManager
 from aepsych.strategy import SequentialStrategy
 from aepsych.version import __version__
 
-logger = utils_logging.getLogger(logging.INFO)
+logger = utils_logging.getLogger()
 
 
 def _configure(server, config):
