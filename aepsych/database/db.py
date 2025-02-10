@@ -315,7 +315,7 @@ class Database:
 
             record.timestamp = datetime.datetime.now()
             record.parent = master_table
-            logger.debug(f"record_setup = [{record}]")
+            logger.debug(f"replay_record_setup = [{record}]")
 
             self._add_commit(session, record)
 
