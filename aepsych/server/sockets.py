@@ -14,7 +14,7 @@ import sys
 import aepsych.utils_logging as utils_logging
 import numpy as np
 
-logger = utils_logging.getLogger(logging.INFO)
+logger = utils_logging.getLogger()
 BAD_REQUEST = "bad request"
 
 

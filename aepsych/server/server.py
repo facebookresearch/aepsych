@@ -33,7 +33,7 @@ from aepsych.server.replay import (
 )
 from aepsych.strategy import SequentialStrategy, Strategy
 
-logger = utils_logging.getLogger(logging.INFO)
+logger = utils_logging.getLogger()
 
 
 def get_next_filename(folder, fname, ext):

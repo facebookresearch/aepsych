@@ -96,7 +96,7 @@ class DataFetcherTestCase(unittest.TestCase):
 
     def setUp(self):
         # setup logger
-        server.logger = utils_logging.getLogger(logging.DEBUG, "logs")
+        server.logger = utils_logging.getLogger("logs")
 
         database_path = Path(__file__).parent / "test_databases" / "1000_outcome.db"
 
