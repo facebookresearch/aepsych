@@ -8,7 +8,7 @@
 
 import unittest
 
-from ..test_server import BaseServerTestCase
+from ..test_server import AsyncServerTestBase
 
 dummy_config = """
 [common]
@@ -69,7 +69,7 @@ seed = 123
 """
 
 
-class AskHandlerTestCase(BaseServerTestCase):
+class AskHandlerTestCase(AsyncServerTestBase):
     def test_handle_ask(self):
         setup_request = {
             "type": "setup",

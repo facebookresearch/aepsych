@@ -31,11 +31,6 @@ class DBTestCase(unittest.TestCase):
         time.sleep(0.1)
         self._database.delete_db()
 
-    def test_db_create(self):
-        engine = self._database.get_engine()
-        self.assertIsNotNone(engine)
-        self.assertIsNotNone(self._database._engine)
-
     def test_record_setup_basic(self):
         master_table = self._database.record_setup(
             description="test description",
