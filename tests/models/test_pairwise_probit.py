@@ -501,8 +501,6 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
         self.s = server.AEPsychServer(database_path=database_path)
 
     def tearDown(self):
-        self.s.cleanup()
-
         # cleanup the db
         if self.s.db is not None:
             self.s.db.delete_db()

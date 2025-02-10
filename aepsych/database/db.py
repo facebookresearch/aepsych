@@ -6,6 +6,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import datetime
+import io
 import json
 import logging
 import os
@@ -440,12 +441,14 @@ class Database:
         self._session.add(outcome_entry)
         self._session.commit()
 
-    def record_strat(self, master_table: tables.DBMasterTable, strat: Strategy) -> None:
+    def record_strat(
+        self, master_table: tables.DBMasterTable, strat: io.BytesIO
+    ) -> None:
         """Record a strategy in the database.
 
         Args:
             master_table (tables.DBMasterTable): The master table.
-            strat (Strategy): The strategy.
+            strat (BytesIO): The strategy in buffer form.
         """
         strat_entry = tables.DbStratTable()
         strat_entry.strat = strat
