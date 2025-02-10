@@ -25,7 +25,7 @@ from aepsych.strategy import SequentialStrategy
 
 ctx._force_start_method("spawn")  # fixes problems with CUDA and fork
 
-logger = utils_logging.getLogger(logging.INFO)
+logger = utils_logging.getLogger()
 
 
 class PathosBenchmark(Benchmark):

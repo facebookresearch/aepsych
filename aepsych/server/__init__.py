@@ -5,6 +5,6 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-from .server import AEPsychServer
+from .server import AEPsychBackgroundServer, AEPsychServer
 
-__all__ = ["AEPsychServer"]
+__all__ = ["AEPsychServer", "AEPsychBackgroundServer"]
