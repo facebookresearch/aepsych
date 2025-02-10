@@ -10,6 +10,7 @@ import sys
 from ..config import Config
 from .acqf_grid_search_generator import AcqfGridSearchGenerator
 from .acqf_thompson_sampler_generator import AcqfThompsonSamplerGenerator
+from .async_generator import AsyncGenerator
 from .epsilon_greedy_generator import EpsilonGreedyGenerator
 from .manual_generator import ManualGenerator, SampleAroundPointsGenerator
 from .optimize_acqf_generator import OptimizeAcqfGenerator
@@ -27,6 +28,7 @@ __all__ = [
     "IntensityAwareSemiPGenerator",
     "AcqfThompsonSamplerGenerator",
     "AcqfGridSearchGenerator",
+    "AsyncGenerator",
 ]
 
 Config.register_module(sys.modules[__name__])
