@@ -16,7 +16,6 @@ from typing import Any, Dict
 
 import aepsych.server as server
 import aepsych.utils_logging as utils_logging
-from aepsych.server.sockets import BAD_REQUEST
 
 dummy_config = """
 [common]
@@ -88,7 +87,7 @@ class AsyncServerTestBase(unittest.IsolatedAsyncioTestCase):
         self.port = 5555
 
         # setup logger
-        server.logger = utils_logging.getLogger("unittests")
+        self.logger = utils_logging.getLogger("unittests")
 
         # random datebase path name without dashes
         database_path = self.database_path
@@ -531,6 +530,118 @@ class AsyncServerTestCase(AsyncServerTestBase):
         self.assertTrue(self.s.strat.finished)
         self.assertTrue(self.s.strat.x.numel() == 4)
         self.assertTrue(self.s.clients_connected == 2)
+
+
+class BackgroundServerTestCase(unittest.IsolatedAsyncioTestCase):
+    @property
+    def database_path(self):
+        return "./{}_test_server.db".format(str(uuid.uuid4().hex))
+
+    async def asyncSetUp(self):
+        self.ip = "127.0.0.1"
+        self.port = 5555
+
+        # setup logger
+        self.logger = utils_logging.getLogger("unittests")
+
+        # random datebase path name without dashes
+        database_path = self.database_path
+        self.s = server.AEPsychBackgroundServer(
+            database_path=database_path, host=self.ip, port=self.port
+        )
+        self.db_name = database_path.split("/")[1]
+        self.db_path = database_path
+
+        # Writer will be made in tests
+        self.writer = None
+
+    async def asyncTearDown(self):
+        # Stops the client
+        if self.writer is not None:
+            self.writer.close()
+
+        time.sleep(0.1)
+
+        # cleanup the db
+        db_path = Path(self.db_path)
+        try:
+            print(db_path)
+            db_path.unlink()
+        except PermissionError as e:
+            print("Failed to deleted database: ", e)
+
+    async def test_background_server(self):
+        self.assertIsNone(self.s.background_process)
+        self.s.start()
+        self.assertTrue(self.s.background_process.is_alive())
+
+        # Make a client
+        try_again = True
+        attempts = 0
+        while try_again:
+            try_again = False
+            attempts += 1
+            try:
+                reader, self.writer = await asyncio.open_connection(self.ip, self.port)
+            except ConnectionRefusedError:
+                if attempts > 10:
+                    raise ConnectionRefusedError
+                try_again = True
+                time.sleep(1)
+
+        async def _mock_client(request: Dict[str, Any]) -> Any:
+            self.writer.write(json.dumps(request).encode())
+            await self.writer.drain()
+
+            response = await reader.read(1024 * 512)
+            return response.decode()
+
+        setup_request = {
+            "type": "setup",
+            "version": "0.01",
+            "message": {"config_str": dummy_config},
+        }
+        ask_request = {"type": "ask", "message": ""}
+        tell_request = {
+            "type": "tell",
+            "message": {"config": {"x": [0.5]}, "outcome": 1},
+            "extra_info": {},
+        }
+
+        await _mock_client(setup_request)
+
+        expected_x = [0, 1, 2, 3]
+        expected_z = list(reversed(expected_x))
+        expected_y = [x % 2 for x in expected_x]
+        i = 0
+        while True:
+            response = await _mock_client(ask_request)
+            response = json.loads(response)
+            tell_request["message"]["config"]["x"] = [expected_x[i]]
+            tell_request["message"]["config"]["z"] = [expected_z[i]]
+            tell_request["message"]["outcome"] = expected_y[i]
+            tell_request["extra_info"]["e1"] = 1
+            tell_request["extra_info"]["e2"] = 2
+            i = i + 1
+            await _mock_client(tell_request)
+
+            if response["is_finished"]:
+                break
+
+        self.s.stop()
+        self.assertIsNone(self.s.background_process)
+
+        # Create a synchronous server to check db contents
+        s = server.AEPsychServer(database_path=self.db_path)
+        unique_id = s.db.get_master_records()[-1].unique_id
+        out_df = s.get_dataframe_from_replay(unique_id)
+        self.assertTrue((out_df.x == expected_x).all())
+        self.assertTrue((out_df.z == expected_z).all())
+        self.assertTrue((out_df.response == expected_y).all())
+        self.assertTrue((out_df.e1 == [1] * 4).all())
+        self.assertTrue((out_df.e2 == [2] * 4).all())
+        self.assertTrue("post_mean" in out_df.columns)
+        self.assertTrue("post_var" in out_df.columns)
 
 
 if __name__ == "__main__":

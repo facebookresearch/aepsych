@@ -32,6 +32,7 @@ from aepsych.server.replay import (
     replay,
 )
 from aepsych.strategy import SequentialStrategy, Strategy
+from multiprocess import Process
 
 logger = utils_logging.getLogger()
 
@@ -48,11 +49,9 @@ class AEPsychServer:
         host: str = "0.0.0.0",
         port: int = 5555,
         database_path: str = "./databases/default.db",
-        max_workers: Optional[int] = None,
     ):
         self.host = host
         self.port = port
-        self.max_workers = max_workers
         self.clients_connected = 0
         self.db: db.Database = db.Database(database_path)
         self.is_performing_replay = False
@@ -278,11 +277,6 @@ class AEPsychServer:
         process or machine."""
         asyncio.run(self.serve())
 
-    def start_background(self):
-        """Starts the server in a background thread. Used for scripts where the
-        client and server are in the same process."""
-        raise NotImplementedError
-
     async def serve(self) -> None:
         """Serves the server on the set IP and port. This creates a coroutine
         for asyncio to handle requests asyncronously.
@@ -291,7 +285,7 @@ class AEPsychServer:
             self.handle_client, self.host, self.port
         )
         self.loop = asyncio.get_running_loop()
-        pool = concurrent.futures.ThreadPoolExecutor(max_workers=self.max_workers)
+        pool = concurrent.futures.ThreadPoolExecutor()
         self.loop.set_default_executor(pool)
 
         async with self.server:
@@ -424,6 +418,64 @@ class AEPsychServer:
         # Called when the server is pickled, we can't pickle the DB.
         state = self.__dict__.copy()
         del state["db"]
+        return state
+
+
+class AEPsychBackgroundServer(AEPsychServer):
+    """A class to handle the server in a background thread. Unlike the normal
+    AEPsychServer, this does not create the db right away until the server is
+    started. When starting this server, it'll be sent to another process, a db
+    will be initialized, then the server will be served. This server should then
+    be interacted with by the main thread via a client."""
+
+    def __init__(
+        self,
+        host: str = "0.0.0.0",
+        port: int = 5555,
+        database_path: str = "./databases/default.db",
+    ):
+        self.host = host
+        self.port = port
+        self.database_path = database_path
+        self.clients_connected = 0
+        self.is_performing_replay = False
+        self.exit_server_loop = False
+        self._db_raw_record = None
+        self.skip_computations = False
+        self.background_process = None
+        self.strat_names = None
+        self.extensions = None
+        self._strats = []
+        self._parnames = []
+        self._configs = []
+        self._master_records = []
+        self.strat_id = -1
+        self.outcome_names = []
+
+    def _start_server(self) -> None:
+        self.db: db.Database = db.Database(self.database_path)
+        if self.db.is_update_required():
+            self.db.perform_updates()
+
+        super().start_blocking()
+
+    def start(self):
+        """Starts the server in a background thread. Used by the client to start
+        the server for a client in another process or machine."""
+        self.background_process = Process(target=self._start_server, daemon=True)
+        self.background_process.start()
+
+    def stop(self):
+        """Stops the server and closes the background process."""
+        self.exit_server_loop = True
+        self.background_process.terminate()
+        self.background_process.join()
+        self.background_process.close()
+        self.background_process = None
+
+    def __getstate__(self):
+        # Override parent's __getstate__ to not worry about the db
+        state = self.__dict__.copy()
         return state
 
 
