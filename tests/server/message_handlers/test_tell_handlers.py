@@ -9,10 +9,10 @@ import json
 import unittest
 from unittest.mock import MagicMock
 
-from ..test_server import BaseServerTestCase, dummy_config
+from ..test_server import AsyncServerTestBase, dummy_config
 
 
-class MessageHandlerTellTests(BaseServerTestCase):
+class MessageHandlerTellTests(AsyncServerTestBase):
     def test_tell(self):
         setup_request = {
             "type": "setup",
