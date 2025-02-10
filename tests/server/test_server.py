@@ -46,6 +46,7 @@ min_asks = 2
 generator = OptimizeAcqfGenerator
 model = GPClassificationModel
 min_total_outcome_occurrences = 0
+copy_model = True
 
 [OptimizeAcqfGenerator]
 acqf = MCPosteriorVariance
@@ -488,6 +489,48 @@ class AsyncServerTestCase(AsyncServerTestBase):
                 self.assertTrue("error" in response)  # Very generic error for malformed
             else:
                 self.assertTrue("KeyError" in response["error"])  # Specific error
+
+    async def test_multi_client(self):
+        setup_request = {
+            "type": "setup",
+            "version": "0.01",
+            "message": {"config_str": dummy_config},
+        }
+        ask_request = {"type": "ask", "message": ""}
+        tell_request = {
+            "type": "tell",
+            "message": {"config": {"x": [0.5]}, "outcome": 1},
+            "extra_info": {},
+        }
+
+        await self.mock_client(setup_request)
+
+        # Create second client
+        reader2, writer2 = await asyncio.open_connection(self.ip, self.port)
+
+        async def _mock_client2(request: Dict[str, Any]) -> Any:
+            writer2.write(json.dumps(request).encode())
+            await writer2.drain()
+
+            response = await reader2.read(1024 * 512)
+            return response.decode()
+
+        for _ in range(2):  # 2 loops should do it as we have 2 clients
+            tasks = [
+                asyncio.create_task(self.mock_client(ask_request)),
+                asyncio.create_task(_mock_client2(ask_request)),
+            ]
+            await asyncio.gather(*tasks)
+
+            tasks = [
+                asyncio.create_task(self.mock_client(tell_request)),
+                asyncio.create_task(_mock_client2(tell_request)),
+            ]
+            await asyncio.gather(*tasks)
+
+        self.assertTrue(self.s.strat.finished)
+        self.assertTrue(self.s.strat.x.numel() == 4)
+        self.assertTrue(self.s.clients_connected == 2)
 
 
 if __name__ == "__main__":

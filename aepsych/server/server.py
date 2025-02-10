@@ -53,6 +53,7 @@ class AEPsychServer:
         self.host = host
         self.port = port
         self.max_workers = max_workers
+        self.clients_connected = 0
         self.db: db.Database = db.Database(database_path)
         self.is_performing_replay = False
         self.exit_server_loop = False
@@ -323,6 +324,7 @@ class AEPsychServer:
         """
         addr = writer.get_extra_info("peername")
         logger.info(f"Connected to {addr}")
+        self.clients_connected += 1
 
         try:
             while True:
@@ -361,6 +363,7 @@ class AEPsychServer:
             logger.info(f"Connection closed for {addr}")
             writer.close()
             await writer.wait_closed()
+            self.clients_connected -= 1
 
     def handle_request(self, message: Dict[str, Any]) -> Union[Dict[str, Any], str]:
         """Given a message, dispatch the correct handler and return the result.
