@@ -495,14 +495,12 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
 class PairwiseProbitModelServerTest(unittest.TestCase):
     def setUp(self):
         # setup logger
-        server.logger = utils_logging.getLogger(logging.DEBUG, "logs")
+        server.logger = utils_logging.getLogger("logs")
         # random datebase path name without dashes
         database_path = "./{}.db".format(str(uuid.uuid4().hex))
         self.s = server.AEPsychServer(database_path=database_path)
 
     def tearDown(self):
-        self.s.cleanup()
-
         # cleanup the db
         if self.s.db is not None:
             self.s.db.delete_db()

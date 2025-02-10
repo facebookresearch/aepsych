@@ -7,12 +7,12 @@
 
 import unittest
 
-from ..test_server import BaseServerTestCase
+from ..test_server import AsyncServerTestBase
 
 
 # Smoke test to make sure nothing breaks. This should really be combined with
 # the individual query tests
-class QueryHandlerTestCase(BaseServerTestCase):
+class QueryHandlerTestCase(AsyncServerTestBase):
     def test_strat_query(self):
         # Annoying and complex model and output shapes
         config_str = """

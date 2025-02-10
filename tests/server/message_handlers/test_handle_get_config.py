@@ -9,10 +9,10 @@ import unittest
 
 from aepsych.config import Config
 
-from ..test_server import BaseServerTestCase, dummy_config
+from ..test_server import AsyncServerTestBase, dummy_config
 
 
-class HandleExitTestCase(BaseServerTestCase):
+class HandleExitTestCase(AsyncServerTestBase):
     def test_get_config(self):
         setup_request = {
             "type": "setup",

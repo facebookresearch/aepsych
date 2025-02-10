@@ -15,13 +15,13 @@ import dill
 import pandas as pd
 import torch
 
-logger = utils_logging.getLogger(logging.INFO)
+logger = utils_logging.getLogger()
 DEFAULT_DESC = "default description"
 DEFAULT_NAME = "default name"
 
 
 def handle_tell(server, request):
-    logger.debug("got tell message!")
+    logger.info("got tell message!")
 
     if not server.is_performing_replay:
         server.db.record_message(

@@ -9,11 +9,11 @@ import logging
 
 import aepsych.utils_logging as utils_logging
 
-logger = utils_logging.getLogger(logging.INFO)
+logger = utils_logging.getLogger()
 
 
 def handle_resume(server, request):
-    logger.debug("got resume message!")
+    logger.info("got resume message!")
     strat_id = int(request["message"]["strat_id"])
     server.strat_id = strat_id
     if not server.is_performing_replay:

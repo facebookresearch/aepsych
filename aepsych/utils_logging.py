@@ -35,7 +35,7 @@ class ColorFormatter(logging.Formatter):
         return formatter.format(record)
 
 
-def getLogger(level=logging.INFO, log_path: str = "logs") -> logging.Logger:
+def getLogger(log_path: str = "logs") -> logging.Logger:
     """Get a logger with the specified level and log path.
 
     Args:
@@ -53,7 +53,7 @@ def getLogger(level=logging.INFO, log_path: str = "logs") -> logging.Logger:
         "formatters": {"standard": {"()": ColorFormatter}},
         "handlers": {
             "default": {
-                "level": level,
+                "level": logging.INFO,
                 "class": "logging.StreamHandler",
                 "formatter": "standard",
             },
@@ -65,7 +65,11 @@ def getLogger(level=logging.INFO, log_path: str = "logs") -> logging.Logger:
             },
         },
         "loggers": {
-            "": {"handlers": ["default", "file"], "level": level, "propagate": False},
+            "": {
+                "handlers": ["default", "file"],
+                "level": logging.DEBUG,
+                "propagate": False,
+            },
         },
     }
 

@@ -49,10 +49,18 @@ class DBMasterTable(Base):
 
     extra_metadata = Column(String(4096))  # JSON-formatted metadata
 
-    children_replay = relationship("DbReplayTable", back_populates="parent")
-    children_strat = relationship("DbStratTable", back_populates="parent")
-    children_config = relationship("DbConfigTable", back_populates="parent")
-    children_raw = relationship("DbRawTable", back_populates="parent")
+    children_replay = relationship(
+        "DbReplayTable", lazy="selectin", join_depth=1, back_populates="parent"
+    )
+    children_strat = relationship(
+        "DbStratTable", lazy="selectin", join_depth=1, back_populates="parent"
+    )
+    children_config = relationship(
+        "DbConfigTable", lazy="selectin", join_depth=1, back_populates="parent"
+    )
+    children_raw = relationship(
+        "DbRawTable", lazy="selectin", join_depth=1, back_populates="parent"
+    )
 
     @classmethod
     def from_sqlite(cls, row: Dict[str, Any]) -> "DBMasterTable":
@@ -185,7 +193,9 @@ class DbReplayTable(Base):
     extra_info = Column(PickleType(pickler=pickle))
 
     master_table_id = Column(Integer, ForeignKey("master.unique_id"))
-    parent = relationship("DBMasterTable", back_populates="children_replay")
+    parent = relationship(
+        "DBMasterTable", lazy="joined", join_depth=1, back_populates="children_replay"
+    )
 
     __mapper_args__ = {}
 
@@ -297,7 +307,9 @@ class DbStratTable(Base):
     strat = Column(PickleType(pickler=pickle))
 
     master_table_id = Column(Integer, ForeignKey("master.unique_id"))
-    parent = relationship("DBMasterTable", back_populates="children_strat")
+    parent = relationship(
+        "DBMasterTable", lazy="joined", join_depth=1, back_populates="children_strat"
+    )
 
     @classmethod
     def from_sqlite(cls, row: Dict[str, Any]) -> "DbStratTable":
@@ -356,7 +368,9 @@ class DbConfigTable(Base):
     config = Column(PickleType(pickler=pickle))
 
     master_table_id = Column(Integer, ForeignKey("master.unique_id"))
-    parent = relationship("DBMasterTable", back_populates="children_config")
+    parent = relationship(
+        "DBMasterTable", lazy="joined", join_depth=1, back_populates="children_config"
+    )
 
     @classmethod
     def from_sqlite(cls, row: Dict[str, Any]) -> "DbConfigTable":
@@ -420,9 +434,15 @@ class DbRawTable(Base):
     extra_data = Column(PickleType(pickler=pickle))
 
     master_table_id = Column(Integer, ForeignKey("master.unique_id"))
-    parent = relationship("DBMasterTable", back_populates="children_raw")
-    children_param = relationship("DbParamTable", back_populates="parent")
-    children_outcome = relationship("DbOutcomeTable", back_populates="parent")
+    parent = relationship(
+        "DBMasterTable", lazy="joined", join_depth=1, back_populates="children_raw"
+    )
+    children_param = relationship(
+        "DbParamTable", lazy="joined", join_depth=1, back_populates="parent"
+    )
+    children_outcome = relationship(
+        "DbOutcomeTable", lazy="joined", join_depth=1, back_populates="parent"
+    )
 
     @classmethod
     def from_sqlite(cls, row: Dict[str, Any]) -> "DbRawTable":
@@ -527,6 +547,9 @@ class DbRawTable(Base):
                                 param_value=float(param_value),
                             )
 
+                    # Refresh the raw
+                    db_raw_record = db.get_raw_for(master_table.unique_id)[-1]
+
                     if isinstance(outcomes, Iterable) and type(outcomes) != str:
                         for j, outcome_value in enumerate(outcomes):
                             if (
@@ -551,23 +574,25 @@ class DbRawTable(Base):
                             outcome_value=float(outcomes),
                         )
         else:  # Raws are already in, so we just need to update it
-            for master_table in db.get_master_records():
-                unique_id = master_table.unique_id
-                raws = db.get_raw_for(unique_id)
-                tells = [
-                    message
-                    for message in db.get_replay_for(unique_id)
-                    if message.message_type == "tell"
-                ]
+            with db.session() as session:
+                for master_table in db.get_master_records():
+                    unique_id = master_table.unique_id
+                    raws = db.get_raw_for(unique_id)
+                    tells = [
+                        message
+                        for message in db.get_replay_for(unique_id)
+                        if message.message_type == "tell"
+                    ]
 
-                if len(raws) == len(tells):
-                    for raw, tell in zip(raws, tells):
-                        if tell.extra_info is not None and len(tell.extra_info) > 0:
-                            raw.extra_data = tell.extra_info
-                else:
-                    logger.warning(
-                        f"Tried to update raw table for experiment unique ID {unique_id}, but the number of tells and raws were not the same."
-                    )
+                    if len(raws) == len(tells):
+                        for raw, tell in zip(raws, tells):
+                            if tell.extra_info is not None and len(tell.extra_info) > 0:
+                                raw.extra_data = tell.extra_info
+                                db._add_commit(session, raw)
+                    else:
+                        logger.warning(
+                            f"Tried to update raw table for experiment unique ID {unique_id}, but the number of tells and raws were not the same."
+                        )
 
     @staticmethod
     def requires_update(engine: Engine) -> bool:
@@ -654,7 +679,9 @@ class DbParamTable(Base):
     param_value = Column(String(50))
 
     iteration_id = Column(Integer, ForeignKey("raw_data.unique_id"))
-    parent = relationship("DbRawTable", back_populates="children_param")
+    parent = relationship(
+        "DbRawTable", lazy="immediate", join_depth=1, back_populates="children_param"
+    )
 
     @classmethod
     def from_sqlite(cls, row: Dict[str, Any]) -> "DbParamTable":
@@ -720,7 +747,9 @@ class DbOutcomeTable(Base):
     outcome_value = Column(Float)
 
     iteration_id = Column(Integer, ForeignKey("raw_data.unique_id"))
-    parent = relationship("DbRawTable", back_populates="children_outcome")
+    parent = relationship(
+        "DbRawTable", lazy="immediate", join_depth=1, back_populates="children_outcome"
+    )
 
     @classmethod
     def from_sqlite(cls, row: Dict[str, Any]) -> "DbOutcomeTable":
