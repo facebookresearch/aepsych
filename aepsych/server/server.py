@@ -1,28 +1,29 @@
 #!/usr/bin/env python3
-# Copyright (c) Facebook, Inc. and its affiliates.
+# Copyright (c) Meta Platforms, Inc. and its affiliates.
 # All rights reserved.
 
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
-
 import argparse
+import asyncio
+import concurrent
 import io
+import json
 import logging
 import os
-import sys
-import threading
 import traceback
 import warnings
-from typing import Dict, Union
+from typing import Any, Dict, List, Optional, Union
 
-import aepsych.database.db as db
-import aepsych.utils_logging as utils_logging
 import dill
 import numpy as np
+import pandas as pd
 import torch
-from aepsych import version
+from aepsych import utils_logging, version
+from aepsych.config import Config
+from aepsych.database import db
+from aepsych.database.tables import DBMasterTable
 from aepsych.server.message_handlers import MESSAGE_MAP
-from aepsych.server.message_handlers.handle_ask import ask
 from aepsych.server.message_handlers.handle_setup import configure
 from aepsych.server.replay import (
     get_dataframe_from_replay,
@@ -30,12 +31,9 @@ from aepsych.server.replay import (
     get_strats_from_replay,
     replay,
 )
-from aepsych.server.sockets import BAD_REQUEST, DummySocket, PySocket
-from aepsych.utils import promote_0d
+from aepsych.strategy import SequentialStrategy, Strategy
 
 logger = utils_logging.getLogger(logging.INFO)
-DEFAULT_DESC = "default description"
-DEFAULT_NAME = "default name"
 
 
 def get_next_filename(folder, fname, ext):
@@ -44,191 +42,84 @@ def get_next_filename(folder, fname, ext):
     return f"{folder}/{fname}_{n + 1}.{ext}"
 
 
-class AEPsychServer(object):
-    def __init__(self, socket=None, database_path=None):
-        """Server for doing black box optimization using gaussian processes.
-        Keyword Arguments:
-            socket -- socket object that implements `send` and `receive` for json
-            messages (default: DummySocket()).
-            TODO actually make an abstract interface to subclass from here
-        """
-        if socket is None:
-            self.socket = DummySocket()
-        else:
-            self.socket = socket
-        self.db = None
+class AEPsychServer:
+    def __init__(
+        self,
+        host: str = "0.0.0.0",
+        port: int = 5555,
+        database_path: str = "./databases/default.db",
+        max_workers: Optional[int] = None,
+    ):
+        self.host = host
+        self.port = port
+        self.max_workers = max_workers
+        self.db: db.Database = db.Database(database_path)
         self.is_performing_replay = False
         self.exit_server_loop = False
         self._db_raw_record = None
-        self.db: db.Database = db.Database(database_path)
         self.skip_computations = False
         self.strat_names = None
         self.extensions = None
+        self._strats: List[SequentialStrategy] = []
+        self._parnames: List[List[str]] = []
+        self._configs: List[Config] = []
+        self._master_records: List[DBMasterTable] = []
+        self.strat_id = -1
+        self.outcome_names: List[str] = []
 
         if self.db.is_update_required():
             self.db.perform_updates()
 
-        self._strats = []
-        self._parnames = []
-        self._configs = []
-        self._master_records = []
-        self.strat_id = -1
-        self._pregen_asks = []
-        self.enable_pregen = False
-        self.outcome_names = []
-
-        self.debug = False
-        self.receive_thread = threading.Thread(
-            target=self._receive_send, args=(self.exit_server_loop,), daemon=True
-        )
-
-        self.queue = []
-
-    def cleanup(self):
-        """Close the socket and terminate connection to the server.
-
-        Returns:
-            None
-        """
-        self.socket.close()
-
-    def _receive_send(self, is_exiting: bool) -> None:
-        """Receive messages from the client.
-
-        Args:
-            is_exiting (bool): True to terminate reception of new messages from the client, False otherwise.
-
-        Returns:
-            None
-        """
-        while True:
-            request = self.socket.receive(is_exiting)
-            if request != BAD_REQUEST:
-                self.queue.append(request)
-            if self.exit_server_loop:
-                break
-        logger.info("Terminated input thread")
-
-    def _handle_queue(self) -> None:
-        """Handles the queue of messages received by the server.
-
-        Returns:
-            None
-        """
-        if self.queue:
-            request = self.queue.pop(0)
-            try:
-                result = self.handle_request(request)
-            except Exception as e:
-                error_message = f"Request '{request}' raised error '{e}'!"
-                result = f"server_error, {error_message}"
-                logger.error(f"{error_message}! Full traceback follows:")
-                logger.error(traceback.format_exc())
-            self.socket.send(result)
-        else:
-            if self.can_pregen_ask and (len(self._pregen_asks) == 0):
-                self._pregen_asks.append(ask(self))
-
-    def serve(self) -> None:
-        """Run the server. Note that all configuration outside of socket type and port
-        happens via messages from the client. The server simply forwards messages from
-        the client to its `setup`, `ask` and `tell` methods, and responds with either
-        acknowledgment or other response as needed. To understand the server API, see
-        the docs on the methods in this class.
-
-        Returns:
-            None
-
-        Raises:
-            RuntimeError: if a request from a client has no request type
-            RuntimeError: if a request from a client has no known request type
-            TODO make things a little more robust to bad messages from client; this
-             requires resetting the req/rep queue status.
-
-        """
-        logger.info("Server up, waiting for connections!")
-        logger.info("Ctrl-C to quit!")
-        # yeah we're not sanitizing input at all
-
-        # Start the method to accept a client connection
-        self.socket.accept_client()
-        self.receive_thread.start()
-        while True:
-            self._handle_queue()
-            if self.exit_server_loop:
-                break
-        # Close the socket and terminate with code 0
-        self.cleanup()
-        sys.exit(0)
-
-    def _unpack_strat_buffer(self, strat_buffer):
-        if isinstance(strat_buffer, io.BytesIO):
-            strat = torch.load(strat_buffer, pickle_module=dill)
-            strat_buffer.seek(0)
-        elif isinstance(strat_buffer, bytes):
-            warnings.warn(
-                "Strat buffer is not in bytes format!"
-                + " This is a deprecated format, loading using dill.loads.",
-                DeprecationWarning,
-            )
-            strat = dill.loads(strat_buffer)
-        else:
-            raise RuntimeError("Trying to load strat in unknown format!")
-        return strat
-
-    ### Properties that are set on a per-strat basis
+    #### Properties ####
     @property
-    def strat(self):
+    def strat(self) -> Optional[SequentialStrategy]:
         if self.strat_id == -1:
             return None
         else:
             return self._strats[self.strat_id]
 
     @strat.setter
-    def strat(self, s):
+    def strat(self, s: SequentialStrategy):
         self._strats.append(s)
 
     @property
-    def config(self):
+    def config(self) -> Optional[Config]:
         if self.strat_id == -1:
             return None
         else:
             return self._configs[self.strat_id]
 
     @config.setter
-    def config(self, s):
+    def config(self, s: Config):
         self._configs.append(s)
 
     @property
-    def parnames(self):
+    def parnames(self) -> List[str]:
         if self.strat_id == -1:
             return []
         else:
             return self._parnames[self.strat_id]
 
     @parnames.setter
-    def parnames(self, s):
+    def parnames(self, s: List[str]):
         self._parnames.append(s)
 
     @property
-    def _db_master_record(self):
+    def _db_master_record(self) -> Optional[DBMasterTable]:
         if self.strat_id == -1:
             return None
         else:
             return self._master_records[self.strat_id]
 
     @_db_master_record.setter
-    def _db_master_record(self, s):
+    def _db_master_record(self, s: DBMasterTable):
         self._master_records.append(s)
 
     @property
-    def n_strats(self):
+    def n_strats(self) -> int:
         return len(self._strats)
 
-    @property
-    def can_pregen_ask(self):
-        return self.strat is not None and self.enable_pregen
-
+    #### Methods to handle parameter configs ####
     def _tensor_to_config(self, next_x):
         stim_per_trial = self.strat.stimuli_per_trial
         dim = self.strat.dim
@@ -280,8 +171,11 @@ class AEPsychServer(object):
 
         return x
 
-    def _fixed_to_idx(self, fixed: Dict[str, Union[float, str]]):
+    def _fixed_to_idx(self, fixed: Dict[str, Union[float, str]]) -> Dict[int, Any]:
         # Given a dictionary of fixed parameters, turn the parameters names into indices
+        if self.strat is None:
+            raise ValueError("No strategy is set, cannot convert fixed parameters.")
+
         dummy = np.zeros(len(self.parnames)).astype("O")
         for key, value in fixed.items():
             idx = self.parnames.index(key)
@@ -297,14 +191,211 @@ class AEPsychServer(object):
 
         return fixed_features
 
-    def __getstate__(self):
-        # nuke the socket since it's not pickleble
-        state = self.__dict__.copy()
-        del state["socket"]
-        del state["db"]
-        return state
+    #### Methods to handle replay ####
+    def replay(self, uuid_to_replay: int, skip_computations: bool = False) -> None:
+        """Replay an experiment with a specific unique ID. This will leave the
+        server state at the end of the replay.
 
-    def write_strats(self, termination_type):
+        Args:
+            uuid_to_replay (int): Unique ID of the experiment to replay. This is
+                the primary key of the experiment's master table.
+            skip_computations (bool): If True, skip computations during the replay.
+                Defaults to False.
+        """
+        return replay(self, uuid_to_replay, skip_computations)
+
+    def get_strats_from_replay(
+        self, uuid_of_replay: Optional[int] = None, force_replay: bool = False
+    ) -> List[Strategy]:
+        """Replay an experiment then return the strategies from the replay.
+
+        Args:
+            uuid_to_replay (int, optional): Unique ID of the experiment to
+                replay. If not set, the last experiment in the database will be
+                used.
+            force_replay (bool): If True, force a replay. Defaults to False.
+
+        Returns:
+            List[Union[SequentialStrategy, Strategy]]: List of strategies from
+                the replay.
+        """
+        return get_strats_from_replay(self, uuid_of_replay, force_replay)
+
+    def get_strat_from_replay(
+        self, uuid_of_replay: Optional[int] = None, strat_id: int = -1
+    ) -> Strategy:
+        """Replay an experiment then return a strategy from the replay.
+
+        Args:
+            uuid_to_replay (int, optional): Unique ID of the experiment to
+                replay. If not set, the last experiment in the database will be
+                used.
+            strat_id (int): ID of the strategy to return. Defaults to -1, which
+                returns the last strategy.
+
+        Returns:
+            Strategy: The strategy from the replay.
+        """
+        return get_strat_from_replay(self, uuid_of_replay, strat_id)
+
+    def get_dataframe_from_replay(
+        self, uuid_of_replay: Optional[int] = None, force_replay: bool = False
+    ) -> pd.DataFrame:
+        """Replay an experiment then return the dataframe from the replay.
+
+        Args:
+            uuid_to_replay (int, optional): Unique ID of the experiment to
+                replay. If not set, the last experiment in the database will be
+                used.
+            force_replay (bool): If True, force a replay. Defaults to False.
+
+        Returns:
+            pd.DataFrame: Dataframe from the replay.
+        """
+        return get_dataframe_from_replay(self, uuid_of_replay, force_replay)
+
+    def _unpack_strat_buffer(self, strat_buffer):
+        # Unpacks a strategy buffer from the database.
+        if isinstance(strat_buffer, io.BytesIO):
+            strat = torch.load(strat_buffer, pickle_module=dill)
+            strat_buffer.seek(0)
+        elif isinstance(strat_buffer, bytes):
+            warnings.warn(
+                "Strat buffer is not in bytes format!"
+                + " This is a deprecated format, loading using dill.loads.",
+                DeprecationWarning,
+            )
+            strat = dill.loads(strat_buffer)
+        else:
+            raise RuntimeError("Trying to load strat in unknown format!")
+        return strat
+
+    #### Method to handle async server ####
+    def start_blocking(self) -> None:
+        """Starts the server in a blocking state in the main thread. Used by the
+        command line interface to start the server for a client in another
+        process or machine."""
+        asyncio.run(self.serve())
+
+    def start_background(self):
+        """Starts the server in a background thread. Used for scripts where the
+        client and server are in the same process."""
+        raise NotImplementedError
+
+    async def serve(self) -> None:
+        """Serves the server on the set IP and port. This creates a coroutine
+        for asyncio to handle requests asyncronously.
+        """
+        self.server = await asyncio.start_server(
+            self.handle_client, self.host, self.port
+        )
+        self.loop = asyncio.get_running_loop()
+        pool = concurrent.futures.ThreadPoolExecutor(max_workers=self.max_workers)
+        self.loop.set_default_executor(pool)
+
+        async with self.server:
+            logging.info(f"Serving on {self.host}:{self.port}")
+            try:
+                await self.server.serve_forever()
+            except asyncio.CancelledError:
+                raise
+            except KeyboardInterrupt:
+                exception_type = "CTRL+C"
+                dump_type = "dump"
+                self.write_strats(exception_type)
+                self.generate_debug_info(exception_type, dump_type)
+            except RuntimeError as e:
+                exception_type = "RuntimeError"
+                dump_type = "crashdump"
+                self.write_strats(exception_type)
+                self.generate_debug_info(exception_type, dump_type)
+                raise RuntimeError(e)
+
+    async def handle_client(self, reader, writer):
+        """Coroutine for handling a client connection. This will read messages
+        from the connected client and dispatch a task to handle the request on
+        another thread such that its blocking state does not block the server.
+        This coroutine will end if the client closes the connection.
+
+        Args:
+            reader: asyncio.StreamReader: The stream reader for the client.
+            writer: asyncio.StreamWriter: The stream writer for the client.
+        """
+        addr = writer.get_extra_info("peername")
+        logger.info(f"Connected to {addr}")
+
+        try:
+            while True:
+                if self.exit_server_loop:
+                    self.server.close()
+                    break
+                rcv = await reader.read(1024 * 512)
+                try:
+                    message = json.loads(rcv)
+                except UnicodeDecodeError as e:
+                    logger.error(f"Malformed message: {rcv}")
+                    logger.error(traceback.format_exc())
+                    result = {"error": str(e)}
+                    return_msg = json.dumps(self._simplify_arrays(result)).encode()
+                    writer.write(return_msg)
+                    continue
+
+                future = self.loop.run_in_executor(None, self.handle_request, message)
+                try:
+                    result = await future
+                except Exception as e:
+                    logger.error(f"Error handling message: {message}")
+                    logger.error(traceback.format_exc())
+                    # Some exceptions turned into string are meaningless, so we use repr
+                    result = {"error": e.__repr__()}
+                if isinstance(result, dict):
+                    return_msg = json.dumps(self._simplify_arrays(result)).encode()
+                    writer.write(return_msg)
+                else:
+                    writer.write(str(result).encode())
+
+                await writer.drain()
+        except asyncio.CancelledError:
+            pass
+        finally:
+            logger.info(f"Connection closed for {addr}")
+            writer.close()
+            await writer.wait_closed()
+
+    def handle_request(self, message: Dict[str, Any]) -> Union[Dict[str, Any], str]:
+        """Given a message, dispatch the correct handler and return the result.
+
+        Args:
+            message (Dict[str, Any]): The message to handle.
+
+        Returns:
+            Union[Dict[str, Any], str]: The result of handling the message.
+        """
+        type_ = message["type"]
+        result = MESSAGE_MAP[type_](self, message)
+        return result
+
+    def _simplify_arrays(self, message):
+        # Simplify arrays for encoding and sending a message to the client
+        return {
+            k: (
+                v.tolist()
+                if type(v) == np.ndarray
+                else self._simplify_arrays(v)
+                if type(v) is dict
+                else v
+            )
+            for k, v in message.items()
+        }
+
+    #### Methods to handle exiting ####
+    def write_strats(self, termination_type: str) -> None:
+        """Pickle the stats and records them into the database.
+
+        Args:
+            termination_type (str): The type of termination. This only affects
+                the log message.
+        """
         if self._db_master_record is not None and self.strat is not None:
             logger.info(f"Dumping strats to DB due to {termination_type}.")
             for strat in self._strats:
@@ -313,77 +404,28 @@ class AEPsychServer(object):
                 buffer.seek(0)
                 self.db.record_strat(master_table=self._db_master_record, strat=buffer)
 
-    def generate_debug_info(self, exception_type, dumptype):
+    def generate_debug_info(self, exception_type: str, dumptype: str) -> None:
+        """Generate a debug info file for the server. This will pickle the server
+        and save it to a file.
+
+        Args:
+            exception_type (str): The type of exception that caused the server
+                to terminate. This only affects the log message.
+            dump_type (str): The type of dump. This only affects the log file.
+        """
         fname = get_next_filename(".", dumptype, "pkl")
         logger.exception(f"Got {exception_type}, exiting! Server dump in {fname}")
         dill.dump(self, open(fname, "wb"))
 
-    def handle_request(self, request):
-        if "type" not in request.keys():
-            raise RuntimeError(f"Request {request} contains no request type!")
-        else:
-            type = request["type"]
-            if type in MESSAGE_MAP.keys():
-                logger.info(f"Received msg [{type}]")
-                ret_val = MESSAGE_MAP[type](self, request)
-                return ret_val
-
-            else:
-                exception_message = (
-                    f"unknown type: {type}. Allowed types [{MESSAGE_MAP.keys()}]"
-                )
-
-                raise RuntimeError(exception_message)
-
-    def replay(self, uuid_to_replay, skip_computations=False):
-        return replay(self, uuid_to_replay, skip_computations)
-
-    def get_strats_from_replay(self, uuid_of_replay=None, force_replay=False):
-        return get_strats_from_replay(self, uuid_of_replay, force_replay)
-
-    def get_strat_from_replay(self, uuid_of_replay=None, strat_id=-1):
-        return get_strat_from_replay(self, uuid_of_replay, strat_id)
-
-    def get_dataframe_from_replay(self, uuid_of_replay=None, force_replay=False):
-        return get_dataframe_from_replay(self, uuid_of_replay, force_replay)
-
-
-#! THIS IS WHAT START THE SERVER
-def startServerAndRun(
-    server_class, socket=None, database_path=None, config_path=None, id_of_replay=None
-):
-    server = server_class(socket=socket, database_path=database_path)
-    try:
-        if config_path is not None:
-            with open(config_path) as f:
-                config_str = f.read()
-            configure(server, config_str=config_str)
-
-        if socket is not None:
-            if id_of_replay is not None:
-                server.replay(id_of_replay, skip_computations=True)
-            server.serve()
-        else:
-            if config_path is not None:
-                logger.info(
-                    "You have passed in a config path but this is a replay. If there's a config in the database it will be used instead of the passed in config path."
-                )
-            server.replay(id_of_replay)
-    except KeyboardInterrupt:
-        exception_type = "CTRL+C"
-        dump_type = "dump"
-        server.write_strats(exception_type)
-        server.generate_debug_info(exception_type, dump_type)
-    except RuntimeError as e:
-        exception_type = "RuntimeError"
-        dump_type = "crashdump"
-        server.write_strats(exception_type)
-        server.generate_debug_info(exception_type, dump_type)
-        raise RuntimeError(e)
+    def __getstate__(self):
+        # Called when the server is pickled, we can't pickle the DB.
+        state = self.__dict__.copy()
+        del state["db"]
+        return state
 
 
 def parse_argument():
-    parser = argparse.ArgumentParser(description="AEPsych Server!")
+    parser = argparse.ArgumentParser(description="AEPsych Server")
     parser.add_argument(
         "--port", metavar="N", type=int, default=5555, help="port to serve on"
     )
@@ -415,72 +457,54 @@ def parse_argument():
         "--db",
         type=str,
         help="The database to use if not the default (./databases/default.db).",
-        default=None,
+        default="./databases/default.db",
     )
 
     parser.add_argument(
-        "-r", "--replay", type=str, help="Unique id of the experiment to replay."
-    )
-
-    parser.add_argument(
-        "-m", "--resume", action="store_true", help="Resume server after replay."
+        "-r",
+        "--resume",
+        type=str,
+        help="Unique id of the experiment to replay and resume the server from.",
     )
 
     args = parser.parse_args()
     return args
 
 
-def start_server(server_class, args):
-    logger.info("Starting the AEPsychServer")
+def main():
+    logger = utils_logging.getLogger()
+    logger.info("Starting AEPsychServer")
     logger.info(f"AEPsych Version: {version.__version__}")
-    try:
-        if "db" in args and args.db is not None:
-            database_path = args.db
-            if "replay" in args and args.replay is not None:
-                logger.info(f"Attempting to replay {args.replay}")
-                if args.resume is True:
-                    sock = PySocket(port=args.port)
-                    logger.info(f"Will resume {args.replay}")
-                else:
-                    sock = None
-                startServerAndRun(
-                    server_class,
-                    socket=sock,
-                    database_path=database_path,
-                    uuid_of_replay=args.replay,
-                    config_path=args.stratconfig,
-                )
-            else:
-                logger.info(f"Setting the database path {database_path}")
-                sock = PySocket(port=args.port)
-                startServerAndRun(
-                    server_class,
-                    database_path=database_path,
-                    socket=sock,
-                    config_path=args.stratconfig,
-                )
-        else:
-            sock = PySocket(port=args.port)
-            startServerAndRun(server_class, socket=sock, config_path=args.stratconfig)
 
-    except (KeyboardInterrupt, SystemExit):
-        logger.exception("Got Ctrl+C, exiting!")
-        sys.exit()
-    except RuntimeError as e:
-        fname = get_next_filename(".", "dump", "pkl")
-        logger.exception(f"CRASHING!! dump in {fname}")
-        raise RuntimeError(e)
-
-
-def main(server_class=AEPsychServer):
     args = parse_argument()
     if args.logs:
         # overide logger path
         log_path = args.logs
-        logger = utils_logging.getLogger(logging.DEBUG, log_path)
-    logger.info(f"Saving logs to path: {log_path}")
-    start_server(server_class, args)
+        logger = utils_logging.getLogger(log_path)
+        logger.info(f"Saving logs to path: {log_path}")
+
+    server = AEPsychServer(
+        host=args.ip,
+        port=args.port,
+        database_path=args.db,
+    )
+
+    if args.stratconfig is not None and args.resume is not None:
+        raise ValueError(
+            "Cannot configure the server with a config file and a resume from a replay at the same time."
+        )
+
+    elif args.stratconfig is not None:
+        configure(server, config_str=args.stratconfig)
+
+    elif args.resume is not None:
+        if args.db is None:
+            raise ValueError("Cannot resume from a replay if no database is given.")
+        server.replay(args.resume, skip_computations=True)
+
+    # Starts the server in a blocking state
+    server.start_blocking()
 
 
 if __name__ == "__main__":
-    main(AEPsychServer)
+    main()
