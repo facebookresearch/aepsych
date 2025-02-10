@@ -7,10 +7,10 @@
 
 import unittest
 
-from ..test_server import BaseServerTestCase, dummy_config
+from ..test_server import AsyncServerTestBase, dummy_config
 
 
-class StratCanModelTestCase(BaseServerTestCase):
+class StratCanModelTestCase(AsyncServerTestBase):
     def test_strat_can_model(self):
         setup_request = {
             "type": "setup",

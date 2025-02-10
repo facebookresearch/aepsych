@@ -10,7 +10,7 @@ from typing import Any, Dict
 
 import aepsych.utils_logging as utils_logging
 
-logger = utils_logging.getLogger(logging.INFO)
+logger = utils_logging.getLogger()
 
 
 def handle_info(server, request: Dict[str, Any]) -> Dict[str, Any]:
@@ -22,7 +22,7 @@ def handle_info(server, request: Dict[str, Any]) -> Dict[str, Any]:
     Returns:
         Dict[str, Any]: Returns dictionary containing the current state of the experiment
     """
-    logger.debug("got info message!")
+    logger.info("got info message!")
 
     ret_val = info(server)
 
