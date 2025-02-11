@@ -249,14 +249,7 @@ class AEPsychServer(object):
         config = {}
         for i, name in enumerate(self.parnames):
             val = next_x[:, i]
-            if isinstance(val, str):
-                config[name] = [val]
-            elif isinstance(val, (int, float)):
-                config[name] = [float(val)]
-            elif isinstance(val[0], str):
-                config[name] = val
-            else:
-                config[name] = list(np.array(val, dtype="float64"))
+            config[name] = val.tolist()
         return config
 
     def _config_to_tensor(self, config):
