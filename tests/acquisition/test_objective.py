@@ -14,9 +14,13 @@ from aepsych.acquisition.objective import (
     FloorGumbelObjective,
     FloorLogitObjective,
     FloorProbitObjective,
+    AffinePosteriorTransform
 )
 from parameterized import parameterized
 from scipy.stats import gumbel_l, logistic, norm
+
+from aepsych.config import Config
+import numpy.testing as npt
 
 objective_pairs = [
     (FloorLogitObjective, logistic),
@@ -42,3 +46,15 @@ class FloorLinkTests(unittest.TestCase):
 
         our_inverse = our_link.inverse(our_answer)
         self.assertTrue(np.allclose(x, our_inverse.numpy()))
+
+class AffinePosteriorTransformTests(unittest.TestCase):
+    def test_from_config(self):
+        config_str = """
+        [AffinePosteriorTransform]
+        weights = [1, -1]
+        offset = 0
+        """
+        config = Config(config_str=config_str)
+        apt = AffinePosteriorTransform.from_config(config=config)
+        npt.assert_array_equal(apt.weights, torch.tensor([1., -1.]))
+        self.assertEqual(apt.offset, 0.0)

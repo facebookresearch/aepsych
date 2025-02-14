@@ -16,6 +16,7 @@ from .objective import (
     ProbitObjective,
 )
 from .semi_p import SemiPProbabilityObjective, SemiPThresholdObjective
+from .multi_outcome import AffinePosteriorTransform
 
 __all__ = [
     "AEPsychObjective",
@@ -25,6 +26,7 @@ __all__ = [
     "ProbitObjective",
     "SemiPProbabilityObjective",
     "SemiPThresholdObjective",
+    "AffinePosteriorTransform"
 ]
 
 Config.register_module(sys.modules[__name__])

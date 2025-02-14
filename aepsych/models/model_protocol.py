@@ -50,8 +50,7 @@ class ModelProtocol(Protocol):
     def predict_transform(
         self,
         x: torch.Tensor,
-        transformed_posterior_cls: Optional[type[TransformedPosterior]] = None,
-        **transform_kwargs,
+        **kwargs,
     ):
         pass
 
