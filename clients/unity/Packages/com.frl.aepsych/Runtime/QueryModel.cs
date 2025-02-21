@@ -80,11 +80,11 @@ public class QueryModel : MonoBehaviour
         initParams = client.GetConfig(version: "0.0");
         if (!initialized)
         {
-            foreach (KeyValuePair<string, List<float>> entry in initParams)
+            foreach (KeyValuePair<string, object> entry in initParams)
             {
                 string name = entry.Key;
-                float min = entry.Value[0];
-                float max = entry.Value[1];
+                float min = initParams.GetFlatList(name)[0];
+                float max = initParams.GetFlatList(name)[1];
                 GameObject sliderObj = Instantiate(sliderPrefab, canvasGroup.transform.position, canvasGroup.transform.rotation, canvasGroup.transform);
                 sliderObj.transform.parent = xslidergroup.transform;
                 ModelSlider slider = sliderObj.GetComponent<ModelSlider>();
@@ -179,7 +179,7 @@ public class QueryModel : MonoBehaviour
         QueryMessage m = client.GetQueryResponse();
         foreach (ModelSlider slider in xSliders)
         {
-            slider.SetValue(m.x[slider.GetName()][0]);
+            slider.SetValue(m.x.GetFlatList(slider.GetName())[0]);
         }
         ySlider.SetValue(m.y);
         QueryEnabled(true);
@@ -191,13 +191,20 @@ public class QueryModel : MonoBehaviour
         TrialConfig queryConfig = new TrialConfig();
         List<float> values = GetSliderValues();
         int idx = 0;
-        foreach (KeyValuePair<string, List<float>> entry in initParams)
+
+        foreach (string paramKeys in initParams.Keys())
         {
-            queryConfig[entry.Key] = new List<float>();
+            queryConfig[paramKeys] = new List<float>();
             // Add value to 1st and 2nd index of List, in the case that the ShowStimuli
             // method of the experiment reads two values for each dimension
-            queryConfig[entry.Key].Add(values[idx]);
-            queryConfig[entry.Key].Add(values[idx]);
+
+            //this is so sketchy
+            var obj = queryConfig[paramKeys] as List<float>;
+            obj.Add(values[idx]);
+            obj.Add(values[idx]);
+            queryConfig[paramKeys] = obj;
+            //queryConfig[entry.Key].Add(values[idx]);
+            //queryConfig[entry.Key].Add(values[idx]);
             idx++;
         }
 

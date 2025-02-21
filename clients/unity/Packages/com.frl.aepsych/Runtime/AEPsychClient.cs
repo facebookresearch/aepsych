@@ -150,29 +150,33 @@ namespace AEPsych
         public override string ToString()
         {
             string data = timeStamp + ",";
-            foreach (KeyValuePair<string, List<float>> pair in config)
+            foreach (KeyValuePair<string, object> pair in config)
             {
-                foreach (float x in pair.Value)
+                if (pair.Value is List<float>)
                 {
-                    data += x + ",";
+                    foreach (float x in (pair.Value as List<float>))
+                    {
+                        data += x + ",";
+                    }
                 }
-            }
-            data += outcome + ",";
-            if (extra_info != null)
-            {
-                data +=  JsonConvert.SerializeObject(extra_info);
+                else
+                {
+
+                }
+
             }
             return data;
+
         }
 
         public string GetHeader()
         {
             StringBuilder sb = new StringBuilder();
             sb.Append("Timestamp:,");
-            foreach (KeyValuePair<string, List<float>> pair in config)
+            foreach (KeyValuePair<string, object> pair in config)
             {
                 sb.Append( pair.Key + ":");
-                for (int i = 0; i < pair.Value.Count; i++)
+                for (int i = 0; i < (pair.Value as List<float>).Count; i++)
                 {
                     sb.Append(",");
                 }
