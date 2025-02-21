@@ -477,6 +477,10 @@ class ParameterTransformedGenerator(ParameterTransformWrapper, ConfigurableMixin
                 f"{self._base_obj.__class__.__name__} has no attribute 'eval'"
             )
 
+    def __reduce__(self):
+        # Helps pickle work (not dill)
+        return (ParameterTransformedGenerator, (self._base_obj, self.transforms))
+
     @classmethod
     def get_config_options(
         cls,
@@ -724,6 +728,10 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
             warnings.warn(
                 f"{self._base_obj.__class__.__name__} has no attribute 'eval'"
             )
+
+    def __reduce__(self):
+        # Helps pickle work (not dill)
+        return (ParameterTransformedModel, (self._base_obj, self.transforms))
 
     @classmethod
     def get_config_options(
