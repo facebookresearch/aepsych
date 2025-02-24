@@ -562,14 +562,29 @@ class DBTestCase(unittest.TestCase):
             master_table.experiment_description, "default description"
         )  # test default description value
 
-    def test_summarize_experiments(self):
+
+class DBUtilityTestCase(unittest.TestCase):
+    def setUp(self):
         current_path = Path(os.path.abspath(__file__)).parent
         db_path = current_path
         db_path = db_path.joinpath("test_databases/1000_outcome.db")
-        data = db.Database(db_path)
-        summary = data.summarize_experiments()
+
+        # Make a copy of the database
+        dst_db_path = Path("./{}.db".format(str(uuid.uuid4().hex)))
+        shutil.copy(db_path, dst_db_path)
+
+        time.sleep(0.1)
+        self.assertTrue(dst_db_path.is_file())
+
+        self.data = db.Database(dst_db_path)
+
+    def tearDown(self):
+        self.data.delete_db()
+
+    def test_summarize_experiments(self):
+        summary = self.data.summarize_experiments()
         self.assertIsInstance(summary, pd.DataFrame)
-        self.assertEqual(len(summary), len(data.get_master_records()))
+        self.assertEqual(len(summary), len(self.data.get_master_records()))
         colnames = [
             "experiment_id",
             "experiment_name",
@@ -591,11 +606,7 @@ class DBTestCase(unittest.TestCase):
         self.assertTrue(pd.api.types.is_integer_dtype(summary["n_data"]))
 
     def test_get_dataframe(self):
-        current_path = Path(os.path.abspath(__file__)).parent
-        db_path = current_path
-        db_path = db_path.joinpath("test_databases/1000_outcome.db")
-        data = db.Database(db_path)
-        df = data.get_data_frame()
+        df = self.data.get_data_frame()
         self.assertIsInstance(df, pd.DataFrame)
         colnames = [
             "experiment_id",
@@ -616,8 +627,8 @@ class DBTestCase(unittest.TestCase):
             self.assertTrue(col in df.columns)
 
         n = 0
-        for rec in data.get_master_records():
-            n += len(data.get_raw_for(rec.unique_id))
+        for rec in self.data.get_master_records():
+            n += len(self.data.get_raw_for(rec.unique_id))
         self.assertEqual(n, len(df))
 
 
