@@ -82,8 +82,7 @@ def get_strats_from_replay(server, uuid_of_replay=None, force_replay=False):
                 strat.model.fit(strat.x, strat.y)
         return server._strats
     else:
-        strat_buffers = server.db.get_strats_for(uuid_of_replay)
-        return [server._unpack_strat_buffer(sb) for sb in strat_buffers]
+        return server.db.get_strats_for(uuid_of_replay)
 
 
 def get_strat_from_replay(server, uuid_of_replay=None, strat_id=-1):
@@ -98,9 +97,9 @@ def get_strat_from_replay(server, uuid_of_replay=None, strat_id=-1):
         else:
             raise RuntimeError("Server has no experiment records!")
 
-    strat_buffer = server.db.get_strat_for(uuid_of_replay, strat_id)
-    if strat_buffer is not None:
-        return server._unpack_strat_buffer(strat_buffer)
+    strats = server.db.get_strat_for(uuid_of_replay, strat_id)
+    if strats is not None:
+        return strats
     else:
         warnings.warn(
             "No final strat found (likely due to old DB,"
