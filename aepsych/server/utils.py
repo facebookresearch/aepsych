@@ -8,7 +8,9 @@
 import argparse
 import logging
 import os
+import shutil
 import sys
+import uuid
 
 import aepsych.database.db as db
 import aepsych.utils_logging as utils_logging
@@ -18,7 +20,7 @@ logger = utils_logging.getLogger(logging.INFO)
 
 def get_next_filename(folder, fname, ext):
     n = sum(1 for f in os.listdir(folder) if os.path.isfile(os.path.join(folder, f)))
-    return f"{folder}/{fname}_{n+1}.{ext}"
+    return f"{folder}/{fname}_{n + 1}.{ext}"
 
 
 def parse_argument():
@@ -52,17 +54,25 @@ def run_database(args):
     logger.info("Starting AEPsych Database!")
     try:
         database_path = args.db
+
+        if args.summarize or "tocsv" in args and args.tocsv is not None:
+            # Make a temporary database
+            tmp_db_path = "./{}.db".format(str(uuid.uuid4().hex))
+            shutil.copy2(database_path, tmp_db_path)
+            database_path = tmp_db_path
+
         database = db.Database(database_path)
 
-        if args.summarize is True:
-            summary = db.Database(database_path).summarize_experiments()
+        if args.summarize:
+            summary = database.summarize_experiments()
             print(summary)
+            database.delete_db()
 
         elif "tocsv" in args and args.tocsv is not None:
             try:
-                db.Database(database_path).to_csv(args.tocsv)
+                database.to_csv(args.tocsv)
                 logger.info(f"Exported contents of {database_path} to {args.tocsv}")
-
+                database.delete_db()
             except Exception as error:
                 logger.error(
                     f"Failed to export contents of {database_path} with error `{error}`"

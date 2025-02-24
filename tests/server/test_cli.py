@@ -12,7 +12,7 @@ from pathlib import Path
 
 class CLITestCase(unittest.TestCase):
     def test_summarize_cli(self):
-        current_path = Path(os.path.abspath(__file__)).parent
+        current_path = Path(os.path.abspath(__file__)).parent.parent
         db_path = current_path
         db_path = db_path.joinpath("test_databases/1000_outcome.db")
         exit_status = os.system(f"aepsych_database --db {db_path} --summarize")
