@@ -129,6 +129,9 @@ def get_extremum(
             tmp[key] = tensor[key].item()
         locked_dims = tmp
 
+        # Transform bounds
+        bounds = model.transforms.transform(bounds)
+
     if model.num_outputs > 1 and posterior_transform is None:
         if weights is None:
             weights = torch.Tensor([1] * model.num_outputs)
