@@ -162,9 +162,6 @@ class Strategy(ConfigurableMixin):
         self.keep_most_recent = keep_most_recent
 
         self.transforms = transforms
-        if self.transforms is not None:
-            self.lb = self.transforms.transform(self.lb.unsqueeze(0))[0]
-            self.ub = self.transforms.transform(self.ub.unsqueeze(0))[0]
 
         self.min_post_range = min_post_range
         if self.min_post_range is not None:
@@ -172,11 +169,6 @@ class Strategy(ConfigurableMixin):
             self.eval_grid = make_scaled_sobol(
                 lb=self.lb, ub=self.ub, size=self._n_eval_points
             )
-
-            # this grid needs to be in untransformed space because it goes through a
-            # transform wrapped model
-            if self.transforms is not None:
-                self.eval_grid = self.transforms.untransform(self.eval_grid)
 
         # similar to ub/lb/grid, x is in raw parameter space
         self.x: Optional[torch.Tensor] = None
