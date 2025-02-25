@@ -6,6 +6,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import datetime
+import io
 import json
 import logging
 import os
@@ -15,7 +16,9 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 import aepsych.database.tables as tables
+import dill
 import pandas as pd
+import torch
 from aepsych.config import Config
 from aepsych.strategy import Strategy
 from sqlalchemy import create_engine
@@ -192,8 +195,17 @@ class Database:
         master_record = self.get_master_record(master_id)
 
         if master_record is not None and len(master_record.children_strat) > 0:
-            return [c.strat for c in master_record.children_strat]
+            strats = []
+            for strat_row in master_record.children_strat:
+                strat_buffer = strat_row.strat
+                if isinstance(strat_buffer, io.BytesIO):
+                    strat = torch.load(strat_buffer, pickle_module=dill)
+                    strat_buffer.seek(0)
+                else:
+                    strat = strat_buffer
 
+                strats.append(strat)
+            return strats
         return None
 
     def get_strat_for(self, master_id: int, strat_id: int = -1) -> Optional[Any]:
@@ -209,7 +221,14 @@ class Database:
         master_record = self.get_master_record(master_id)
 
         if master_record is not None and len(master_record.children_strat) > 0:
-            return master_record.children_strat[strat_id].strat
+            strat_buffer = master_record.children_strat[strat_id].strat
+            if isinstance(strat_buffer, io.BytesIO):
+                strat = torch.load(strat_buffer, pickle_module=dill)
+                strat_buffer.seek(0)
+            else:
+                strat = strat_buffer
+
+            return strat
 
         return None
 
