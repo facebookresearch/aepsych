@@ -161,21 +161,6 @@ class AEPsychServer(object):
         self.cleanup()
         sys.exit(0)
 
-    def _unpack_strat_buffer(self, strat_buffer):
-        if isinstance(strat_buffer, io.BytesIO):
-            strat = torch.load(strat_buffer, pickle_module=dill)
-            strat_buffer.seek(0)
-        elif isinstance(strat_buffer, bytes):
-            warnings.warn(
-                "Strat buffer is not in bytes format!"
-                + " This is a deprecated format, loading using dill.loads.",
-                DeprecationWarning,
-            )
-            strat = dill.loads(strat_buffer)
-        else:
-            raise RuntimeError("Trying to load strat in unknown format!")
-        return strat
-
     ### Properties that are set on a per-strat basis
     @property
     def strat(self):
