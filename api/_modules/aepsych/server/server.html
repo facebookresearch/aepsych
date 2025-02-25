@@ -179,21 +179,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_unpack_strat_buffer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strat_buffer</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">strat_buffer</span><span class="p">,</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">):</span>
-            <span class="n">strat</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">strat_buffer</span><span class="p">,</span> <span class="n">pickle_module</span><span class="o">=</span><span class="n">dill</span><span class="p">)</span>
-            <span class="n">strat_buffer</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">strat_buffer</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                <span class="s2">"Strat buffer is not in bytes format!"</span>
-                <span class="o">+</span> <span class="s2">" This is a deprecated format, loading using dill.loads."</span><span class="p">,</span>
-                <span class="ne">DeprecationWarning</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="n">strat</span> <span class="o">=</span> <span class="n">dill</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">strat_buffer</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"Trying to load strat in unknown format!"</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">strat</span>
-
     <span class="c1">### Properties that are set on a per-strat basis</span>
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">strat</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

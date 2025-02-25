@@ -495,6 +495,10 @@
                 <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_obj</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> has no attribute 'eval'"</span>
             <span class="p">)</span></div>
 
+    <span class="k">def</span><span class="w"> </span><span class="nf">__reduce__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Helps pickle work (not dill)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">ParameterTransformedGenerator</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_obj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">transforms</span><span class="p">))</span>
+
 <div class="viewcode-block" id="ParameterTransformedGenerator.get_config_options"><a class="viewcode-back" href="../../../transforms.html#aepsych.transforms.parameters.ParameterTransformedGenerator.get_config_options">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_config_options</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span>
@@ -742,6 +746,10 @@
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_obj</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> has no attribute 'eval'"</span>
             <span class="p">)</span></div>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__reduce__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Helps pickle work (not dill)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">ParameterTransformedModel</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_obj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">transforms</span><span class="p">))</span>
 
 <div class="viewcode-block" id="ParameterTransformedModel.get_config_options"><a class="viewcode-back" href="../../../transforms.html#aepsych.transforms.parameters.ParameterTransformedModel.get_config_options">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_config_options</span><span class="p">(</span>
