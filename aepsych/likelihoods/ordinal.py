@@ -45,7 +45,9 @@ class OrdinalLikelihood(Likelihood, ConfigurableMixin):
             self.raw_cutpoint_deltas
         )
         # for identification, the first cutpoint is 0
-        return torch.cat((torch.tensor([0]), torch.cumsum(cutpoint_deltas, 0)))
+        return torch.cat(
+            (torch.tensor([0]).to(cutpoint_deltas), torch.cumsum(cutpoint_deltas, 0))
+        )
 
     def forward(self, function_samples: torch.Tensor, *params, **kwargs) -> Categorical:
         """Forward pass for Ordinal
@@ -58,7 +60,9 @@ class OrdinalLikelihood(Likelihood, ConfigurableMixin):
         """
 
         # this whole thing can probably be some clever batched thing, meh
-        probs = torch.zeros(*function_samples.size(), self.n_levels)
+        probs = torch.zeros(*function_samples.size(), self.n_levels).to(
+            function_samples
+        )
 
         probs[..., 0] = self.link(self.cutpoints[0] - function_samples)
 
