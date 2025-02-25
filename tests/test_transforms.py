@@ -6,12 +6,14 @@
 # LICENSE file in the root directory of this source tree.
 
 import unittest
+import uuid
 
 import numpy as np
 import torch
 from aepsych.config import Config, ParameterConfigError
-from aepsych.generators import SobolGenerator
-from aepsych.models import GPClassificationModel
+from aepsych.generators import OptimizeAcqfGenerator, SobolGenerator
+from aepsych.models import GPClassificationModel, GPRegressionModel
+from aepsych.server import AEPsychServer
 from aepsych.strategy import SequentialStrategy
 from aepsych.transforms import (
     ParameterTransformedGenerator,
@@ -67,6 +69,91 @@ class TransformsWrapperTest(unittest.TestCase):
             generator.train()
             self.assertTrue(generator.training)
             self.assertTrue(generator.transforms.training)
+
+    def test_wrapper_pickle(self):
+        # Random database path name without dashes
+        dbname = "./{}.db".format(str(uuid.uuid4().hex))
+        server = AEPsychServer(database_path=dbname)
+
+        # Setup with a config
+        config_str = """
+            [common]
+            parnames = [signal1, signal2]
+            stimuli_per_trial = 1
+            outcome_types = [continuous]
+            strategy_names = [init_strat, opt_strat]
+
+            [signal1]
+            par_type = continuous
+            lower_bound = 1
+            upper_bound = 100
+            log_scale = false
+
+            [signal2]
+            par_type = continuous
+            lower_bound = 1
+            upper_bound = 100
+            log_scale = true
+
+            [init_strat]
+            min_total_tells = 10
+            generator = SobolGenerator
+
+            [SobolGenerator]
+            seed = 12345
+
+            [opt_strat]
+            min_total_tells = 2
+            generator = OptimizeAcqfGenerator
+            model = GPRegressionModel
+
+            [OptimizeAcqfGenerator]
+            acqf = qLogNoisyExpectedImprovement
+        """
+        setup_request = {
+            "type": "setup",
+            "version": "0.01",
+            "message": {"config_str": config_str},
+        }
+        ask_request = {"type": "ask", "message": ""}
+        tell_request = {
+            "type": "tell",
+            "message": {"config": {"signal1": [50], "signal2": [50]}, "outcome": 1},
+        }
+
+        server.handle_request(setup_request)
+        while not server.strat.finished:
+            server.handle_request(ask_request)
+            server.handle_request(tell_request)
+
+        # Remember transform for later
+        transforms = server.strat.transforms
+        server.cleanup()
+        del server
+
+        # Load up server again to get the db
+        server = AEPsychServer(database_path=dbname)
+        strats = server.db.get_strats_for(1)
+
+        self.assertTrue(len(strats) == 1)
+        strat = strats[0]
+
+        # Check that strat can still generate
+        points = strat.gen()
+        self.assertTrue(points.numel() == 2)
+
+        # Check we have the right model and generator
+        self.assertIsInstance(strat.model, GPRegressionModel)
+        self.assertIsInstance(strat.generator, OptimizeAcqfGenerator)
+
+        # Check if the transforms are correct
+        for key, value in transforms.items():
+            self.assertIsInstance(strat.transforms[key], type(value))
+        self.assertEqual(strat.transforms, strat.model.transforms)
+        self.assertEqual(strat.model.transforms, strat.generator.transforms)
+
+        # Real Cleanup
+        server.db.delete_db()
 
 
 class TransformsConfigTest(unittest.TestCase):
