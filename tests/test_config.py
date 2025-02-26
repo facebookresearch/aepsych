@@ -1089,8 +1089,8 @@ class ConfigTestCase(unittest.TestCase):
         strat = SequentialStrategy.from_config(config)
         opt_strat = strat.strat_list[1]
 
-        self.assertTrue(torch.all(opt_strat.lb == torch.Tensor([0, -5])))
-        self.assertTrue(torch.all(opt_strat.ub == torch.Tensor([1, 1])))
+        self.assertTrue(torch.all(opt_strat.lb == torch.Tensor([1, -5])))
+        self.assertTrue(torch.all(opt_strat.ub == torch.Tensor([100, 1])))
 
     def test_common_fallback_bounds(self):
         config_str = """
