@@ -16,6 +16,7 @@ from unittest.mock import MagicMock
 
 import aepsych.server as server
 import aepsych.utils_logging as utils_logging
+import torch
 from aepsych.server.sockets import BAD_REQUEST
 
 dummy_config = """
@@ -411,8 +412,8 @@ class ServerTestCase(BaseServerTestCase):
             self.assertTrue(response["config"]["y"][0] == "blue")
             self.s.handle_request(tell_request)
 
-        self.assertTrue(len(self.s.strat.lb) == 2)
-        self.assertTrue(len(self.s.strat.ub) == 2)
+        self.assertTrue(torch.all(torch.tensor([0, 0, 0]) == self.s.strat.lb))
+        self.assertTrue(torch.all(torch.tensor([1, 1, 100]) == self.s.strat.ub))
 
     def test_metadata(self):
         setup_request = {
