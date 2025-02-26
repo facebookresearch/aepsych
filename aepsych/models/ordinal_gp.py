@@ -5,34 +5,54 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
+from typing import Any, Dict, Optional
+
 import gpytorch
 import torch
 from aepsych.likelihoods import OrdinalLikelihood
-from aepsych.models import GPClassificationModel
+from aepsych.models.inducing_points.base import InducingPointAllocator
+from aepsych.models.variationalgp import VariationalGPModel
+from gpytorch.likelihoods import Likelihood
 
 
-class OrdinalGPModel(GPClassificationModel):
+class OrdinalGPModel(VariationalGPModel):
     """
-    Convenience wrapper for GPClassificationModel that hardcodes
-    an ordinal likelihood, better priors for this setting, and
-    adds a convenience method for computing outcome probabilities.
-
-    TODO: at some point we should refactor posteriors so that things like
-    OrdinalPosterior and MonotonicPosterior don't have to have their own
-    model classes.
+    A convenience wrapper about the base VariationalGPs with default covariance module
+    and likelihood to fit a Ordinal model.
     """
 
     outcome_type = "ordinal"
+    _num_outputs = 1
+    _stimuli_per_trial = 1
 
-    def __init__(self, likelihood=None, *args, **kwargs):
-        """Initialize the OrdinalGPModel
+    def __init__(
+        self,
+        dim: int,
+        mean_module: Optional[gpytorch.means.Mean] = None,
+        covar_module: Optional[gpytorch.kernels.Kernel] = None,
+        likelihood: Optional[Likelihood] = None,
+        inducing_point_method: Optional[InducingPointAllocator] = None,
+        inducing_size: int = 100,
+        max_fit_time: Optional[float] = None,
+        optimizer_options: Optional[Dict[str, Any]] = None,
+    ) -> None:
+        """Initialize the GP Classification model
 
         Args:
-            likelihood (Likelihood): The likelihood function to use. If None defaults to
-                Ordinal likelihood.
+            dim (int): The number of dimensions in the parameter space.
+            mean_module (gpytorch.means.Mean, optional): GP mean class. Defaults to a constant with a normal prior.
+            covar_module (gpytorch.kernels.Kernel, optional): GP covariance kernel class. Defaults to scaled RBF with a
+                gamma prior.
+            likelihood (gpytorch.likelihood.Likelihood, optional): The likelihood function to use. If None defaults to
+                Gaussian likelihood.
+            inducing_point_method (InducingPointAllocator, optional): The method to use for selecting inducing points.
+                If not set, a GreedyVarianceReduction is made.
+            inducing_size (int): Number of inducing points. Defaults to 100.
+            max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,
+                there is no limit to the fitting time.
+            optimizer_options (Dict[str, Any], optional): Optimizer options to pass to the SciPy optimizer during
+                fitting. Assumes we are using L-BFGS-B.
         """
-        covar_module = kwargs.pop("covar_module", None)
-        dim = kwargs.get("dim")
         if covar_module is None:
             ls_prior = gpytorch.priors.GammaPrior(concentration=1.5, rate=3.0)
             ls_prior_mode = (ls_prior.concentration - 1) / ls_prior.rate
@@ -49,11 +69,16 @@ class OrdinalGPModel(GPClassificationModel):
 
         if likelihood is None:
             likelihood = OrdinalLikelihood(n_levels=5)
+
         super().__init__(
-            *args,
+            dim=dim,
+            mean_module=mean_module,
             covar_module=covar_module,
             likelihood=likelihood,
-            **kwargs,
+            inducing_point_method=inducing_point_method,
+            inducing_size=inducing_size,
+            max_fit_time=max_fit_time,
+            optimizer_options=optimizer_options,
         )
 
     def predict_probs(self, xgrid: torch.Tensor) -> torch.Tensor:
