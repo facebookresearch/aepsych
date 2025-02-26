@@ -180,9 +180,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">keep_most_recent</span> <span class="o">=</span> <span class="n">keep_most_recent</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">transforms</span> <span class="o">=</span> <span class="n">transforms</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">transforms</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">lb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transforms</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lb</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">ub</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transforms</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ub</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">min_post_range</span> <span class="o">=</span> <span class="n">min_post_range</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_post_range</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -190,11 +187,6 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">eval_grid</span> <span class="o">=</span> <span class="n">make_scaled_sobol</span><span class="p">(</span>
                 <span class="n">lb</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ub</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_n_eval_points</span>
             <span class="p">)</span>
-
-            <span class="c1"># this grid needs to be in untransformed space because it goes through a</span>
-            <span class="c1"># transform wrapped model</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">transforms</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">eval_grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transforms</span><span class="o">.</span><span class="n">untransform</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eval_grid</span><span class="p">)</span>
 
         <span class="c1"># similar to ub/lb/grid, x is in raw parameter space</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>

@@ -63,7 +63,9 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">raw_cutpoint_deltas</span>
         <span class="p">)</span>
         <span class="c1"># for identification, the first cutpoint is 0</span>
-        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">0</span><span class="p">]),</span> <span class="n">torch</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">cutpoint_deltas</span><span class="p">,</span> <span class="mi">0</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">cutpoint_deltas</span><span class="p">),</span> <span class="n">torch</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">cutpoint_deltas</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="p">)</span>
 
 <div class="viewcode-block" id="OrdinalLikelihood.forward"><a class="viewcode-back" href="../../../likelihoods.html#aepsych.likelihoods.OrdinalLikelihood.forward">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function_samples</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="o">*</span><span class="n">params</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Categorical</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Forward pass for Ordinal</span>
@@ -76,7 +78,9 @@
 <span class="sd">        """</span>
 
         <span class="c1"># this whole thing can probably be some clever batched thing, meh</span>
-        <span class="n">probs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="o">*</span><span class="n">function_samples</span><span class="o">.</span><span class="n">size</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_levels</span><span class="p">)</span>
+        <span class="n">probs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="o">*</span><span class="n">function_samples</span><span class="o">.</span><span class="n">size</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_levels</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span>
+            <span class="n">function_samples</span>
+        <span class="p">)</span>
 
         <span class="n">probs</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">link</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cutpoints</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">function_samples</span><span class="p">)</span>
 
