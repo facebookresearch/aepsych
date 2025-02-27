@@ -9,27 +9,29 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using Newtonsoft.Json.Linq;
 using UnityEngine;
 
 namespace AEPsych
 {
+
     [Serializable]
-    public class TrialConfig : IDictionary<string, List<float>>
+    public class TrialConfig : IDictionary<string, object>
     {
         // Dictionary wrapper for better error messaging if key not found
-        Dictionary<string, List<float>> innerDict;
-
+        Dictionary<string, object> innerDict;
         public TrialConfig()
         {
-            innerDict = new Dictionary<string, List<float>>();
+            innerDict = new Dictionary<string, object>();
         }
 
-        public TrialConfig(Dictionary<string, List<float>> dict)
+        public TrialConfig(Dictionary<string, object> dict)
         {
             innerDict = dict;
         }
 
-        public List<float> this[string key]
+        public object this[string key]
         {
             get
             {
@@ -40,7 +42,7 @@ namespace AEPsych
                 catch (KeyNotFoundException)
                 {
                     string allKeys = "";
-                    foreach (KeyValuePair<string, List<float>> pair in this)
+                    foreach (KeyValuePair<string, object> pair in this)
                     {
                         allKeys += " " + pair.Key + ",";
                     }
@@ -54,15 +56,57 @@ namespace AEPsych
             }
         }
 
+        public List<float> GetFlatList(string key)
+        {
+                try
+                {
+                    var keyVal = ((JArray)innerDict[key]).Select(y => y.ToObject<float>()).ToList()
+                        .ToList();
+                    return keyVal;
+                }
+                catch (KeyNotFoundException)
+                {
+                    string allKeys = "";
+                    foreach (KeyValuePair<string, object> pair in this)
+                    {
+                        allKeys += " " + pair.Key + ",";
+                    }
+                    allKeys = allKeys.Trim(',');
+                    throw new KeyNotFoundException($"Dimension name <{key}> is not a valid key in dict. TrialConfig dict keys are:" + allKeys);
+                }
+        }
+
+        public List<List<float>> GetNestedList(string key)
+        {
+            try
+            {
+                var keyVal = ((JArray)innerDict[key]).Select(x => ((JArray)x).Select(y => y.ToObject<float>()).ToList())
+                    .ToList();
+                return keyVal;
+            }
+            catch (KeyNotFoundException)
+            {
+                string allKeys = "";
+                foreach (KeyValuePair<string, object> pair in this)
+                {
+                    allKeys += " " + pair.Key + ",";
+                }
+                allKeys = allKeys.Trim(',');
+                throw new KeyNotFoundException($"Dimension name <{key}> is not a valid key in dict. TrialConfig dict keys are:" + allKeys);
+            }
+        }
+
         public ICollection<string> Keys()
         {
             return innerDict.Keys;
         }
 
-        public ICollection<List<float>> Values()
+
+        public ICollection<object> Values()
         {
             return innerDict.Values;
         }
+
 
         public int Count()
         {
@@ -73,12 +117,17 @@ namespace AEPsych
             return false;
         }
 
-        public void Add(string key, List<float> value)
+        public void Add(string key, object value)
         {
             innerDict.Add(key, value);
         }
 
-        public void Add(KeyValuePair<string, List<float>> item)
+        public void Add(KeyValuePair<string, List<object>> item)
+        {
+            innerDict.Add(item.Key, item.Value);
+        }
+
+        public void Add(KeyValuePair<string, object> item)
         {
             innerDict.Add(item.Key, item.Value);
         }
@@ -105,23 +154,14 @@ namespace AEPsych
         public TrialConfig Copy()
         {
             TrialConfig t = new TrialConfig();
-            foreach (KeyValuePair<string, List<float>> pair in innerDict)
+            foreach (KeyValuePair<string, object> pair in innerDict)
             {
                 t.Add(pair.Key, pair.Value);
             }
             return t;
         }
 
-        public void CopyTo(KeyValuePair<string, List<float>>[] array, int arrayIndex)
-        {
-            int idx = arrayIndex;
-            foreach (KeyValuePair<string, List<float>> pair in innerDict)
-            {
-                array[idx++] = pair;
-            }
-        }
-
-        public IEnumerator<KeyValuePair<string, List<float>>> GetEnumerator()
+        public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
         {
             return innerDict.GetEnumerator();
         }
@@ -139,20 +179,58 @@ namespace AEPsych
         public override string ToString()
         {
             string output = "";
-            foreach (KeyValuePair<string, List<float>> pair in innerDict)
+
+            foreach (var pair in innerDict)
             {
-                output += "|  " + pair.Key + ": [";
-                foreach (float val in pair.Value)
+                if (pair.Value is List<float>)
                 {
-                    output += val + ",";
+                    var values = pair.Value as List<float>;
+                    output += "|  " + pair.Key + ": [";
+                    foreach (float val in values)
+                    {
+                        output += val + ",";
+                    }
+                    output = output.Trim(',');
+                    output += "]  |  ";
                 }
-                output = output.Trim(',');
-                output += "]  |  ";
+                else
+                {
+                    {
+                        var values = pair.Value as List<List<float>>;
+                        output += "|  " + pair.Key + ": [";
+                        foreach(List<float> list in values)
+                        {
+                            output += "[";
+                            foreach (float val in list)
+                            {
+                                output += val + ","; //watch out for trailing comma ,
+                            }
+
+                            output += "]";
+                        }
+                    }
+                }
+
             }
             return output;
         }
 
+
         public bool TryGetValue(string key, out List<float> value)
+        {
+            bool ret = innerDict.TryGetValue(key, out object flatReturn);
+            value = flatReturn as List<float>;
+            return ret;
+        }
+
+        public bool TryGetValue(string key, out List<List<float>> value)
+        {
+            bool ret = innerDict.TryGetValue(key, out object flatReturn);
+            value = flatReturn as List<List<float>>;
+            return ret;
+        }
+
+        public bool TryGetValue(string key, out object value)
         {
             return innerDict.TryGetValue(key, out value);
         }
@@ -163,11 +241,11 @@ namespace AEPsych
         }
 
         // UNIMPLEMENTED
-        ICollection<string> IDictionary<string, List<float>>.Keys => throw new NotImplementedException();
+        ICollection<string> IDictionary<string, object>.Keys => throw new NotImplementedException();
 
-        ICollection<List<float>> IDictionary<string, List<float>>.Values => throw new NotImplementedException();
+        ICollection<object> IDictionary<string, object>.Values => throw new NotImplementedException();
 
-        int ICollection<KeyValuePair<string, List<float>>>.Count
+        int ICollection<KeyValuePair<string, object>>.Count
         {
             get
             {
@@ -175,6 +253,24 @@ namespace AEPsych
             }
         }
 
-        bool ICollection<KeyValuePair<string, List<float>>>.IsReadOnly => throw new NotImplementedException();
+        bool ICollection<KeyValuePair<string, object>>.IsReadOnly => throw new NotImplementedException();
+
+        public bool Contains(KeyValuePair<string, object> item)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        public bool Remove(KeyValuePair<string, object> item)
+        {
+            throw new NotImplementedException();
+        }
+        public void CopyTo(KeyValuePair<string, object>[] item, int len)
+        {
+            throw new NotImplementedException();
+        }
     }
+
+
+
 }
