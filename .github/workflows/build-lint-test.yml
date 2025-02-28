@@ -14,52 +14,82 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
           python-version: "3.10"
+      
       - name: Install dependencies
         run: |
+          python -m pip install --upgrade pip
           pip install ".[dev]"
-      - name: Lint with flake8
-        id: flake8
+          cd clients/python
+          pip install .
+      
+      - name: Lint aepsych with flake8
         run: |
           # stop the build if there are Python syntax errors or undefined names
           flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
           # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-      - name: Type check with mypy
-        id: mypy
+      
+      - name: Type check aepsych with mypy
+        if: always()
+        run: mypy --config-file mypy.ini
+      
+      - name: Lint sepsych_client with flake8  
         if: always()
         run: |
-          mypy --config-file mypy.ini
+          # stop the build if there are Python syntax errors or undefined names
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+        working-directory: clients/python
+      
+      - name: Type check aepsych_client with mypy
+        if: always()
+        run: mypy --config-file mypy.ini
+        working-directory: clients/python
+      
       - uses: omnilib/ufmt@action-v1
         if: always()
         with:
-          path: aepsych tests tests_gpu
+          path: aepsych tests tests_gpu clients/python
           requirements: requirements-fmt.txt
           python-version: "3.10"
 
-  build-test:
 
+  build-test:
     strategy:
       fail-fast: false
       matrix:
         python-version: ["3.10", "3.11", "3.12"]
         os: [macos-latest, windows-latest, macos-13]
+    
     runs-on: ${{ matrix.os }}
 
     steps:
     - uses: actions/checkout@v2
+    
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
+    
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install ".[dev]"
-    - name: Test with unittest
-      run: |
-        cd tests
-        python -m unittest
+        cd  clients/python
+        pip install .
+    
+    - name: Test aepsych with unittest
+      run: python -m unittest
+      working-directory: tests
+    
+    - name: Test aepsych python client with unittest
+      if: always()
+      run: python -m unittest
+      working-directory: clients/python/tests
+      
