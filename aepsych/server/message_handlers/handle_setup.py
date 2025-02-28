@@ -6,18 +6,31 @@
 # LICENSE file in the root directory of this source tree.
 
 import logging
+from typing import Any, Dict, Optional, TypedDict
 
 import aepsych.utils_logging as utils_logging
 from aepsych.config import Config
 from aepsych.database.data_fetcher import DataFetcher
 from aepsych.extensions import ExtensionManager
 from aepsych.strategy import SequentialStrategy
-from aepsych.version import __version__
 
 logger = utils_logging.getLogger(logging.INFO)
 
+SetupResponse = TypedDict("SetupResponse", {"strat_id": int})
 
-def _configure(server, config):
+
+def _configure(server, config: Config) -> SetupResponse:
+    """Setup an experiment. This will load extensions from the config then build
+    strategies from the config.
+
+    Args:
+        server (AEPsychServer): AEPsych server responding to the message.
+        config (Config): Config to configure the server with.
+
+    Returns:
+        SetupResponse: A dictionary with one entry
+            - "strat_id": integer, the stategy ID for what was just set up.
+    """
     # Run extension scripts
     server.extensions = ExtensionManager.from_config(config)
     server.extensions.load()
@@ -54,9 +67,22 @@ def _configure(server, config):
     return {"strat_id": server.strat_id}
 
 
-def configure(server, config=None, **config_args):
-    # To preserve backwards compatibility, config_args is still usable for unittests and old functions.
-    # But if config is specified, the server will use that rather than create a new config object.
+def configure(server, config: Optional[Config] = None, **config_args) -> SetupResponse:
+    """Setup an experiment. This function is primarily to preserve backwards
+    compatibility. config_args is still usable for unittests and old functions, but if
+    config is specified, the server will use that rather than create a new config
+    object.
+
+    Args:
+        server (AEPsychServer): AEPsych server responding to the message.
+        config (Config, optional): Config to configure the server with.
+        **config_args: Backwards compat options that wil be turned into a Config object,
+            if the config arg is not None, these are ignored entirely.
+
+    Returns:
+        SetupResponse: A dictionary with one entry
+            - "strat_id": integer, the stategy ID for what was just set up.
+    """
     if config is None:
         usedconfig = Config(**config_args)
     else:
@@ -67,7 +93,18 @@ def configure(server, config=None, **config_args):
     return response
 
 
-def handle_setup(server, request):
+def handle_setup(server, request: Dict[str, Any]) -> SetupResponse:
+    """Setup an experiment.
+
+    Args:
+        server (AEPsychServer): AEPsych server responding to the message.
+        request (Dict[str, Any]): A dictionary from the request message, must include
+            configuration info in some form.
+
+    Returns:
+        SetupResponse: A dictionary with one entry
+            - "strat_id": integer, the stategy ID for what was just set up.
+    """
     logger.debug("got setup message!")
     ### make a temporary config object to derive parameters because server handles config after table
     if (
