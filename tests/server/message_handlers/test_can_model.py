@@ -20,9 +20,7 @@ class StratCanModelTestCase(BaseServerTestCase):
         ask_request = {"type": "ask", "message": ""}
         tell_request = {
             "type": "tell",
-            "message": [
-                {"config": {"x": [0.5]}, "outcome": 1},
-            ],
+            "message": {"config": {"x": [0.5]}, "outcome": 1},
         }
         can_model_request = {
             "type": "can_model",

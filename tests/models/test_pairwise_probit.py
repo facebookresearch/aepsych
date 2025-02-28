@@ -783,7 +783,7 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
 
         conf = ask(server)
 
-        self.assertTrue(server._config_to_tensor(conf).shape == (1, 2))
+        self.assertTrue(server._config_to_tensor(conf).shape == (1, 1, 2))
 
         config_str = """
             [common]
@@ -819,7 +819,7 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
 
         conf = ask(server)
 
-        self.assertTrue(server._config_to_tensor(conf).shape == (2, 2))
+        self.assertTrue(server._config_to_tensor(conf).shape == (1, 2, 2))
 
         config_str = """
             [common]
@@ -856,14 +856,14 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
         conf = ask(server)
 
         tensor = server._config_to_tensor(conf)
-        self.assertTrue(tensor.shape == (3, 2))
+        self.assertTrue(tensor.shape == (1, 3, 2))
 
         # Check if reshapes were correct
-        self.assertTrue(torch.all(tensor[0, :] <= -1e-6))
+        self.assertTrue(torch.all(tensor[0, 0, :] <= -1e-6))
         self.assertTrue(
-            torch.all(torch.logical_and(tensor[1, :] >= 1e-6, tensor[1, :] <= 1))
+            torch.all(torch.logical_and(tensor[0, 1, :] >= 1e-6, tensor[0, 1, :] <= 1))
         )
-        self.assertTrue(torch.all(tensor[2, :] >= 10))
+        self.assertTrue(torch.all(tensor[0, 2, :] >= 10))
 
 
 if __name__ == "__main__":

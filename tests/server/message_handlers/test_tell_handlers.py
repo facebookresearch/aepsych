@@ -36,6 +36,33 @@ class MessageHandlerTellTests(BaseServerTestCase):
         self.assertEqual(self.s.db.record_message.call_count, 2)
         self.assertEqual(len(self.s.strat.x), 1)
 
+    def test_batch_tell(self):
+        setup_request = {
+            "type": "setup",
+            "message": {"config_str": dummy_config},
+        }
+
+        batch_tell_request = {
+            "type": "tell",
+            "message": {"config": {"x": [[0.5], [1.0], [0.0]]}, "outcome": [1, 0, 1]},
+        }
+
+        self.s.db.record_message = MagicMock()
+
+        self.s.handle_request(setup_request)
+        self.s.handle_request(batch_tell_request)
+        self.assertEqual(self.s.db.record_message.call_count, 1)
+        self.assertEqual(len(self.s.strat.x), 3)
+
+        self.s.handle_request(batch_tell_request)
+        self.assertEqual(self.s.db.record_message.call_count, 2)
+        self.assertEqual(len(self.s.strat.x), 6)
+
+        batch_tell_request["message"]["model_data"] = False
+        self.s.handle_request(batch_tell_request)
+        self.assertEqual(self.s.db.record_message.call_count, 3)
+        self.assertEqual(len(self.s.strat.x), 6)
+
     def test_tell_extra_data(self):
         setup_request = {
             "type": "setup",

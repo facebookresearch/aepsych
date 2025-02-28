@@ -242,19 +242,24 @@ class AEPsychServer(object):
         # Check if the values of config are not array, if so make them so
         config_copy = {
             key: (
-                value.squeeze()
-                if isinstance(value, np.ndarray)
-                else np.array(value).squeeze()
+                value if isinstance(value, np.ndarray) else np.array(promote_0d(value))
             )
             for key, value in config.items()
         }
 
         # Create the correctly shaped/ordered object array
         unpacked = [config_copy[name] for name in self.parnames]
-        unpacked = np.stack(unpacked, axis=0, dtype="O")
-        unpacked = np.expand_dims(unpacked, axis=0)  # Batch dimension,
 
-        x = self.strat.transforms.str_to_indices(unpacked)[0]
+        # Add dim dimension in the middle to everything
+        unpacked = [np.expand_dims(dim, axis=1) for dim in unpacked]
+        unpacked = np.concatenate(unpacked, axis=1, dtype="O")
+
+        # Should be (batch, dim, stim) or (batch, dim) shaped by now.
+        x = self.strat.transforms.str_to_indices(unpacked)
+
+        # If stim dimension isn't needed remove it
+        if self.strat.stimuli_per_trial == 1 and x.ndim == 3:
+            x = x.squeeze(axis=2)
 
         return x
 
