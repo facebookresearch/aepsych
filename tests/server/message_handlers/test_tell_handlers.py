@@ -27,14 +27,18 @@ class MessageHandlerTellTests(BaseServerTestCase):
         self.s.db.record_message = MagicMock()
 
         self.s.handle_request(setup_request)
-        self.s.handle_request(tell_request)
+        msg = self.s.handle_request(tell_request)
         self.assertEqual(self.s.db.record_message.call_count, 1)
         self.assertEqual(len(self.s.strat.x), 1)
+        self.assertEqual(msg["trials_recorded"], 1)
+        self.assertEqual(msg["model_data_added"], 1)
 
         tell_request["message"]["model_data"] = False
-        self.s.handle_request(tell_request)
+        msg = self.s.handle_request(tell_request)
         self.assertEqual(self.s.db.record_message.call_count, 2)
         self.assertEqual(len(self.s.strat.x), 1)
+        self.assertEqual(msg["trials_recorded"], 1)
+        self.assertEqual(msg["model_data_added"], 0)
 
     def test_batch_tell(self):
         setup_request = {
@@ -50,18 +54,22 @@ class MessageHandlerTellTests(BaseServerTestCase):
         self.s.db.record_message = MagicMock()
 
         self.s.handle_request(setup_request)
-        self.s.handle_request(batch_tell_request)
+        msg = self.s.handle_request(batch_tell_request)
         self.assertEqual(self.s.db.record_message.call_count, 1)
         self.assertEqual(len(self.s.strat.x), 3)
+        self.assertEqual(msg["trials_recorded"], 3)
+        self.assertEqual(msg["model_data_added"], 3)
 
         self.s.handle_request(batch_tell_request)
         self.assertEqual(self.s.db.record_message.call_count, 2)
         self.assertEqual(len(self.s.strat.x), 6)
 
         batch_tell_request["message"]["model_data"] = False
-        self.s.handle_request(batch_tell_request)
+        msg = self.s.handle_request(batch_tell_request)
         self.assertEqual(self.s.db.record_message.call_count, 3)
         self.assertEqual(len(self.s.strat.x), 6)
+        self.assertEqual(msg["trials_recorded"], 3)
+        self.assertEqual(msg["model_data_added"], 0)
 
     def test_tell_extra_data(self):
         setup_request = {

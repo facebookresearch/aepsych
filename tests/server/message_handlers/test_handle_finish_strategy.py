@@ -10,7 +10,7 @@ import unittest
 from ..test_server import BaseServerTestCase, dummy_config
 
 
-class ResumeTestCase(BaseServerTestCase):
+class FinishStrategyTestCase(BaseServerTestCase):
     def test_handle_finish_strategy(self):
         setup_request = {
             "type": "setup",
@@ -28,20 +28,21 @@ class ResumeTestCase(BaseServerTestCase):
         finish_strat_request = {"type": "finish_strategy"}
 
         self.s.handle_request(setup_request)
-        strat_name = self.s.handle_request(strat_name_request)["current_strat_name"]
-        self.assertEqual(strat_name, "init_strat")
+        msg = self.s.handle_request(strat_name_request)
+        self.assertEqual(msg["current_strat_name"], "init_strat")
 
         # model-based strategies require data
         self.s.handle_request(tell_request)
 
         msg = self.s.handle_request(finish_strat_request)
-        self.assertEqual(msg, "finished strategy init_strat")
+        self.assertEqual(msg["finished_strategy"], "init_strat")
+        self.assertEqual(msg["finished_strat_idx"], 0)
 
         # need to gen another trial to move to next strategy
         self.s.handle_request(ask_request)
 
-        strat_name = self.s.handle_request(strat_name_request)["current_strat_name"]
-        self.assertEqual(strat_name, "opt_strat")
+        msg = self.s.handle_request(strat_name_request)
+        self.assertEqual(msg["current_strat_name"], "opt_strat")
 
 
 if __name__ == "__main__":

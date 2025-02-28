@@ -20,4 +20,4 @@ def handle_resume(server, request):
         server.db.record_message(
             master_table=server._db_master_record, type="resume", request=request
         )
-    return server.strat_id
+    return {"strat_id": server.strat_id}
