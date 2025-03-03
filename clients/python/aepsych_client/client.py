@@ -77,14 +77,15 @@ class AEPsychClient:
         addr = (ip, port)
         self.socket.connect(addr)
 
-    def finalize(self) -> None:
+    def finalize(self) -> Dict[str, Any]:
         """Let the server know experiment is complete."""
         request = {"message": "", "type": "exit"}
-        self._send_recv(request)
+        return self._send_recv(request)
 
-    def _send_recv(self, message) -> str:
+    def _send_recv(self, message) -> Dict[str, Any]:
+        # Sends a message to a server and decodes the response
         if self.server is not None:
-            return json.dumps(self.server.handle_request(message))
+            return self.server.handle_request(message)
 
         if self.socket is None:
             raise AttributeError("client does not have a socket to connect with")
@@ -92,13 +93,13 @@ class AEPsychClient:
         message = bytes(json.dumps(message), encoding="utf-8")
         self.socket.send(message)
         response = self.socket.recv(4096).decode("utf-8")
-        # TODO this is hacky but we don't consistencly return json
-        # from the server so we can't check for a status
-        if response[:12] == "server_error":
-            error_message = response[13:]
-            raise ServerError(error_message)
 
-        return response
+        response_dict = json.loads(response)
+
+        if "server_error" in response_dict:
+            raise ServerError(response_dict["server_error"])
+
+        return response_dict
 
     def ask(
         self, num_points: int = 1
@@ -118,7 +119,7 @@ class AEPsychClient:
         request = {"message": {"num_points": num_points}, "type": "ask"}
         response = self._send_recv(request)
 
-        return json.loads(response)
+        return response
 
     def tell(
         self,
@@ -126,7 +127,7 @@ class AEPsychClient:
         outcome: Union[float, Dict[str, float]],
         model_data: bool = True,
         **metadata: Dict[str, Any],
-    ) -> None:
+    ) -> Dict[str, Any]:
         """Update the server on a configuration that was executed. Use this method when using the legacy backend or for
         manually-generated trials without an associated trial_index when uding the Ax backend.
 
@@ -136,6 +137,12 @@ class AEPsychClient:
             metadata (optional kwargs) is passed to the extra_data field on the server.
             model_data (bool): If True, the data will be recorded in the db and included in the server's model. If False,
                 the data will be recorded in the db, but will not be used by the model. Defaults to True.
+
+        Returns:
+            Dict[str, Any]: A dictionary with these entries
+                - "trials_recorded": integer, the number of trials recorded in the
+                    database.
+                - "model_data_added": integer, the number of datapoints added to the model.
 
         Raises:
             AssertionError if server failed to acknowledge the tell.
@@ -150,14 +157,15 @@ class AEPsychClient:
             "type": "tell",
             "message": message,
         }
-        self._send_recv(request)
+
+        return self._send_recv(request)
 
     def configure(
         self,
         config_path: Optional[str] = None,
         config_str: Optional[str] = None,
         config_name: Optional[str] = None,
-    ) -> None:
+    ) -> Dict[str, Any]:
         """Configure the server and prepare for data collection.
         Note that either config_path or config_str must be passed.
 
@@ -165,6 +173,10 @@ class AEPsychClient:
             config_path (str, optional): Path to a config.ini. Defaults to None.
             config_str (str, optional): Config.ini encoded as a string. Defaults to None.
             config_name (str, optional): A name to assign to this config internally for convenience.
+
+        Returns:
+            Dict[str, Any]: A dictionary with one entry
+                - "strat_id": integer, the stategy ID for what was just set up.
 
         Raises:
             AssertionError if neither config path nor config_str is passed.
@@ -182,20 +194,26 @@ class AEPsychClient:
             "type": "setup",
             "message": {"config_str": config_str},
         }
-        idx = int(self._send_recv(request))
-        self.configs.append(idx)
+        response = self._send_recv(request)
+        self.configs.append(response["strat_id"])
         if config_name is not None:
-            self.config_names[config_name] = idx
+            self.config_names[config_name] = response["strat_id"]
+
+        return response
 
     def resume(
         self, config_id: Optional[int] = None, config_name: Optional[str] = None
-    ):
+    ) -> Dict[str, Any]:
         """Resume a previous config from this session. To access available configs,
         use client.configs or client.config_names
 
         Args:
             config_id (int, optional): ID of config to resume.
             config_name (str, optional): Name config to resume.
+
+        Returns:
+            Dict[str, Any]: A dictionary with one entry
+                - "strat_id": integer, the stategy ID that was resumed.
 
         Raises:
             AssertionError if name or ID does not exist, or if both name and ID are passed.
@@ -215,7 +233,8 @@ class AEPsychClient:
             "type": "resume",
             "message": {"strat_id": config_id},
         }
-        self._send_recv(request)
+
+        return self._send_recv(request)
 
     def query(
         self,
@@ -224,8 +243,34 @@ class AEPsychClient:
         x=None,
         y=None,
         constraints=None,
-        max_time=None,
-    ):
+        **kwargs,
+    ) -> Dict[str, Any]:
+        """Queries the underlying model for a specific query.
+
+        Args:
+            query_type (Literal["max", "min", "prediction", "inverse"]): What type of query
+                to make. Defaults to "max".
+            probability_space (bool): Whether the y in the query is in probability space.
+                Defaults to False.
+            x (Dict[str, Any], optional): A parameter configuration dictionary representing
+                one or more point for a prediction query.
+            y (Union[float, torch.Tensor], optional): The expected y for a inverse query.
+            constraints (Dict[int, float], optional): The constraints to impose on the
+                query where each key is the parameter index and the value is the parameter
+                value to apply the equality constraint at.
+            **kwargs: Additional kwargs to pass to the query function.
+
+        Returns:
+            Dict[str, Any: A dictionary with these entries:
+                - "query_response": string, the query response.
+                - "probability_space": boolean, whether to query in the probability space
+                    or not.
+                - "constraints": dictionary, the equality constraint for parameters
+                    where the keys are the parameter index and the values are the point
+                    where the paramter should be constrained to.
+                - "x": dictionary, the parameter configuration dictionary for the query.
+                - "y": list, the y from the query.
+        """
         request = {
             "type": "query",
             "message": {
@@ -234,13 +279,10 @@ class AEPsychClient:
                 "x": x,
                 "y": y,
                 "constraints": constraints,
-                "max_time": max_time,
-            },
+            }.update(**kwargs),
         }
-        resp = self._send_recv(request)
-        if isinstance(resp, str):
-            resp = json.loads(resp)
-        return resp["y"], resp["x"]
+
+        return self._send_recv(request)
 
     def __del___(self):
         self.finalize()
