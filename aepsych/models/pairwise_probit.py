@@ -254,6 +254,8 @@ class PairwiseProbitModel(PairwiseGP, AEPsychModelMixin):
                 f"Unknown rereference type {rereference}! Options: x_min, x_max, f_min, f_max."
             )
 
+        if len(x.shape) == 3:
+            x = x.squeeze(2)
         x_stack = torch.vstack([x, x_ref])
         samps = self.posterior(x_stack).rsample(torch.Size([num_samples]))
         samps, samps_ref = torch.split(samps, [samps.shape[1] - 1, 1], dim=1)

@@ -7,17 +7,40 @@
 
 import io
 import logging
-from collections.abc import Iterable
-from typing import Dict, Optional, Sequence, Union
+from typing import Dict, Optional, Sequence, TypeAlias, Union
 
 import aepsych.utils_logging as utils_logging
 import dill
+import numpy as np
 import pandas as pd
 import torch
 
 logger = utils_logging.getLogger(logging.INFO)
 DEFAULT_DESC = "default description"
 DEFAULT_NAME = "default name"
+
+# This form is deprecated in 3.12 in favor of a "type statement", but we support 3.10+
+OutcomeType: TypeAlias = Union[
+    Dict[
+        str,
+        Union[str, float, Sequence[Union[str, float]], np.ndarray],
+    ],
+    Sequence,
+    float,
+    str,
+]
+ParameterConfigType: TypeAlias = Dict[
+    str,
+    Union[
+        str,
+        float,
+        Sequence[Union[str, float, Sequence[Union[str, float]]]],
+        np.ndarray,
+    ],
+]
+
+# Annoyingly, arrays are like sequences but they aren't sequences
+ARRAY_LIKE = (Sequence, np.ndarray)
 
 
 def handle_tell(server, request):
@@ -32,12 +55,7 @@ def handle_tell(server, request):
                 "extra_info should not be used to record extra trial-level data alongside tells, extra data should be added as extra keys in the message."
             )
 
-    # Batch update mode
-    if type(request["message"]) == list:
-        for msg in request["message"]:
-            tell(server, **msg)
-    else:
-        tell(server, **request["message"])
+    tell(server, **request["message"])
 
     if server.strat is not None and server.strat.finished is True:
         logger.info("Recording strat because the experiment is complete.")
@@ -68,8 +86,8 @@ def flatten_tell_record(server, rec):
 
 def tell(
     server,
-    outcome: Union[Dict[str, Union[str, float]], Sequence],
-    config: Dict[str, Union[str, float]],
+    outcome: OutcomeType,
+    config: Optional[ParameterConfigType] = None,
     model_data: bool = True,
     **extra_data,
 ):
@@ -77,9 +95,14 @@ def tell(
 
     Arguments:
         server (AEPsychServer): The AEPsych server object.
-        outcome (Union[Dict[str, Union[str, float]], Iterable]): The outcome of the trial.
-        config (Dict[str, Union[str, float]], optional): A dictionary mapping parameter
-            names to values.
+        outcome (OutcomeType: The outcome of the trial. If it's a float, it's a single
+            trial single outcome. If it's a sequence, it is multiple trials single
+            outcome. If it is a dictionary, it is a multi outcome with the same rules
+            for float vs sequence of floats for single and multi trials respeectively.
+        config (ParameterConfigType, optional): A dictionary mapping
+            parameter names to values. Each key is a parameter, its value is either an
+            iterable (if it represents multiple trials or multi stimuli) or a non-
+            iterable for a single trial single stimuli case.
         model_data (bool): If True, the data from this trial will be added to the model.
             If False, the trial will be recorded in the db, but will not be modeled.
             Defaults to True.
@@ -99,69 +122,52 @@ def tell(
 
 def _record_tell(
     server,
-    outcome: Union[Dict[str, Union[str, float]], Sequence, str],
-    config: Dict[str, Union[str, float]],
+    outcome: OutcomeType,
+    config: ParameterConfigType,
     model_data: bool = True,
     **extra_data,
-):
-    server._db_raw_record = server.db.record_raw(
-        master_table=server._db_master_record,
-        model_data=bool(model_data),
-        **extra_data,
-    )
+) -> None:
+    config_dict = {
+        key: value if isinstance(value, ARRAY_LIKE) else [value]
+        for key, value in config.items()
+    }
+    n_trials = len(list(config_dict.values())[0])
 
-    for param_name, param_value in config.items():
-        if isinstance(param_value, Iterable) and type(param_value) != str:
-            if len(param_value) == 1:
+    # Fix outcome to be a dictionary of array-likes
+    outcome_tmp = {"outcome": outcome} if not isinstance(outcome, Dict) else outcome
+    outcome_dict = {
+        key: value if isinstance(value, ARRAY_LIKE) else [value]
+        for key, value in outcome_tmp.items()
+    }
+
+    for i in range(n_trials):  # Go through the trials
+        server._db_raw_record = server.db.record_raw(
+            master_table=server._db_master_record,
+            model_data=bool(model_data),
+            **extra_data,
+        )
+
+        for param_name, param_values in config_dict.items():
+            param_value = param_values[i]
+            if isinstance(param_value, ARRAY_LIKE):  # Multi stimuli
+                for j, v in enumerate(param_value):
+                    server.db.record_param(
+                        raw_table=server._db_raw_record,
+                        param_name=str(param_name) + "_stimuli" + str(j),
+                        param_value=str(v),
+                    )
+            else:  # Single stimuli
                 server.db.record_param(
                     raw_table=server._db_raw_record,
                     param_name=str(param_name),
-                    param_value=str(param_value[0]),
+                    param_value=str(param_value),
                 )
-            else:
-                for i, v in enumerate(param_value):
-                    server.db.record_param(
-                        raw_table=server._db_raw_record,
-                        param_name=str(param_name) + "_stimuli" + str(i),
-                        param_value=str(v),
-                    )
-        else:
-            server.db.record_param(
-                raw_table=server._db_raw_record,
-                param_name=str(param_name),
-                param_value=str(param_value),
-            )
 
-    if isinstance(outcome, dict):
-        for key in outcome.keys():
+        # Record outcome
+        for outcome_name, outcome_values in outcome_dict.items():
+            outcome_value = outcome_values[i]
             server.db.record_outcome(
                 raw_table=server._db_raw_record,
-                outcome_name=key,
-                outcome_value=float(outcome[key]),
-            )
-
-    # Check if we get single or multiple outcomes
-    # Multiple outcomes come in the form of iterables that aren't strings or single-element tensors
-    elif hasattr(outcome, "__iter__") and type(outcome) != str:
-        for i, outcome_value in enumerate(outcome):
-            if isinstance(outcome_value, Sequence) and type(outcome_value) != str:
-                if isinstance(outcome_value, torch.Tensor) and outcome_value.dim() < 2:
-                    outcome_value = outcome_value.item()
-
-                elif len(outcome_value) == 1:
-                    outcome_value = outcome_value[0]
-                else:
-                    raise ValueError(
-                        "Multi-outcome values must be a list of lists of length 1!"
-                    )
-            server.db.record_outcome(
-                raw_table=server._db_raw_record,
-                outcome_name="outcome_" + str(i),
+                outcome_name=outcome_name,
                 outcome_value=float(outcome_value),
             )
-    else:
-        server.db.record_outcome(
-            raw_table=server._db_raw_record,
-            outcome_name="outcome",
-            outcome_value=float(outcome),  # type: ignore
-        )
