@@ -25,6 +25,7 @@ InfoResponse = TypedDict(
         "current_strat_model": str,
         "current_strat_acqf": str,
         "current_strat_finished": bool,
+        "current_strat_can_fit": bool,
     },
 )
 
@@ -54,6 +55,8 @@ def handle_info(server, request: Dict[str, Any]) -> InfoResponse:
                 stratgy.
             - "current_strat_finished": boolean, whether the current strategy is
                 finished.
+            - "current_strat_can_fit": boolean, whether the current strategy can fit a
+                model.
     """
     logger.debug("got info message!")
 
@@ -85,17 +88,18 @@ def info(server) -> InfoResponse:
                 stratgy.
             - "current_strat_finished": boolean, whether the current strategy is
                 finished.
+            - "current_strat_can_fit": boolean, whether the current strategy can fit a
+                model.
     """
     current_strat_model = (
         server.config.get(server.strat.name, "model", fallback="model not set")
         if server.config and ("model" in server.config.get_section(server.strat.name))
         else "model not set"
     )
-    current_strat_acqf = (
-        server.config.get(server.strat.name, "acqf", fallback="acqf not set")
-        if server.config and ("acqf" in server.config.get_section(server.strat.name))
-        else "acqf not set"
-    )
+    try:
+        current_strat_acqf = server.strat.generator.acqf.__name__
+    except AttributeError:
+        current_strat_acqf = "acqf not set"
 
     response: InfoResponse = {
         "db_name": server.db._db_name,
@@ -110,6 +114,7 @@ def info(server) -> InfoResponse:
         "current_strat_model": current_strat_model,
         "current_strat_acqf": current_strat_acqf,
         "current_strat_finished": server.strat.finished,
+        "current_strat_can_fit": server.strat.can_fit,
     }
 
     logger.debug(f"Current state of server: {response}")

@@ -6,7 +6,6 @@
 # LICENSE file in the root directory of this source tree.
 
 from .handle_ask import handle_ask
-from .handle_can_model import handle_can_model
 from .handle_exit import handle_exit
 from .handle_finish_strategy import handle_finish_strategy
 from .handle_get_config import handle_get_config
@@ -23,7 +22,6 @@ MESSAGE_MAP = {
     "tell": handle_tell,
     "query": handle_query,
     "parameters": handle_params,
-    "can_model": handle_can_model,
     "exit": handle_exit,
     "get_config": handle_get_config,
     "finish_strategy": handle_finish_strategy,
