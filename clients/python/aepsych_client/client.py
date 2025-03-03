@@ -23,7 +23,7 @@ class AEPsychClient:
         ip: Optional[str] = None,
         port: Optional[int] = None,
         connect: bool = True,
-        server: "AEPsychServer" = None,
+        server: Optional["AEPsychServer"] = None,
     ) -> None:
         """Python client for AEPsych using built-in python sockets. By default it connects
         to a localhost server matching AEPsych defaults.
@@ -35,8 +35,8 @@ class AEPsychClient:
             server (AEPsychServer, optional): An in-memory AEPsychServer object to connect to.
                 If this is not None, the other arguments will be ignored.
         """
-        self.configs = []
-        self.config_names = {}
+        self.configs: List[int] = []
+        self.config_names: Dict[str, int] = {}
         self.server = server
 
         if server is not None and (ip is not None or port is not None):
@@ -49,12 +49,17 @@ class AEPsychClient:
             ip = ip or "0.0.0.0"
             port = port or 5555
 
-            self.socket = socket.socket()
+            self.socket: Optional[socket.socket] = socket.socket()
             if connect:
                 self.connect(ip, port)
+        else:
+            self.socket = None
 
     def load_config_index(self) -> None:
         """Loads the config index when server is not None"""
+        if self.server is None:
+            raise AttributeError("there is no in-memory server")
+
         self.configs = []
         for i in range(self.server.n_strats):
             self.configs.append(i)
@@ -66,6 +71,9 @@ class AEPsychClient:
             ip (str): IP to connect to.
             port (str): Port to connect on.
         """
+        if self.socket is None:
+            raise AttributeError("client does not have a socket to connect with")
+
         addr = (ip, port)
         self.socket.connect(addr)
 
@@ -76,7 +84,10 @@ class AEPsychClient:
 
     def _send_recv(self, message) -> str:
         if self.server is not None:
-            return self.server.handle_request(message)
+            return json.dumps(self.server.handle_request(message))
+
+        if self.socket is None:
+            raise AttributeError("client does not have a socket to connect with")
 
         message = bytes(json.dumps(message), encoding="utf-8")
         self.socket.send(message)
@@ -106,9 +117,8 @@ class AEPsychClient:
         """
         request = {"message": {"num_points": num_points}, "type": "ask"}
         response = self._send_recv(request)
-        if isinstance(response, str):
-            response = json.loads(response)
-        return response
+
+        return json.loads(response)
 
     def tell(
         self,
@@ -143,7 +153,10 @@ class AEPsychClient:
         self._send_recv(request)
 
     def configure(
-        self, config_path: str = None, config_str: str = None, config_name: str = None
+        self,
+        config_path: Optional[str] = None,
+        config_str: Optional[str] = None,
+        config_name: Optional[str] = None,
     ) -> None:
         """Configure the server and prepare for data collection.
         Note that either config_path or config_str must be passed.
@@ -174,7 +187,9 @@ class AEPsychClient:
         if config_name is not None:
             self.config_names[config_name] = idx
 
-    def resume(self, config_id: int = None, config_name: str = None):
+    def resume(
+        self, config_id: Optional[int] = None, config_name: Optional[str] = None
+    ):
         """Resume a previous config from this session. To access available configs,
         use client.configs or client.config_names
 
