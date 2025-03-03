@@ -6,15 +6,27 @@
 # LICENSE file in the root directory of this source tree.
 
 import logging
+from typing import Any, Dict, TypedDict
 
 import aepsych.utils_logging as utils_logging
 
 logger = utils_logging.getLogger(logging.INFO)
 
+CanModelResponse = TypedDict("CanModelResponse", {"can_model": bool})
 
-def handle_can_model(server, request):
-    # Check if the strategy has finished initialization; i.e.,
-    # if it has a model and data to fit (strat.can_fit)
+
+def handle_can_model(server, request: Dict[str, Any]) -> CanModelResponse:
+    """Check if the strategy has finished initialization and a model is ready.
+
+    Args:
+        server (AEPsychServer): AEPsych server responding to the message.
+        request (Dict[str, Any]): A dictionary from the request message.
+
+    Returns:
+        CanModelResponse: A dictionary with one entry.
+            - "can_model": boolean, whether the current strategy has a ready model
+                (based on if there is a model and if it has data to fit on).
+    """
     logger.debug("got can_model message!")
     if not server.is_performing_replay:
         server.db.record_message(
