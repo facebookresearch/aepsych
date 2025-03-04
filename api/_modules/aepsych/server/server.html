@@ -260,19 +260,24 @@
         <span class="c1"># Check if the values of config are not array, if so make them so</span>
         <span class="n">config_copy</span> <span class="o">=</span> <span class="p">{</span>
             <span class="n">key</span><span class="p">:</span> <span class="p">(</span>
-                <span class="n">value</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
-                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span>
-                <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+                <span class="n">value</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">promote_0d</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
             <span class="p">)</span>
             <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
         <span class="p">}</span>
 
         <span class="c1"># Create the correctly shaped/ordered object array</span>
         <span class="n">unpacked</span> <span class="o">=</span> <span class="p">[</span><span class="n">config_copy</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parnames</span><span class="p">]</span>
-        <span class="n">unpacked</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">unpacked</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">"O"</span><span class="p">)</span>
-        <span class="n">unpacked</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">unpacked</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># Batch dimension,</span>
 
-        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">strat</span><span class="o">.</span><span class="n">transforms</span><span class="o">.</span><span class="n">str_to_indices</span><span class="p">(</span><span class="n">unpacked</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="c1"># Add dim dimension in the middle to everything</span>
+        <span class="n">unpacked</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">dim</span> <span class="ow">in</span> <span class="n">unpacked</span><span class="p">]</span>
+        <span class="n">unpacked</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">unpacked</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">"O"</span><span class="p">)</span>
+
+        <span class="c1"># Should be (batch, dim, stim) or (batch, dim) shaped by now.</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">strat</span><span class="o">.</span><span class="n">transforms</span><span class="o">.</span><span class="n">str_to_indices</span><span class="p">(</span><span class="n">unpacked</span><span class="p">)</span>
+
+        <span class="c1"># If stim dimension isn't needed remove it</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">strat</span><span class="o">.</span><span class="n">stimuli_per_trial</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">x</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">x</span>
 
