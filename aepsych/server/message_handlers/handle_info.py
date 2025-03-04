@@ -6,21 +6,54 @@
 # LICENSE file in the root directory of this source tree.
 
 import logging
-from typing import Any, Dict
+from typing import Any, Dict, List, TypedDict
 
 import aepsych.utils_logging as utils_logging
 
 logger = utils_logging.getLogger(logging.INFO)
 
+InfoResponse = TypedDict(
+    "InfoResponse",
+    {
+        "db_name": str,
+        "exp_id": int,
+        "strat_count": int,
+        "all_strat_names": List[str],
+        "current_strat_index": int,
+        "current_strat_name": str,
+        "current_strat_data_pts": int,
+        "current_strat_model": str,
+        "current_strat_acqf": str,
+        "current_strat_finished": bool,
+    },
+)
 
-def handle_info(server, request: Dict[str, Any]) -> Dict[str, Any]:
-    """Handles info message from the client.
+
+def handle_info(server, request: Dict[str, Any]) -> InfoResponse:
+    """Returns info on the current running experiment.
 
     Args:
-        request (Dict[str, Any]): The info message from the client
+        server (AEPsychServer): AEPsych server responding to the message.
+        request (Dict[str, Any]): A dictionary from the request message. Currently
+            ignored.
 
     Returns:
-        Dict[str, Any]: Returns dictionary containing the current state of the experiment
+        InfoResponse: A dictionary with these entries
+            - "db_name": string, name of the database
+            - "exp_id": integer, experiment ID
+            - "strat_count": integer, number of strategies in the server.
+            - "all_strat_names": list of strings, list of the strategy names in the
+                server.
+            - "current_strat_index": integer, the index of the current strategy.
+            - "current_strat_name": string, name of the current strategy.
+            - "current_strat_data_pts": integer, the number of data points in the
+                current strategy.
+            - "current_strat_model": string, the name of the model in the current
+                strategy.
+            - "current_strat_acqf": string, the acquisition function of the current
+                stratgy.
+            - "current_strat_finished": boolean, whether the current strategy is
+                finished.
     """
     logger.debug("got info message!")
 
@@ -29,11 +62,29 @@ def handle_info(server, request: Dict[str, Any]) -> Dict[str, Any]:
     return ret_val
 
 
-def info(server) -> Dict[str, Any]:
+def info(server) -> InfoResponse:
     """Returns details about the current state of the server and experiments
 
+    Args:
+        server (AEPsychServer): AEPsych server to get info on.
+
     Returns:
-        Dict: Dict containing server and experiment details
+        InfoResponse: A dictionary with these entries
+            - "db_name": string, name of the database
+            - "exp_id": integer, experiment ID
+            - "strat_count": integer, number of strategies in the server.
+            - "all_strat_names": list of strings, list of the strategy names in the
+                server.
+            - "current_strat_index": integer, the index of the current strategy.
+            - "current_strat_name": string, name of the current strategy.
+            - "current_strat_data_pts": integer, the number of data points in the
+                current strategy.
+            - "current_strat_model": string, the name of the model in the current
+                strategy.
+            - "current_strat_acqf": string, the acquisition function of the current
+                stratgy.
+            - "current_strat_finished": boolean, whether the current strategy is
+                finished.
     """
     current_strat_model = (
         server.config.get(server.strat.name, "model", fallback="model not set")
@@ -46,7 +97,7 @@ def info(server) -> Dict[str, Any]:
         else "acqf not set"
     )
 
-    response = {
+    response: InfoResponse = {
         "db_name": server.db._db_name,
         "exp_id": server._db_master_record.experiment_id,
         "strat_count": server.n_strats,

@@ -6,13 +6,25 @@
 # LICENSE file in the root directory of this source tree.
 
 import logging
+from typing import Any, Dict, List
 
 import aepsych.utils_logging as utils_logging
 
 logger = utils_logging.getLogger(logging.INFO)
 
 
-def handle_params(server, request):
+def handle_params(server, request: Dict[str, Any]) -> Dict[str, List[float]]:
+    """Returns a dictionary about each parameter in the current strategy.
+
+    Args:
+        server (AEPsychServer): AEPsych server responding to the message.
+        request (Dict[str, Any]): A dictionary from the request message. Currently
+            ignored expect to record the message in the replay.
+
+    Returns:
+        Dict[str, List[float]]: A dictionary where every key is a parameter and the
+            value is a list of floats representing the lower bound and the upper bound.
+    """
     logger.debug("got parameters message!")
     if not server.is_performing_replay:
         server.db.record_message(

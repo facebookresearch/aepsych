@@ -5,13 +5,27 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 import logging
+from typing import Any, Dict
 
 import aepsych.utils_logging as utils_logging
 
 logger = utils_logging.getLogger(logging.INFO)
 
 
-def handle_get_config(server, request):
+def handle_get_config(server, request: Dict[str, Any]) -> Dict[str, Any]:
+    """Return the current experiment config. The message can specify a section and
+    property to get the specific property from a specific section but otherwise the
+    entire config is returned.
+
+    Args:
+        server (AEPsychServer): AEPsych server responding to the message.
+        request (Dict[str, Any]): A dictionary from the request message. Can include
+            both a section and property key to get a specific property instead of the
+            whole experiment config.
+
+    Returns:
+        Dict[str, Any]: A dictionary representing the experiment config.
+    """
     msg = request["message"]
     section = msg.get("section", None)
     prop = msg.get("property", None)
