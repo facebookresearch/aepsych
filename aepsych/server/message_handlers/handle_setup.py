@@ -51,7 +51,7 @@ def _configure(server, config):
     ):  # We probably don't have a record for this new ID, so we make a dummy
         server._db_master_record = server.db.record_setup()
 
-    return server.strat_id
+    return {"strat_id": server.strat_id}
 
 
 def configure(server, config=None, **config_args):
@@ -62,9 +62,9 @@ def configure(server, config=None, **config_args):
     else:
         usedconfig = config
 
-    strat_id = _configure(server, usedconfig)
+    response = _configure(server, usedconfig)
     server.db.record_config(master_table=server._db_master_record, config=usedconfig)
-    return strat_id
+    return response
 
 
 def handle_setup(server, request):

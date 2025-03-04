@@ -7,7 +7,7 @@
 
 import io
 import logging
-from typing import Dict, Optional, Sequence, TypeAlias, Union
+from typing import Dict, Optional, Sequence, TypeAlias, TypedDict, Union
 
 import aepsych.utils_logging as utils_logging
 import dill
@@ -18,6 +18,10 @@ import torch
 logger = utils_logging.getLogger(logging.INFO)
 DEFAULT_DESC = "default description"
 DEFAULT_NAME = "default name"
+
+TellResponse = TypedDict(
+    "TellResponse", {"trials_recorded": int, "model_data_added": int}
+)
 
 # This form is deprecated in 3.12 in favor of a "type statement", but we support 3.10+
 OutcomeType: TypeAlias = Union[
@@ -55,7 +59,7 @@ def handle_tell(server, request):
                 "extra_info should not be used to record extra trial-level data alongside tells, extra data should be added as extra keys in the message."
             )
 
-    tell(server, **request["message"])
+    tell_response = tell(server, **request["message"])
 
     if server.strat is not None and server.strat.finished is True:
         logger.info("Recording strat because the experiment is complete.")
@@ -65,7 +69,7 @@ def handle_tell(server, request):
         buffer.seek(0)
         server.db.record_strat(master_table=server._db_master_record, strat=buffer)
 
-    return "acq"
+    return tell_response
 
 
 def flatten_tell_record(server, rec):
@@ -108,16 +112,22 @@ def tell(
             Defaults to True.
         **extra_data: Extra info to save to a trial, not modeled.
     """
-
+    tell_response = {"trials_recorded": 0, "model_data_added": 0}
     if config is None:
         config = {}
 
     if not server.is_performing_replay:
-        _record_tell(server, outcome, config, model_data, **extra_data)
+        tell_response["trials_recorded"] = _record_tell(
+            server, outcome, config, model_data, **extra_data
+        )
 
     if model_data:
         x = server._config_to_tensor(config)
         server.strat.add_data(x, outcome)
+
+        tell_response["model_data_added"] = len(x)
+
+    return tell_response
 
 
 def _record_tell(
@@ -126,7 +136,7 @@ def _record_tell(
     config: ParameterConfigType,
     model_data: bool = True,
     **extra_data,
-) -> None:
+) -> int:
     config_dict = {
         key: value if isinstance(value, ARRAY_LIKE) else [value]
         for key, value in config.items()
@@ -171,3 +181,5 @@ def _record_tell(
                 outcome_name=outcome_name,
                 outcome_value=float(outcome_value),
             )
+
+    return n_trials
