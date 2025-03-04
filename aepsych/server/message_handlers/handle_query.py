@@ -56,7 +56,7 @@ def query(
             raise RuntimeError("Cannot query model at location = None!")
 
         mean, _var = server.strat.predict(
-            server._config_to_tensor(x).unsqueeze(axis=0),
+            server._config_to_tensor(x),
             probability_space=probability_space,
         )
         response["x"] = x

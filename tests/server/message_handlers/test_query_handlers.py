@@ -61,28 +61,14 @@ class QueryHandlerTestCase(BaseServerTestCase):
         ask_request = {"type": "ask", "message": ""}
         tell_request = {
             "type": "tell",
-            "message": [
-                {
-                    "config": {
-                        "par1": [0.5, 0.5],
-                        "par2": [-0.5, -0.5],
-                        "par3": [40, 50],
-                    },
-                    "outcome": 1,
+            "message": {
+                "config": {
+                    "par1": [[0.5, 0.5], [0.0, 0.75], [1, -1]],
+                    "par2": [[-0.5, -0.5], [0.0, -1], [0, 0.0]],
+                    "par3": [[40, 50], [11, 99], [40, 12]],
                 },
-                {
-                    "config": {
-                        "par1": [0.0, 0.75],
-                        "par2": [0.0, -1],
-                        "par3": [11, 99],
-                    },
-                    "outcome": 0,
-                },
-                {
-                    "config": {"par1": [1, -1], "par2": [0, 0.0], "par3": [40, 12]},
-                    "outcome": 0,
-                },
-            ],
+                "outcome": [1, 0, 0],
+            },
         }
 
         self.s.handle_request(setup_request)
@@ -192,11 +178,13 @@ class QueryHandlerTestCase(BaseServerTestCase):
         ask_request = {"type": "ask", "message": ""}
         tell_request = {
             "type": "tell",
-            "message": [
-                {"config": {"x": [0.5, 0.5], "y": [0.25, 0.75]}, "outcome": 1},
-                {"config": {"x": [0.25, 0.75], "y": [0.5, 0.5]}, "outcome": 0},
-                {"config": {"x": [0.2, 0.6], "y": [0.3, 0.9]}, "outcome": 0},
-            ],
+            "message": {
+                "config": {
+                    "x": [[0.5, 0.5], [0.25, 0.75], [0.2, 0.6]],
+                    "y": [[0.25, 0.75], [0.5, 0.5], [0.3, 0.9]],
+                },
+                "outcome": [1, 0, 0],
+            },
         }
 
         self.s.handle_request(setup_request)
