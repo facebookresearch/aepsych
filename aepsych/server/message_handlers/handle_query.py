@@ -6,6 +6,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import logging
+from typing import Any, Dict, Literal, Optional, TypedDict, Union
 
 import aepsych.utils_logging as utils_logging
 import numpy as np
@@ -13,8 +14,37 @@ import torch
 
 logger = utils_logging.getLogger(logging.INFO)
 
+QueryResponse = TypedDict(
+    "QueryResponse",
+    {
+        "query_type": str,
+        "probability_space": bool,
+        "constraints": Dict[int, float],
+        "x": Dict[str, np.ndarray],
+        "y": np.ndarray,
+    },
+)
 
-def handle_query(server, request):
+
+def handle_query(server, request: Dict[str, Any]) -> Optional[QueryResponse]:
+    """Queries the underlying model given a specific query request.
+
+    Args:
+        server (AEPsychServer): AEPsych server responding to the message.
+        request (Dict[str, Any]): A dictionary from the request message.
+
+    Returns:
+        QueryResponse, optional: None if server is skipping computations for a replay.
+            Otherwise, returns a dictionary with these entries:
+            - "query_response": string, the query response.
+            - "probability_space": boolean, whether to query in the probability space
+                or not.
+            - "constraints": dictionary, the equality constraint for parameters
+                where the keys are the parameter index and the values are the point
+                where the paramter should be constrained to.
+            - "x": dictionary, the parameter configuration dictionary for the query.
+            - "y": np.ndarray, the y from the query.
+    """
     logger.debug("got query message!")
     if not server.is_performing_replay:
         server.db.record_message(
@@ -26,21 +56,50 @@ def handle_query(server, request):
 
 def query(
     server,
-    query_type="max",
-    probability_space=False,
-    x=None,
-    y=None,
-    constraints=None,
+    query_type: Literal["max", "min", "prediction", "inverse"] = "max",
+    probability_space: bool = False,
+    x: Optional[Dict[str, Any]] = None,
+    y: Optional[Union[float, torch.Tensor]] = None,
+    constraints: Optional[Dict[int, float]] = None,
     **kwargs,
-):
+) -> Optional[QueryResponse]:
+    """Queries the underlying model for a specific query.
+
+    Args:
+        query_type (Literal["max", "min", "prediction", "inverse"]): What type of query
+            to make. Defaults to "max".
+        probability_space (bool): Whether the y in the query is in probability space.
+            Defaults to False.
+        x (Dict[str, Any], optional): A parameter configuration dictionary representing
+            one or more point for a prediction query.
+        y (Union[float, torch.Tensor], optional): The expected y for a inverse query.
+        constraints (Dict[int, float], optional): The constraints to impose on the
+            query where each key is the parameter index and the value is the parameter
+            value to apply the equality constraint at.
+        **kwargs: Additional kwargs to pass to the query function.
+
+    Returns:
+        QueryResponse, optional: None if server is skipping computations for a replay.
+            Otherwise, returns a dictionary with these entries:
+            - "query_response": string, the query response.
+            - "probability_space": boolean, whether to query in the probability space
+                or not.
+            - "constraints": dictionary, the equality constraint for parameters
+                where the keys are the parameter index and the values are the point
+                where the paramter should be constrained to.
+            - "x": dictionary, the parameter configuration dictionary for the query.
+            - "y": np.ndarray, the y from the query.
+    """
     if server.skip_computations:
         return None
 
     constraints = constraints or {}
-    response = {
+    response: QueryResponse = {
         "query_type": query_type,
         "probability_space": probability_space,
         "constraints": constraints,
+        "x": {"placeholder": np.empty(0)},
+        "y": np.empty(0),
     }
     if query_type == "max":
         fmax, fmax_loc = server.strat.get_max(constraints, probability_space, **kwargs)

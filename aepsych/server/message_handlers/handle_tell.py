@@ -7,13 +7,14 @@
 
 import io
 import logging
-from typing import Dict, Optional, Sequence, TypeAlias, TypedDict, Union
+from typing import Any, Dict, Optional, Sequence, TypeAlias, TypedDict, Union
 
 import aepsych.utils_logging as utils_logging
 import dill
 import numpy as np
 import pandas as pd
 import torch
+from aepsych.database.tables import DbReplayTable
 
 logger = utils_logging.getLogger(logging.INFO)
 DEFAULT_DESC = "default description"
@@ -47,7 +48,20 @@ ParameterConfigType: TypeAlias = Dict[
 ARRAY_LIKE = (Sequence, np.ndarray)
 
 
-def handle_tell(server, request):
+def handle_tell(server, request: Dict[str, Any]) -> TellResponse:
+    """Tell the model which input was run and what the outcome was.
+
+    Args:
+        server (AEPsychServer): The AEPsych server object.
+        request (Dict[str, Any]): A dictionary from the request message, must include
+            tell data.
+
+    Returns:
+        TellResponse: A dictionary with these entries
+            - "trials_recorded": integer, the number of trials recorded in the
+                database.
+            - "model_data_added": integer, the number of datapoints added to the model.
+    """
     logger.debug("got tell message!")
 
     if not server.is_performing_replay:
@@ -72,7 +86,18 @@ def handle_tell(server, request):
     return tell_response
 
 
-def flatten_tell_record(server, rec):
+def flatten_tell_record(server, rec: DbReplayTable) -> Dict[str, Any]:
+    """Flatten a tell replay record into a dictionary including the trial parameter
+    configuration and the response.
+
+    Args:
+        server (AEPsychServer): The AEPsych server object. This is currently ignored.
+        rec (DbReplayTable): The replay table record. This must be a tell record.
+
+    Returns:
+        Dict[str, Any]: A dictionary including the information from the tell replay
+            record.
+    """
     out = {}
     out["response"] = int(rec.message_contents["message"]["outcome"])
 
@@ -94,10 +119,10 @@ def tell(
     config: Optional[ParameterConfigType] = None,
     model_data: bool = True,
     **extra_data,
-):
+) -> TellResponse:
     """Tell the model which input was run and what the outcome was.
 
-    Arguments:
+    Args:
         server (AEPsychServer): The AEPsych server object.
         outcome (OutcomeType: The outcome of the trial. If it's a float, it's a single
             trial single outcome. If it's a sequence, it is multiple trials single
@@ -111,8 +136,14 @@ def tell(
             If False, the trial will be recorded in the db, but will not be modeled.
             Defaults to True.
         **extra_data: Extra info to save to a trial, not modeled.
+
+    Returns:
+        TellResponse: A dictionary with these entries
+            - "trials_recorded": integer, the number of trials recorded in the
+                database.
+            - "model_data_added": integer, the number of datapoints added to the model.
     """
-    tell_response = {"trials_recorded": 0, "model_data_added": 0}
+    tell_response: TellResponse = {"trials_recorded": 0, "model_data_added": 0}
     if config is None:
         config = {}
 
@@ -137,6 +168,20 @@ def _record_tell(
     model_data: bool = True,
     **extra_data,
 ) -> int:
+    """Records the data from a tell into the server. Each trial is written as a separate
+    row in the raw table.
+
+    Args:
+        server (AEPsychServer): AEPsych server that has the database to write to.
+        outcome (OutcomeType): The outcomes to write to the database.
+        config (ParamterConfigType): The parameter config dictionary to write to the
+            database.
+        model_data (bool): Whether or not this data was given to the model.
+        **extra_data: Extra data to write to the raw table.
+
+    Returns:
+        int: The number of trials (rows in the raw table) written to the database.
+    """
     config_dict = {
         key: value if isinstance(value, ARRAY_LIKE) else [value]
         for key, value in config.items()
