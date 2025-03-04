@@ -29,9 +29,7 @@ class RemoteServerTestCase(unittest.TestCase):
         database_path = "./{}.db".format(str(uuid.uuid4().hex))
         self.s = AEPsychServer(database_path=database_path)
         self.client = AEPsychClient(connect=False)
-        self.client._send_recv = MagicMock(
-            wraps=lambda x: json.dumps(self.s.handle_request(x))
-        )
+        self.client._send_recv = MagicMock(wraps=lambda x: self.s.handle_request(x))
 
     def tearDown(self):
         self.s.cleanup()

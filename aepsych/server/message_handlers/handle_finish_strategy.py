@@ -8,4 +8,7 @@
 
 def handle_finish_strategy(self, request):
     self.strat.finish()
-    return f"finished strategy {self.strat.name}"
+    return {
+        "finished_strategy": self.strat.name,
+        "finished_strat_idx": self.strat._strat_idx,
+    }

@@ -19,4 +19,4 @@ def handle_exit(server, request):
     server.write_strats(termination_type)
     server.exit_server_loop = True
 
-    return "Terminate"
+    return {"termination_type": "Terminate", "success": True}
