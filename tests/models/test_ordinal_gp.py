@@ -71,6 +71,7 @@ class OrdinalGPTest(unittest.TestCase):
             lb=self.lb,
             ub=self.ub,
             acqf=qLogNoisyExpectedImprovement,
+            acqf_kwargs={"prune_baseline": False},
         )
         model = ParameterTransformedModel(
             OrdinalGPModel,
