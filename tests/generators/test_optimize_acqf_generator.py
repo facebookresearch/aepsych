@@ -124,7 +124,7 @@ class TestOptimizeAcqfGenerator(unittest.TestCase):
 
         generator = OptimizeAcqfGenerator(
             acqf=qLogNoisyExpectedImprovement,
-            acqf_kwargs={"objective": ProbitObjective()},
+            acqf_kwargs={"objective": ProbitObjective(), "prune_baseline": False},
             lb=lb,
             ub=ub,
             max_gen_time=0.1,
