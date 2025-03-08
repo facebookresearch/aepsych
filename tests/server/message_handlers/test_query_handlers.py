@@ -7,6 +7,8 @@
 
 import unittest
 
+import numpy as np
+
 from ..test_server import BaseServerTestCase
 
 
@@ -131,6 +133,7 @@ class QueryHandlerTestCase(BaseServerTestCase):
         response = self.s.handle_request(query_pred_req)
         self.assertTrue(len(response["x"]["par1"]) == 1)
         self.assertTrue(len(response["x"]["par2"]) == 1)
+        self.assertIsInstance(response["y"], np.ndarray)
 
         response = self.s.handle_request(query_max_const)
         self.assertTrue(response["x"]["par2"][0] == 0)
