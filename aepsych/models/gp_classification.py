@@ -90,7 +90,7 @@ class GPClassificationModel(VariationalGPModel):
                 response probability instead of latent function value. Defaults to False.
 
         Returns:
-            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at queries points.
+            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at query points.
         """
 
         if not probability_space:
@@ -117,7 +117,7 @@ class GPClassificationModel(VariationalGPModel):
                 transformation is applied.
 
         Returns:
-            Tuple[torch.Tensor, torch.Tensor]: Transformed posterior mean and variance at queries points.
+            Tuple[torch.Tensor, torch.Tensor]: Transformed posterior mean and variance at query points.
         """
 
         return super().predict_transform(
@@ -131,6 +131,6 @@ class GPClassificationModel(VariationalGPModel):
             x (torch.Tensor): Points at which to predict from the model.
 
         Returns:
-            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at queries points.
+            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at query points.
         """
         return self.predict(x, probability_space=True)

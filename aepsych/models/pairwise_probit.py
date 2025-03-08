@@ -184,7 +184,7 @@ class PairwiseProbitModel(PairwiseGP, AEPsychModelMixin):
             rereference (str): How to sample. Options are "x_min", "x_max", "f_min", "f_max". Defaults to "x_min".
 
         Returns:
-            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at queries points.
+            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at query points.
         """
         if rereference is not None:
             samps = self.sample(x, num_samples, rereference)
@@ -217,7 +217,7 @@ class PairwiseProbitModel(PairwiseGP, AEPsychModelMixin):
             rereference (str): How to sample. Options are "x_min", "x_max", "f_min", "f_max". Defaults to "x_min".
 
         Returns:
-            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at queries points.
+            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at query points.
         """
         return self.predict(
             x, probability_space=True, num_samples=num_samples, rereference=rereference
