@@ -96,6 +96,15 @@ class AEPsychModelMixin(GPyTorchModel, ConfigurableMixin):
         if train_targets is None:
             self._train_targets = None
         else:
+            # Remove unnecessary dimension if possible
+            if (
+                train_targets.ndim > 1
+                and self.num_outputs == 1
+                and self.stimuli_per_trial == 1
+            ):
+                # HACK: Stimuli_per_trial == 1 is for pairwise probit's comparisons targets
+                train_targets = train_targets.squeeze_()
+
             self._train_targets = train_targets.to(self.device)
 
     def forward(self, x: torch.Tensor) -> gpytorch.distributions.MultivariateNormal:
