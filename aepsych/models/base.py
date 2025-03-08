@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import time
+import warnings
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import gpytorch
@@ -28,7 +29,7 @@ class AEPsychModelMixin(GPyTorchModel, ConfigurableMixin):
 
     extremum_solver = "Nelder-Mead"
     outcome_types: List[str] = []
-    _train_inputs: Optional[Tuple[torch.Tensor]]
+    _train_inputs: Optional[Tuple[torch.Tensor, ...]]
     _train_targets: Optional[torch.Tensor]
     stimuli_per_trial: int = 1
 
@@ -44,7 +45,7 @@ class AEPsychModelMixin(GPyTorchModel, ConfigurableMixin):
         return next(self.parameters()).device
 
     @property
-    def train_inputs(self) -> Optional[Tuple[torch.Tensor]]:
+    def train_inputs(self) -> Optional[Tuple[torch.Tensor, ...]]:
         """Get the training inputs.
 
         Returns:
@@ -53,14 +54,11 @@ class AEPsychModelMixin(GPyTorchModel, ConfigurableMixin):
         if self._train_inputs is None:
             return None
 
-        # makes sure the tensors are on the right device, move in place
-        for input in self._train_inputs:
-            input.to(self.device)
-
-        return self._train_inputs
+        # Make sure tuples are in the right device
+        return tuple([input.to(self.device) for input in self._train_inputs])
 
     @train_inputs.setter
-    def train_inputs(self, train_inputs: Optional[Tuple[torch.Tensor]]) -> None:
+    def train_inputs(self, train_inputs: Optional[Tuple[torch.Tensor, ...]]) -> None:
         """Set the training inputs.
 
         Args:
@@ -69,10 +67,9 @@ class AEPsychModelMixin(GPyTorchModel, ConfigurableMixin):
         if train_inputs is None:
             self._train_inputs = None
         else:
-            for input in train_inputs:
-                input.to(self.device)
+            inputs = tuple([input.to(self.device) for input in train_inputs])
 
-            self._train_inputs = train_inputs
+            self._train_inputs = inputs
 
     @property
     def train_targets(self) -> Optional[torch.Tensor]:
@@ -159,7 +156,7 @@ class AEPsychModelMixin(GPyTorchModel, ConfigurableMixin):
         self,
         inputs: Optional[torch.Tensor] = None,
         targets: Optional[torch.Tensor] = None,
-        strict: bool = False,
+        strict: bool = True,
     ) -> None:
         """Set the training data for the model.
 
@@ -167,16 +164,17 @@ class AEPsychModelMixin(GPyTorchModel, ConfigurableMixin):
             inputs (torch.Tensor, optional): The new training inputs X.
             targets (torch.Tensor, optional): The new training targets Y.
             strict (bool): Whether to strictly enforce the device of the inputs and targets.
-
-        input transformers. TODO: actually use this arg or change input transforms
-        to not require it.
         """
-        # Move to same device to ensure the right device
-        if inputs is not None:
-            self._train_inputs = (inputs.to(self.device),)
+        if not strict:
+            warnings.warn(
+                "strict set to false, but set_train_data will always follow device"
+            )
 
-        if targets is not None:
-            self._train_targets = targets.to(self.device)
+        if inputs is None:
+            self.train_inputs = None
+        else:
+            self.train_inputs = (inputs,)
+        self.train_targets = targets
 
     def predict(
         self,
