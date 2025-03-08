@@ -567,6 +567,9 @@ class ConfigurableMixin(abc.ABC):
                         element_types = typing.get_args(annotation)
                         element_type = _sort_types(element_types)[0]
 
+                        if isinstance(element_type, abc.ABCMeta):
+                            break
+
                         value = config.getlist(
                             name,
                             key,
