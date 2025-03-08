@@ -11,6 +11,7 @@ from ..config import Config
 from .acqf_grid_search_generator import AcqfGridSearchGenerator
 from .acqf_thompson_sampler_generator import AcqfThompsonSamplerGenerator
 from .epsilon_greedy_generator import EpsilonGreedyGenerator
+from .independent_acqf_generator import IndependentOptimizeAcqfGenerator
 from .manual_generator import ManualGenerator, SampleAroundPointsGenerator
 from .optimize_acqf_generator import OptimizeAcqfGenerator
 from .random_generator import RandomGenerator
@@ -24,6 +25,7 @@ __all__ = [
     "EpsilonGreedyGenerator",
     "ManualGenerator",
     "SampleAroundPointsGenerator",
+    "IndependentOptimizeAcqfGenerator",
     "IntensityAwareSemiPGenerator",
     "AcqfThompsonSamplerGenerator",
     "AcqfGridSearchGenerator",

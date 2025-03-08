@@ -31,7 +31,7 @@ class AEPsychModelMixin(GPyTorchModel, ConfigurableMixin):
     outcome_types: List[str] = []
     _train_inputs: Optional[Tuple[torch.Tensor, ...]]
     _train_targets: Optional[torch.Tensor]
-    num_outputs: int
+    _num_outputs: int
     dim: int
     stimuli_per_trial: int = 1
 
@@ -108,6 +108,10 @@ class AEPsychModelMixin(GPyTorchModel, ConfigurableMixin):
                 train_targets = train_targets.squeeze_()
 
             self._train_targets = train_targets.to(self.device)
+
+    @property
+    def num_outputs(self) -> int:
+        return self._num_outputs
 
     def forward(self, x: torch.Tensor) -> gpytorch.distributions.MultivariateNormal:
         """Evaluate GP

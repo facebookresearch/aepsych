@@ -62,6 +62,7 @@ class OptimizeAcqfGenerator(AcqfGenerator):
         num_points: int,
         model: AEPsychModelMixin,
         fixed_features: Optional[Dict[int, float]] = None,
+        X_pending: Optional[torch.Tensor] = None,
         **gen_options,
     ) -> torch.Tensor:
         """Query next point(s) to run by optimizing the acquisition function.
@@ -72,6 +73,8 @@ class OptimizeAcqfGenerator(AcqfGenerator):
                 parameters should be at when generating. Should be a dictionary where
                 the keys are the indices of the parameters to fix and the values are the
                 values to fix them at.
+            X_pending (torch.Tensor, option): Points that have been generated but not
+                evaluated yet. For sequential generation.
             **gen_options: Additional options for generating points, such as custom configurations.
 
         Returns:
@@ -84,6 +87,9 @@ class OptimizeAcqfGenerator(AcqfGenerator):
             self.ub = self.ub.to(model.device)
 
         acqf = self._instantiate_acquisition_fn(model)
+
+        if hasattr(acqf, "set_X_pending"):
+            acqf.set_X_pending(X_pending)
 
         if isinstance(acqf, LookaheadAcquisitionFunction) and num_points > 1:
             warnings.warn(
