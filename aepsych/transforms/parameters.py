@@ -21,7 +21,7 @@ from aepsych.transforms.ops.base import Transform
 from aepsych.utils import get_bounds
 from botorch.acquisition import AcquisitionFunction
 from botorch.models.transforms.input import ChainedInputTransform
-from botorch.posteriors import Posterior
+from botorch.posteriors import Posterior, TransformedPosterior
 
 _TRANSFORMABLE = [
     "lb",
@@ -631,6 +631,33 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
         """
         x = self.transforms.transform(x)
         return self._base_obj.predict_probability(x, **kwargs)
+
+    @_promote_1d
+    def predict_transform(
+        self,
+        x: torch.Tensor,
+        transformed_posterior_cls: Optional[type[TransformedPosterior]] = None,
+        **kwargs,
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        """Query the model for posterior mean and variance under some tranformation.
+
+        Args:
+            x (torch.Tensor): Points at which to predict from the model.
+            transformed_posterior_cls (TransformedPosterior type, optional): The type of transformation to apply to the posterior.
+                Note that you should give TransformedPosterior itself, rather than an instance. Defaults to None, in which case no
+                transformation is applied.
+            **kwargs: Keyword args for specific models.
+
+        Returns:
+            Tuple[torch.Tensor, torch.Tensor]: Transformed posterior mean and variance at queries points.
+        """
+        x = self.transforms.transform(x)
+
+        return self._base_obj.predict_transform(
+            x,
+            transformed_posterior_cls=transformed_posterior_cls,
+            **kwargs,
+        )
 
     @_promote_1d
     def sample(self, x: torch.Tensor, num_samples: int) -> torch.Tensor:
