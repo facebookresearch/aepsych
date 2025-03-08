@@ -606,7 +606,7 @@ class HadamardSemiPModel(VariationalGPModel):
                 response probability instead of latent function value. Defaults to False.
 
         Returns:
-            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at queries points.
+            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at query points.
         """
         if probability_space:
             if hasattr(self.likelihood, "objective"):
