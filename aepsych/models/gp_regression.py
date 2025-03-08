@@ -26,7 +26,6 @@ class GPRegressionModel(AEPsychModelMixin, ExactGP):
     """GP Regression model for continuous outcomes, using exact inference."""
 
     _num_outputs = 1
-    _batch_size = 1
     stimuli_per_trial = 1
     outcome_type = "continuous"
 

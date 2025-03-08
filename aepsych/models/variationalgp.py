@@ -27,8 +27,6 @@ logger = getLogger()
 class VariationalGPModel(AEPsychModelMixin, ApproximateGP):
     """Base GP model with variational inference"""
 
-    _batch_size = 1
-
     def __init__(
         self,
         dim: int,
@@ -82,7 +80,7 @@ class VariationalGPModel(AEPsychModelMixin, ApproximateGP):
         )
 
         variational_distribution = CholeskyVariationalDistribution(
-            inducing_points.size(0), batch_shape=torch.Size([self._batch_size])
+            inducing_points.size(0),
         ).to(inducing_points)
 
         variational_strategy = VariationalStrategy(
@@ -122,7 +120,7 @@ class VariationalGPModel(AEPsychModelMixin, ApproximateGP):
                 inputs=self.train_inputs[0],
             ).to(device)
             variational_distribution = CholeskyVariationalDistribution(
-                inducing_points.size(0), batch_shape=torch.Size([self._batch_size])
+                inducing_points.size(0),
             ).to(device)
             self.variational_strategy = VariationalStrategy(
                 self,
