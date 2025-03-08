@@ -8,6 +8,7 @@
 import sys
 
 from ...config import Config
+from .multi_outcome import AffinePosteriorTransform
 from .objective import (
     AEPsychObjective,
     FloorGumbelObjective,
@@ -25,6 +26,7 @@ __all__ = [
     "ProbitObjective",
     "SemiPProbabilityObjective",
     "SemiPThresholdObjective",
+    "AffinePosteriorTransform",
 ]
 
 Config.register_module(sys.modules[__name__])
