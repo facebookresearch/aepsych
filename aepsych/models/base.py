@@ -31,6 +31,8 @@ class AEPsychModelMixin(GPyTorchModel, ConfigurableMixin):
     outcome_types: List[str] = []
     _train_inputs: Optional[Tuple[torch.Tensor, ...]]
     _train_targets: Optional[torch.Tensor]
+    num_outputs: int
+    dim: int
     stimuli_per_trial: int = 1
 
     @property

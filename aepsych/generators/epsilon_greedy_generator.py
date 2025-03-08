@@ -9,8 +9,8 @@ from typing import Any, Dict, Optional
 
 import numpy as np
 import torch
+from aepsych.models.base import AEPsychModelMixin
 
-from ..models.model_protocol import ModelProtocol
 from .base import AEPsychGenerator
 from .optimize_acqf_generator import OptimizeAcqfGenerator
 
@@ -65,7 +65,7 @@ class EpsilonGreedyGenerator(AEPsychGenerator):
     def gen(
         self,
         num_points: int,
-        model: ModelProtocol,
+        model: AEPsychModelMixin,
         fixed_features: Optional[Dict[int, float]] = None,
         **kwargs,
     ) -> torch.Tensor:
@@ -73,7 +73,7 @@ class EpsilonGreedyGenerator(AEPsychGenerator):
 
         Args:
             num_points (int): Number of points to query.
-            model (ModelProtocol): Model to use for generating points.
+            model (AEPsychModelMixin): Model to use for generating points.
             fixed_features: (Dict[int, float], optional): Parameters that are fixed to specific values.
             **kwargs: Passed to subgenerator if not exploring
         """

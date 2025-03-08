@@ -69,7 +69,7 @@ class Strategy(ConfigurableMixin):
                 of lb and ub.
             min_total_tells (int): The minimum number of total observations needed to complete this strategy.
             min_asks (int): The minimum number of points that should be generated from this strategy.
-            model (ModelProtocol, optional): The AEPsych model of the data.
+            model (AEPsychModelMixin, optional): The AEPsych model of the data.
             use_gpu_modeling (bool): Whether to move the model to GPU fitting/predictions, defaults to False.
             use_gpu_generating (bool): Whether to use the GPU for generating points, defaults to False.
             refit_every (int): How often to refit the model from scratch.
@@ -373,7 +373,7 @@ class Strategy(ConfigurableMixin):
             probability_space (bool): Whether to return the output in probability space. Defaults to False.
 
         Returns:
-            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at queries points.
+            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at query points.
         """
         assert self.model is not None, "model is None! Cannot predict without a model!"
         self.model.to(self.model_device)
