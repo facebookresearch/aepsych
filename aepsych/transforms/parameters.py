@@ -579,6 +579,16 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
             {},
         )
 
+    def __getitem__(self, key):
+        if hasattr(self._base_obj, "__getitem__"):
+            obj = self._base_obj[key]
+            if isinstance(obj, AEPsychModelMixin):
+                # Wrap it
+                obj = ParameterTransformedModel(model=obj, transforms=self.transforms)
+            return obj
+        else:
+            raise TypeError(f"{self.__class__.__name__} object is not subscriptable")
+
     @staticmethod
     def _promote_1d(func: Callable) -> Callable:
         # Decorator to reshape model Xs into 2d if they're 1d. Assumes that the Tensor
