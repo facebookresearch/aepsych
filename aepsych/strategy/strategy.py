@@ -272,7 +272,7 @@ class Strategy(ConfigurableMixin):
         constraints: Optional[Mapping[int, float]] = None,
         probability_space: bool = False,
         max_time: Optional[float] = None,
-    ) -> Tuple[float, torch.Tensor]:
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
         """Return the maximum of the modeled function, subject to constraints
 
         Args:
@@ -281,7 +281,7 @@ class Strategy(ConfigurableMixin):
             max_time (float, optional): Maximum time to run the optimization. Defaults to None.
 
         Returns:
-            Tuple[float, torch.Tensor]: Tuple containing the max and its location (argmax).
+            Tuple[torch.Tensor, torch.Tensor]: Tuple containing the max and its location (argmax).
         """
         assert (
             self.model is not None
@@ -304,13 +304,16 @@ class Strategy(ConfigurableMixin):
         constraints: Optional[Mapping[int, float]] = None,
         probability_space: bool = False,
         max_time: Optional[float] = None,
-    ) -> Tuple[float, torch.Tensor]:
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
         """Return the minimum of the modeled function, subject to constraints
 
         Args:
             constraints (Mapping[int, float], optional): Which parameters to fix at specific points. Defaults to None.
             probability_space (bool): Whether to return the min in probability space. Defaults to False.
             max_time (float, optional): Maximum time to run the optimization. Defaults to None.
+
+        Returns:
+            Tuple[torch.Tensor, torch.Tensor]: Tuple containing the min and its location (argmin).
         """
         assert (
             self.model is not None
@@ -334,7 +337,7 @@ class Strategy(ConfigurableMixin):
         constraints: Optional[Mapping[int, float]] = None,
         probability_space: bool = False,
         max_time: Optional[float] = None,
-    ) -> Tuple[float, torch.Tensor]:
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
         """Get the input that corresponds to a given output value.
 
         Args:
@@ -344,7 +347,7 @@ class Strategy(ConfigurableMixin):
             max_time (float, optional): Maximum time to run the optimization. Defaults to None.
 
         Returns:
-            Tuple[float, torch.Tensor]: The input that corresponds to the given output value and the corresponding output.
+            Tuple[torch.Tensor, torch.Tensor]: The input that corresponds to the given output value and the corresponding output.
         """
         assert (
             self.model is not None

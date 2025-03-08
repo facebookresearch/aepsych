@@ -168,7 +168,7 @@ def get_min(
     probability_space: bool = False,
     n_samples: int = 1000,
     max_time: Optional[float] = None,
-) -> Tuple[float, torch.Tensor]:
+) -> Tuple[torch.Tensor, torch.Tensor]:
     """Return the minimum of the modeled function, subject to constraints
     Args:
         model (AEPsychModelMixin): AEPsychModel to get the minimum of.
@@ -181,7 +181,7 @@ def get_min(
         max_time (float, optional): Maximum time to spend optimizing. Defaults to None.
 
     Returns:
-        Tuple[float, torch.Tensor]: Tuple containing the min and its location (argmin).
+        Tuple[torch.Tensor, torch.Tensor]: Tuple containing the min and its location (argmin).
     """
     _, _arg = get_extremum(
         model, "min", bounds, locked_dims, n_samples, max_time=max_time
@@ -192,7 +192,7 @@ def get_min(
     else:
         val, _ = model.predict(arg)
 
-    return float(val.item()), arg
+    return val.detach(), arg
 
 
 def get_max(
@@ -202,7 +202,7 @@ def get_max(
     probability_space: bool = False,
     n_samples: int = 1000,
     max_time: Optional[float] = None,
-) -> Tuple[float, torch.Tensor]:
+) -> Tuple[torch.Tensor, torch.Tensor]:
     """Return the maximum of the modeled function, subject to constraints
 
     Args:
@@ -216,7 +216,7 @@ def get_max(
         max_time (float, optional): Maximum time to spend optimizing. Defaults to None.
 
     Returns:
-        Tuple[float, torch.Tensor]: Tuple containing the max and its location (argmax).
+        Tuple[torch.Tensor, torch.Tensor]: Tuple containing the max and its location (argmax).
     """
     _, _arg = get_extremum(
         model, "max", bounds, locked_dims, n_samples, max_time=max_time
@@ -227,7 +227,7 @@ def get_max(
     else:
         val, _ = model.predict(arg)
 
-    return float(val.item()), arg
+    return val.detach(), arg
 
 
 def inv_query(
@@ -239,7 +239,7 @@ def inv_query(
     n_samples: int = 1000,
     max_time: Optional[float] = None,
     weights: Optional[torch.Tensor] = None,
-) -> Tuple[float, torch.Tensor]:
+) -> Tuple[torch.Tensor, torch.Tensor]:
     """Query the model inverse.
     Return nearest x such that f(x) = queried y, and also return the
         value of f at that point.
@@ -256,7 +256,7 @@ def inv_query(
         max_time (float, optional): Maximum amount of time in seconds to spend optimizing. Defaults to None.
         weights (torch.Tensor, optional): Weights to apply to the target value. Defaults to None.
     Returns:
-        Tuple[float, torch.Tensor]: Tuple containing the value of f
+        Tuple[torch.Tensor, torch.Tensor]: Tuple containing the value of f
             nearest to queried y and the x position of this value.
     """
     locked_dims = locked_dims or {}
@@ -287,7 +287,7 @@ def inv_query(
     else:
         val, _ = model.predict(arg)
 
-    return float(val.item()), arg
+    return val.detach(), arg
 
 
 def get_jnd(
