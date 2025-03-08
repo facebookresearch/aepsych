@@ -39,8 +39,6 @@
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">botorch.acquisition.preference</span><span class="w"> </span><span class="kn">import</span> <span class="n">AnalyticExpectedUtilityOfBestOption</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">..models.model_protocol</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelProtocol</span>
-
 <span class="n">AEPsychModelType</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">"AEPsychModelType"</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">AEPsychModelMixin</span><span class="p">)</span>
 
 
@@ -184,12 +182,14 @@
 
         <span class="k">return</span> <span class="n">extra_acqf_args</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_instantiate_acquisition_fn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">ModelProtocol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AcquisitionFunction</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_instantiate_acquisition_fn</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">AEPsychModelMixin</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AcquisitionFunction</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Instantiates the acquisition function with the specified model and additional arguments.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            model (ModelProtocol): The model to use with the acquisition function.</span>
+<span class="sd">            model (AEPsychModelMixin): The model to use with the acquisition function.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            AcquisitionFunction: Configured acquisition function.</span>
@@ -211,6 +211,8 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">acqf_kwargs</span><span class="p">[</span><span class="s2">"ub"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">acqf_kwargs</span><span class="p">[</span><span class="s2">"ub"</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">acqf</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">baseline_requiring_acqfs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">train_inputs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"model needs data as a baseline for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">acqf</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acqf</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">train_inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">acqf_kwargs</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acqf</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">acqf_kwargs</span><span class="p">)</span>

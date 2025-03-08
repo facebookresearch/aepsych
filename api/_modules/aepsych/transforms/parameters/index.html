@@ -34,13 +34,12 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">Config</span><span class="p">,</span> <span class="n">ConfigurableMixin</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.generators.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">AcqfGenerator</span><span class="p">,</span> <span class="n">AEPsychGenerator</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.models.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">AEPsychModelMixin</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.models.model_protocol</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelProtocol</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.transforms.ops</span><span class="w"> </span><span class="kn">import</span> <span class="n">Fixed</span><span class="p">,</span> <span class="n">Log10Plus</span><span class="p">,</span> <span class="n">NormalizeScale</span><span class="p">,</span> <span class="n">Round</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.transforms.ops.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Transform</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_bounds</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">botorch.acquisition</span><span class="w"> </span><span class="kn">import</span> <span class="n">AcquisitionFunction</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">botorch.models.transforms.input</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChainedInputTransform</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">botorch.posteriors</span><span class="w"> </span><span class="kn">import</span> <span class="n">Posterior</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">botorch.posteriors</span><span class="w"> </span><span class="kn">import</span> <span class="n">Posterior</span><span class="p">,</span> <span class="n">TransformedPosterior</span>
 
 <span class="n">_TRANSFORMABLE</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">"lb"</span><span class="p">,</span>
@@ -546,11 +545,11 @@
 <span class="sd">    untransforms any outputs from the model back to raw parameter space.</span>
 <span class="sd">    """</span>
 
-    <span class="n">_base_obj</span><span class="p">:</span> <span class="n">ModelProtocol</span>
+    <span class="n">_base_obj</span><span class="p">:</span> <span class="n">AEPsychModelMixin</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">model</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Type</span><span class="p">,</span> <span class="n">ModelProtocol</span><span class="p">],</span>
+        <span class="n">model</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Type</span><span class="p">,</span> <span class="n">AEPsychModelMixin</span><span class="p">],</span>
         <span class="n">transforms</span><span class="p">:</span> <span class="n">ChainedInputTransform</span> <span class="o">=</span> <span class="n">ChainedInputTransform</span><span class="p">(</span><span class="o">**</span><span class="p">{}),</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -569,7 +568,7 @@
 <span class="sd">        The object's name will be ParameterTransformed&lt;Model.__name__&gt;.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            model (Union[Type, ModelProtocol]): Model to wrap, this could either be a</span>
+<span class="sd">            model (Union[Type, AEPsychModelMixin]): Model to wrap, this could either be a</span>
 <span class="sd">                completely initialized model or just the model class. An initialized</span>
 <span class="sd">                model is expected to have been initialized in the transformed</span>
 <span class="sd">                parameter space (i.e., bounds are transformed). If a model class is</span>
@@ -598,6 +597,16 @@
             <span class="p">{},</span>
         <span class="p">)</span>
 
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_obj</span><span class="p">,</span> <span class="s2">"__getitem__"</span><span class="p">):</span>
+            <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base_obj</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">AEPsychModelMixin</span><span class="p">):</span>
+                <span class="c1"># Wrap it</span>
+                <span class="n">obj</span> <span class="o">=</span> <span class="n">ParameterTransformedModel</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">obj</span><span class="p">,</span> <span class="n">transforms</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">transforms</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">obj</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> object is not subscriptable"</span><span class="p">)</span>
+
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_promote_1d</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
         <span class="c1"># Decorator to reshape model Xs into 2d if they're 1d. Assumes that the Tensor</span>
@@ -619,9 +628,7 @@
         <span class="k">return</span> <span class="n">wrapper</span>
 
 <div class="viewcode-block" id="ParameterTransformedModel.predict"><a class="viewcode-back" href="../../../transforms.html#aepsych.transforms.parameters.ParameterTransformedModel.predict">[docs]</a>    <span class="nd">@_promote_1d</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""Query the model on its posterior given transformed x.</span>
 
 <span class="sd">        Args:</span>
@@ -630,7 +637,7 @@
 <span class="sd">            **kwargs: Keyword arguments to pass to the model.predict() call.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            Union[Tensor, Tuple[Tensor]]: At least one Tensor will be returned.</span>
+<span class="sd">            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at query points.</span>
 <span class="sd">        """</span>
         <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transforms</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base_obj</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
@@ -638,7 +645,7 @@
 <div class="viewcode-block" id="ParameterTransformedModel.predict_probability"><a class="viewcode-back" href="../../../transforms.html#aepsych.transforms.parameters.ParameterTransformedModel.predict_probability">[docs]</a>    <span class="nd">@_promote_1d</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">predict_probability</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""Query the model on its posterior given transformed x and return units in</span>
 <span class="sd">        response probability space.</span>
 
@@ -648,10 +655,37 @@
 <span class="sd">            **kwargs: Keyword arguments to pass to the model.predict() call.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            Union[Tensor, Tuple[Tensor]]: At least one Tensor will be returned.</span>
+<span class="sd">            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at query points.</span>
 <span class="sd">        """</span>
         <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transforms</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base_obj</span><span class="o">.</span><span class="n">predict_probability</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ParameterTransformedModel.predict_transform"><a class="viewcode-back" href="../../../transforms.html#aepsych.transforms.parameters.ParameterTransformedModel.predict_transform">[docs]</a>    <span class="nd">@_promote_1d</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">predict_transform</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">transformed_posterior_cls</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">TransformedPosterior</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Query the model for posterior mean and variance under some tranformation.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            x (torch.Tensor): Points at which to predict from the model.</span>
+<span class="sd">            transformed_posterior_cls (TransformedPosterior type, optional): The type of transformation to apply to the posterior.</span>
+<span class="sd">                Note that you should give TransformedPosterior itself, rather than an instance. Defaults to None, in which case no</span>
+<span class="sd">                transformation is applied.</span>
+<span class="sd">            **kwargs: Keyword args for specific models.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Tuple[torch.Tensor, torch.Tensor]: Transformed posterior mean and variance at queries points.</span>
+<span class="sd">        """</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transforms</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base_obj</span><span class="o">.</span><span class="n">predict_transform</span><span class="p">(</span>
+            <span class="n">x</span><span class="p">,</span>
+            <span class="n">transformed_posterior_cls</span><span class="o">=</span><span class="n">transformed_posterior_cls</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
 <div class="viewcode-block" id="ParameterTransformedModel.sample"><a class="viewcode-back" href="../../../transforms.html#aepsych.transforms.parameters.ParameterTransformedModel.sample">[docs]</a>    <span class="nd">@_promote_1d</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>

@@ -27,7 +27,7 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.models.model_protocol</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelProtocol</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.models.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">AEPsychModelMixin</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.models.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">p_below_threshold</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.strategy</span><span class="w"> </span><span class="kn">import</span> <span class="n">SequentialStrategy</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_scaled_sobol</span>
@@ -96,11 +96,11 @@
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="n">bernoulli</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">(</span><span class="n">x</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="Problem.f_hat"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.problem.Problem.f_hat">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">f_hat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">ModelProtocol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<div class="viewcode-block" id="Problem.f_hat"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.problem.Problem.f_hat">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">f_hat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">AEPsychModelMixin</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Generate mean predictions from the model over the evaluation grid.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            model (TensoModelProtocolr): Model to evaluate.</span>
+<span class="sd">            model (AEPsychModelMixin): Model to evaluate.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            torch.Tensor: Posterior mean from underlying model over the evaluation grid.</span>
@@ -127,11 +127,11 @@
         <span class="n">normal_dist</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">Normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">normal_dist</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f_true</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Problem.p_hat"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.problem.Problem.p_hat">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">p_hat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">ModelProtocol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<div class="viewcode-block" id="Problem.p_hat"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.problem.Problem.p_hat">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">p_hat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">AEPsychModelMixin</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Generate mean predictions from the model over the evaluation grid.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            model (TensoModelProtocolr): Model to evaluate.</span>
+<span class="sd">            model (AEPsychModelMixin): Model to evaluate.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            torch.Tensor: Posterior mean from underlying model over the evaluation grid.</span>
@@ -189,9 +189,9 @@
         <span class="c1"># eval in samp-based expectation over posterior instead of just mean</span>
         <span class="n">fsamps</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eval_grid</span><span class="p">,</span> <span class="n">num_samples</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">psamps</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">model</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eval_grid</span><span class="p">,</span> <span class="n">num_samples</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">probability_space</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
-            <span class="p">)</span>
+            <span class="n">psamps</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">eval_grid</span><span class="p">,</span> <span class="n">num_samples</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">probability_space</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>  <span class="c1"># type: ignore</span>
         <span class="k">except</span> <span class="p">(</span>
             <span class="ne">TypeError</span>
         <span class="p">):</span>  <span class="c1"># vanilla models don't have proba_space samps, TODO maybe we should add them</span>

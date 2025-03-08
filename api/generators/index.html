@@ -168,7 +168,7 @@ will be ignored from the config.</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>num_points</strong> (<em>int</em>) – Number of points to query.</p></li>
-<li><p><strong>model</strong> (<em>ModelProtocol</em>) – Model to use for generating points.</p></li>
+<li><p><strong>model</strong> (<a class="reference internal" href="models.html#aepsych.models.base.AEPsychModelMixin" title="aepsych.models.base.AEPsychModelMixin"><em>AEPsychModelMixin</em></a>) – Model to use for generating points.</p></li>
 <li><p><strong>fixed_features</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>int</em><em>, </em><em>float</em><em>]</em><em>]</em>) – (Dict[int, float], optional): Parameters that are fixed to specific values.</p></li>
 <li><p><strong>**kwargs</strong> – Passed to subgenerator if not exploring</p></li>
 </ul>
@@ -345,12 +345,12 @@ will be ignored from the config.</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator.gen">
-<span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">gen_options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/optimize_acqf_generator.html#OptimizeAcqfGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator.gen" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X_pending</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">gen_options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/optimize_acqf_generator.html#OptimizeAcqfGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator.gen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Query next point(s) to run by optimizing the acquisition function.
 :param num_points: Number of points to query.
 :type num_points: int
 :param model: Fitted model of the data.
-:type model: ModelProtocol
+:type model: AEPsychModelMixin
 :param fixed_features: The values where the specified</p>
 <blockquote>
 <div><p>parameters should be at when generating. Should be a dictionary where
@@ -360,9 +360,11 @@ values to fix them at.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>X_pending</strong> (<em>torch.Tensor</em><em>, </em><em>option</em>) – Points that have been generated but not
+evaluated yet. For sequential generation.</p></li>
 <li><p><strong>**gen_options</strong> – Additional options for generating points, such as custom configurations.</p></li>
 <li><p><strong>num_points</strong> (<em>int</em>) – </p></li>
-<li><p><strong>model</strong> (<em>ModelProtocol</em>) – </p></li>
+<li><p><strong>model</strong> (<a class="reference internal" href="models.html#aepsych.models.base.AEPsychModelMixin" title="aepsych.models.base.AEPsychModelMixin"><em>AEPsychModelMixin</em></a>) – </p></li>
 <li><p><strong>fixed_features</strong> (<em>Dict</em><em>[</em><em>int</em><em>, </em><em>float</em><em>]</em><em>, </em><em>optional</em>) – </p></li>
 </ul>
 </dd>
@@ -518,12 +520,12 @@ values to fix them at.</p>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.OptimizeAcqfGenerator.gen">
-<span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">gen_options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/optimize_acqf_generator.html#OptimizeAcqfGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.OptimizeAcqfGenerator.gen" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X_pending</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">gen_options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/optimize_acqf_generator.html#OptimizeAcqfGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.OptimizeAcqfGenerator.gen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Query next point(s) to run by optimizing the acquisition function.
 :param num_points: Number of points to query.
 :type num_points: int
 :param model: Fitted model of the data.
-:type model: ModelProtocol
+:type model: AEPsychModelMixin
 :param fixed_features: The values where the specified</p>
 <blockquote>
 <div><p>parameters should be at when generating. Should be a dictionary where
@@ -533,9 +535,11 @@ values to fix them at.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>X_pending</strong> (<em>torch.Tensor</em><em>, </em><em>option</em>) – Points that have been generated but not
+evaluated yet. For sequential generation.</p></li>
 <li><p><strong>**gen_options</strong> – Additional options for generating points, such as custom configurations.</p></li>
 <li><p><strong>num_points</strong> (<em>int</em>) – </p></li>
-<li><p><strong>model</strong> (<em>ModelProtocol</em>) – </p></li>
+<li><p><strong>model</strong> (<a class="reference internal" href="models.html#aepsych.models.base.AEPsychModelMixin" title="aepsych.models.base.AEPsychModelMixin"><em>AEPsychModelMixin</em></a>) – </p></li>
 <li><p><strong>fixed_features</strong> (<em>Dict</em><em>[</em><em>int</em><em>, </em><em>float</em><em>]</em><em>, </em><em>optional</em>) – </p></li>
 </ul>
 </dd>
@@ -694,7 +698,7 @@ will be ignored from the config.</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>num_points</strong> (<em>int</em>) – Number of points to query.</p></li>
-<li><p><strong>model</strong> (<em>ModelProtocol</em>) – Model to use for generating points.</p></li>
+<li><p><strong>model</strong> (<a class="reference internal" href="models.html#aepsych.models.base.AEPsychModelMixin" title="aepsych.models.base.AEPsychModelMixin"><em>AEPsychModelMixin</em></a>) – Model to use for generating points.</p></li>
 <li><p><strong>fixed_features</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>int</em><em>, </em><em>float</em><em>]</em><em>]</em>) – (Dict[int, float], optional): Parameters that are fixed to specific values.</p></li>
 <li><p><strong>**kwargs</strong> – Passed to subgenerator if not exploring</p></li>
 </ul>
@@ -826,6 +830,75 @@ will be ignored from the config.</p></li>
 </ul>
 </dd>
 </dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="aepsych.generators.IndependentOptimizeAcqfGenerator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.generators.</span></span><span class="sig-name descname"><span class="pre">IndependentOptimizeAcqfGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">generators</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ub</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/independent_acqf_generator.html#IndependentOptimizeAcqfGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.IndependentOptimizeAcqfGenerator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aepsych.generators.base.AEPsychGenerator" title="aepsych.generators.base.AEPsychGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">AEPsychGenerator</span></code></a></p>
+<p>Generator that is multiple OptimizeAcqfGenerator optimized sequentially. Intended
+to be used with IndependentGPsModel for multioutcome experiments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>generators</strong> (<em>List</em><em>[</em><a class="reference internal" href="#aepsych.generators.base.AEPsychGenerator" title="aepsych.generators.base.AEPsychGenerator"><em>AEPsychGenerator</em></a><em>]</em>) – </p></li>
+<li><p><strong>lb</strong> (<em>torch.Tensor</em>) – </p></li>
+<li><p><strong>ub</strong> (<em>torch.Tensor</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.generators.IndependentOptimizeAcqfGenerator.stimuli_per_trial">
+<span class="sig-name descname"><span class="pre">stimuli_per_trial</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#aepsych.generators.IndependentOptimizeAcqfGenerator.stimuli_per_trial" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.generators.IndependentOptimizeAcqfGenerator.max_asks">
+<span class="sig-name descname"><span class="pre">max_asks</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#aepsych.generators.IndependentOptimizeAcqfGenerator.max_asks" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.generators.IndependentOptimizeAcqfGenerator.dim">
+<span class="sig-name descname"><span class="pre">dim</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#aepsych.generators.IndependentOptimizeAcqfGenerator.dim" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.generators.IndependentOptimizeAcqfGenerator.gen">
+<span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/independent_acqf_generator.html#IndependentOptimizeAcqfGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.IndependentOptimizeAcqfGenerator.gen" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_points</strong> (<em>int</em>) – </p></li>
+<li><p><strong>model</strong> (<a class="reference internal" href="models.html#aepsych.models.IndependentGPsModel" title="aepsych.models.independent_gps.IndependentGPsModel"><em>IndependentGPsModel</em></a>) – </p></li>
+<li><p><strong>fixed_features</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>int</em><em>, </em><em>float</em><em>]</em><em>]</em>) – </p></li>
+<li><p><strong>order</strong> (<em>Optional</em><em>[</em><em>Union</em><em>[</em><em>List</em><em>[</em><em>int</em><em>]</em><em>, </em><em>Tensor</em><em>]</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Tensor</em></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.generators.IndependentOptimizeAcqfGenerator.get_config_options">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_config_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/independent_acqf_generator.html#IndependentOptimizeAcqfGenerator.get_config_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.IndependentOptimizeAcqfGenerator.get_config_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dictionary of the relevant options to initialize the
+IndependentOptimizeAcqfGenerator. Primarily, this creates all the necessary
+generators to populate the generator list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Config to look for options in.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Primary section to look for options for this class and
+the name to infer options from other sections in the config.</p></li>
+<li><p><strong>options</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>, </em><em>optional</em>) – Options to override from the config,
+defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A dictionary of options to initialize this class.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
 </dd></dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.generators.IntensityAwareSemiPGenerator">

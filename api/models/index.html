@@ -47,6 +47,10 @@
 <span class="sig-name descname"><span class="pre">outcome_types</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#aepsych.models.base.AEPsychModelMixin.outcome_types" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.models.base.AEPsychModelMixin.dim">
+<span class="sig-name descname"><span class="pre">dim</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#aepsych.models.base.AEPsychModelMixin.dim" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
 <dt class="sig sig-object py" id="aepsych.models.base.AEPsychModelMixin.stimuli_per_trial">
 <span class="sig-name descname"><span class="pre">stimuli_per_trial</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#aepsych.models.base.AEPsychModelMixin.stimuli_per_trial" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -65,7 +69,7 @@
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="aepsych.models.base.AEPsychModelMixin.train_inputs">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">train_inputs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Tensor</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aepsych.models.base.AEPsychModelMixin.train_inputs" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">train_inputs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aepsych.models.base.AEPsychModelMixin.train_inputs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the training inputs.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -89,6 +93,10 @@
 </dd>
 </dl>
 </dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.models.base.AEPsychModelMixin.num_outputs">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">num_outputs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#aepsych.models.base.AEPsychModelMixin.num_outputs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.models.base.AEPsychModelMixin.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/base.html#AEPsychModelMixin.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.base.AEPsychModelMixin.forward" title="Permalink to this definition">¶</a></dt>
@@ -111,7 +119,7 @@
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.models.base.AEPsychModelMixin.set_train_data">
-<span class="sig-name descname"><span class="pre">set_train_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/base.html#AEPsychModelMixin.set_train_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.base.AEPsychModelMixin.set_train_data" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">set_train_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/base.html#AEPsychModelMixin.set_train_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.base.AEPsychModelMixin.set_train_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the training data for the model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -125,8 +133,6 @@
 <dd class="field-even"><p>None</p>
 </dd>
 </dl>
-<p>input transformers. TODO: actually use this arg or change input transforms
-to not require it.</p>
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.models.base.AEPsychModelMixin.predict">
@@ -287,7 +293,7 @@ response probability instead of latent function value. Defaults to False.</p></l
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Posterior mean and variance at queries points.</p>
+<dd class="field-even"><p>Posterior mean and variance at query points.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Tuple[torch.Tensor, torch.Tensor]</p>
@@ -308,7 +314,7 @@ transformation is applied.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Transformed posterior mean and variance at queries points.</p>
+<dd class="field-even"><p>Transformed posterior mean and variance at query points.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Tuple[torch.Tensor, torch.Tensor]</p>
@@ -324,7 +330,7 @@ transformation is applied.</p></li>
 <dd class="field-odd"><p><strong>x</strong> (<em>torch.Tensor</em>) – Points at which to predict from the model.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Posterior mean and variance at queries points.</p>
+<dd class="field-even"><p>Posterior mean and variance at query points.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Tuple[torch.Tensor, torch.Tensor]</p>
@@ -567,7 +573,7 @@ response probability instead of latent function value. Defaults to False.</p></l
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Posterior mean and variance at queries points.</p>
+<dd class="field-even"><p>Posterior mean and variance at query points.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Tuple[torch.Tensor, torch.Tensor]</p>
@@ -588,7 +594,7 @@ transformation is applied.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Transformed posterior mean and variance at queries points.</p>
+<dd class="field-even"><p>Transformed posterior mean and variance at query points.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Tuple[torch.Tensor, torch.Tensor]</p>
@@ -604,13 +610,17 @@ transformation is applied.</p></li>
 <dd class="field-odd"><p><strong>x</strong> (<em>torch.Tensor</em>) – Points at which to predict from the model.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Posterior mean and variance at queries points.</p>
+<dd class="field-even"><p>Posterior mean and variance at query points.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Tuple[torch.Tensor, torch.Tensor]</p>
 </dd>
 </dl>
 </dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.models.GPClassificationModel.dim">
+<span class="sig-name descname"><span class="pre">dim</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#aepsych.models.GPClassificationModel.dim" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="aepsych.models.GPClassificationModel.likelihood">
 <span class="sig-name descname"><span class="pre">likelihood</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Likelihood</span></em><a class="headerlink" href="#aepsych.models.GPClassificationModel.likelihood" title="Permalink to this definition">¶</a></dt>
@@ -989,7 +999,7 @@ response probability instead of latent function value. Defaults to False.</p></l
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Posterior mean and variance at queries points.</p>
+<dd class="field-even"><p>Posterior mean and variance at query points.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Tuple[torch.Tensor, torch.Tensor]</p>
@@ -1203,7 +1213,7 @@ gamma prior. Defaults to None.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Posterior mean and variance at queries points.</p>
+<dd class="field-even"><p>Posterior mean and variance at query points.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Tuple[torch.Tensor, torch.Tensor]</p>
@@ -1224,7 +1234,7 @@ gamma prior. Defaults to None.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Posterior mean and variance at queries points.</p>
+<dd class="field-even"><p>Posterior mean and variance at query points.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Tuple[torch.Tensor, torch.Tensor]</p>
@@ -1329,6 +1339,157 @@ Defaults to False.</p></li>
 <li><p><strong>train_x</strong> (<em>torch.Tensor</em>) – Inputs.</p></li>
 <li><p><strong>train_y</strong> (<em>torch.Tensor</em>) – Responses.</p></li>
 </ul>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="aepsych.models.IndependentGPsModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.models.</span></span><span class="sig-name descname"><span class="pre">IndependentGPsModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/independent_gps.html#IndependentGPsModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.IndependentGPsModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aepsych.models.base.AEPsychModelMixin" title="aepsych.models.base.AEPsychModelMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">AEPsychModelMixin</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>model_dict</strong> (<em>ModuleDict</em>) – </p>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.models.IndependentGPsModel.num_outputs">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">num_outputs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#aepsych.models.IndependentGPsModel.num_outputs" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of outputs of the model.</p>
+<p>Equal to the sum of the number of outputs of the individual models
+in the ModelList.</p>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.models.IndependentGPsModel.outcome_type">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">outcome_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aepsych.models.IndependentGPsModel.outcome_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.models.IndependentGPsModel.outcome_types">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">outcome_types</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aepsych.models.IndependentGPsModel.outcome_types" title="Permalink to this definition">¶</a></dt>
+<dd><p>Built-in mutable sequence.</p>
+<p>If no argument is given, the constructor creates a new empty list.
+The argument must be an iterable if specified.</p>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.models.IndependentGPsModel.train_inputs">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">train_inputs</span></span><a class="headerlink" href="#aepsych.models.IndependentGPsModel.train_inputs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the training inputs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Training inputs.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Optional[Tuple[torch.Tensor]]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.models.IndependentGPsModel.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_y</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/independent_gps.html#IndependentGPsModel.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.IndependentGPsModel.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit underlying models.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>train_x</strong> (<em>torch.Tensor</em>) – (n x dim) inputs.</p></li>
+<li><p><strong>train_y</strong> (<em>torch.LongTensor</em>) – (n x m) responses, where m is the the number of GPs held by this model. GPs are ordered according to the order they were inserted upon initialization</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.models.IndependentGPsModel.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_y</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/independent_gps.html#IndependentGPsModel.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.IndependentGPsModel.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update underlying models.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>train_x</strong> (<em>torch.Tensor</em>) – (n x dim) inputs.</p></li>
+<li><p><strong>train_y</strong> (<em>torch.LongTensor</em>) – (n x m) responses, where m is the the number of GPs held by this model. GPs are ordered according to the order they were inserted upon initialization</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.models.IndependentGPsModel.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/independent_gps.html#IndependentGPsModel.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.IndependentGPsModel.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Query the individual models for posterior means and variances, and concatenate the results.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>torch.Tensor</em>) – Points (n x dim) at which to predict from the model.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Posterior mean and variance at queries points, as (n x m) tensors, where m is the number of GPs held by this model. GPs are ordered according to the order they were inserted upon initialization</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tuple[torch.Tensor, torch.Tensor]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.models.IndependentGPsModel.predict_transform">
+<span class="sig-name descname"><span class="pre">predict_transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformed_posterior_cls</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform_map</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/independent_gps.html#IndependentGPsModel.predict_transform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.IndependentGPsModel.predict_transform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Query the individual models for posterior means and variances, transform them, and concatenate the results.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>torch.Tensor</em>) – Points (n x dim) at which to predict from the model.</p></li>
+<li><p><strong>transformed_posterior_cls</strong> (<em>TransformedPosterior type</em><em>, </em><em>optional</em>) – Ignored,
+just kept for API uniformity.</p></li>
+<li><p><strong>transform_map</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>TransformedPosterior type</em><em>]</em><em>, </em><em>optional</em>) – A mapping of
+model names and transformed posteriors. For a given model, if it has a
+TransformedPosterior, it will be applied to its outputs.</p></li>
+<li><p><strong>**kwargs</strong> – Kwargs for transforms, must be the same for all transforms</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Posterior mean and variance at queries points, as (n x m) tensors, where m is the number of GPs held by this model. GPs are ordered according to the order they were inserted upon initialization.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tuple[torch.Tensor, torch.Tensor]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.models.IndependentGPsModel.posterior">
+<span class="sig-name descname"><span class="pre">posterior</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">posterior_transform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/independent_gps.html#IndependentGPsModel.posterior"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.IndependentGPsModel.posterior" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>X</strong> (<em>Tensor</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>botorch.posteriors.PosteriorList</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.models.IndependentGPsModel.get_config_options">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_config_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/independent_gps.html#IndependentGPsModel.get_config_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.IndependentGPsModel.get_config_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Config to look for options in.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – The name of the strategy to warm start (Not actually optional here.)</p></li>
+<li><p><strong>options</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>, </em><em>optional</em>) – options are ignored.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – the name of the strategy is necessary to identify warm start search criteria.</p></li>
+<li><p><strong>KeyError</strong> – the config specified this strategy should be warm started but the associated config section wasn’t defined.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>a dictionary of the search criteria described in the experiment’s config</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dict[str, Any]</p>
 </dd>
 </dl>
 </dd></dl>

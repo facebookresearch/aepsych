@@ -27,8 +27,8 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.models.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">AEPsychModelMixin</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">..models.model_protocol</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelProtocol</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">AEPsychGenerator</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.optimize_acqf_generator</span><span class="w"> </span><span class="kn">import</span> <span class="n">OptimizeAcqfGenerator</span>
 
@@ -83,7 +83,7 @@
 <div class="viewcode-block" id="EpsilonGreedyGenerator.gen"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.epsilon_greedy_generator.EpsilonGreedyGenerator.gen">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">gen</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">num_points</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-        <span class="n">model</span><span class="p">:</span> <span class="n">ModelProtocol</span><span class="p">,</span>
+        <span class="n">model</span><span class="p">:</span> <span class="n">AEPsychModelMixin</span><span class="p">,</span>
         <span class="n">fixed_features</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
@@ -91,7 +91,7 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            num_points (int): Number of points to query.</span>
-<span class="sd">            model (ModelProtocol): Model to use for generating points.</span>
+<span class="sd">            model (AEPsychModelMixin): Model to use for generating points.</span>
 <span class="sd">            fixed_features: (Dict[int, float], optional): Parameters that are fixed to specific values.</span>
 <span class="sd">            **kwargs: Passed to subgenerator if not exploring</span>
 <span class="sd">        """</span>

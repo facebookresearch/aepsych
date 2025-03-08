@@ -202,7 +202,7 @@
 <span class="sd">            rereference (str): How to sample. Options are "x_min", "x_max", "f_min", "f_max". Defaults to "x_min".</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at queries points.</span>
+<span class="sd">            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at query points.</span>
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="n">rereference</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">samps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">,</span> <span class="n">rereference</span><span class="p">)</span>
@@ -235,7 +235,7 @@
 <span class="sd">            rereference (str): How to sample. Options are "x_min", "x_max", "f_min", "f_max". Defaults to "x_min".</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at queries points.</span>
+<span class="sd">            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at query points.</span>
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span>
             <span class="n">x</span><span class="p">,</span> <span class="n">probability_space</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">num_samples</span><span class="o">=</span><span class="n">num_samples</span><span class="p">,</span> <span class="n">rereference</span><span class="o">=</span><span class="n">rereference</span>

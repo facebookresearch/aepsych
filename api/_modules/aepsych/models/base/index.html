@@ -25,6 +25,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">gpytorch</span>
@@ -46,8 +47,10 @@
 
     <span class="n">extremum_solver</span> <span class="o">=</span> <span class="s2">"Nelder-Mead"</span>
     <span class="n">outcome_types</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">_train_inputs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]]</span>
+    <span class="n">_train_inputs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span>
     <span class="n">_train_targets</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span>
+    <span class="n">_num_outputs</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">stimuli_per_trial</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
 
     <span class="nd">@property</span>
@@ -62,7 +65,7 @@
         <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">())</span><span class="o">.</span><span class="n">device</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">train_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">train_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="o">...</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">"""Get the training inputs.</span>
 
 <span class="sd">        Returns:</span>
@@ -71,14 +74,11 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_train_inputs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
 
-        <span class="c1"># makes sure the tensors are on the right device, move in place</span>
-        <span class="k">for</span> <span class="nb">input</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_train_inputs</span><span class="p">:</span>
-            <span class="nb">input</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_train_inputs</span>
+        <span class="c1"># Make sure tuples are in the right device</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">input</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span> <span class="k">for</span> <span class="nb">input</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_train_inputs</span><span class="p">])</span>
 
     <span class="nd">@train_inputs</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">train_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_inputs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">train_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_inputs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="o">...</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Set the training inputs.</span>
 
 <span class="sd">        Args:</span>
@@ -87,10 +87,9 @@
         <span class="k">if</span> <span class="n">train_inputs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_train_inputs</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">for</span> <span class="nb">input</span> <span class="ow">in</span> <span class="n">train_inputs</span><span class="p">:</span>
-                <span class="nb">input</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+            <span class="n">inputs</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">input</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span> <span class="k">for</span> <span class="nb">input</span> <span class="ow">in</span> <span class="n">train_inputs</span><span class="p">])</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">_train_inputs</span> <span class="o">=</span> <span class="n">train_inputs</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_train_inputs</span> <span class="o">=</span> <span class="n">inputs</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">train_targets</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
@@ -117,7 +116,20 @@
         <span class="k">if</span> <span class="n">train_targets</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_train_targets</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Remove unnecessary dimension if possible</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">train_targets</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&gt;</span> <span class="mi">1</span>
+                <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_outputs</span> <span class="o">==</span> <span class="mi">1</span>
+                <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">stimuli_per_trial</span> <span class="o">==</span> <span class="mi">1</span>
+            <span class="p">):</span>
+                <span class="c1"># HACK: Stimuli_per_trial == 1 is for pairwise probit's comparisons targets</span>
+                <span class="n">train_targets</span> <span class="o">=</span> <span class="n">train_targets</span><span class="o">.</span><span class="n">squeeze_</span><span class="p">()</span>
+
             <span class="bp">self</span><span class="o">.</span><span class="n">_train_targets</span> <span class="o">=</span> <span class="n">train_targets</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">num_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_outputs</span>
 
 <div class="viewcode-block" id="AEPsychModelMixin.forward"><a class="viewcode-back" href="../../../models.html#aepsych.models.base.AEPsychModelMixin.forward">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">MultivariateNormal</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Evaluate GP</span>
@@ -177,7 +189,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">inputs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">targets</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Set the training data for the model.</span>
 
@@ -185,16 +197,17 @@
 <span class="sd">            inputs (torch.Tensor, optional): The new training inputs X.</span>
 <span class="sd">            targets (torch.Tensor, optional): The new training targets Y.</span>
 <span class="sd">            strict (bool): Whether to strictly enforce the device of the inputs and targets.</span>
-
-<span class="sd">        input transformers. TODO: actually use this arg or change input transforms</span>
-<span class="sd">        to not require it.</span>
 <span class="sd">        """</span>
-        <span class="c1"># Move to same device to ensure the right device</span>
-        <span class="k">if</span> <span class="n">inputs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_train_inputs</span> <span class="o">=</span> <span class="p">(</span><span class="n">inputs</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">),)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">strict</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">"strict set to false, but set_train_data will always follow device"</span>
+            <span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">targets</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_train_targets</span> <span class="o">=</span> <span class="n">targets</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span></div>
+        <span class="k">if</span> <span class="n">inputs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">train_inputs</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">train_inputs</span> <span class="o">=</span> <span class="p">(</span><span class="n">inputs</span><span class="p">,)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">train_targets</span> <span class="o">=</span> <span class="n">targets</span></div>
 
 <div class="viewcode-block" id="AEPsychModelMixin.predict"><a class="viewcode-back" href="../../../models.html#aepsych.models.base.AEPsychModelMixin.predict">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>

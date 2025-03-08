@@ -285,7 +285,7 @@ should be in the raw parameter space.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> (<em>Union</em><em>[</em><em>Type</em><em>, </em><em>ModelProtocol</em><em>]</em>) – Model to wrap, this could either be a
+<li><p><strong>model</strong> (<em>Union</em><em>[</em><em>Type</em><em>, </em><a class="reference internal" href="models.html#aepsych.models.base.AEPsychModelMixin" title="aepsych.models.base.AEPsychModelMixin"><em>AEPsychModelMixin</em></a><em>]</em>) – Model to wrap, this could either be a
 completely initialized model or just the model class. An initialized
 model is expected to have been initialized in the transformed
 parameter space (i.e., bounds are transformed). If a model class is
@@ -312,6 +312,15 @@ class.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.transforms.parameters.ParameterTransformedModel.predict_probability">
 <span class="sig-name descname"><span class="pre">predict_probability</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/transforms/parameters.html#ParameterTransformedModel.predict_probability"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.transforms.parameters.ParameterTransformedModel.predict_probability" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>Tensor</em></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.transforms.parameters.ParameterTransformedModel.predict_transform">
+<span class="sig-name descname"><span class="pre">predict_transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/transforms/parameters.html#ParameterTransformedModel.predict_transform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.transforms.parameters.ParameterTransformedModel.predict_transform" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><em>Tensor</em></p>

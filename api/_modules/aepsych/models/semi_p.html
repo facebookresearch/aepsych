@@ -624,7 +624,7 @@
 <span class="sd">                response probability instead of latent function value. Defaults to False.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at queries points.</span>
+<span class="sd">            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at query points.</span>
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="n">probability_space</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">likelihood</span><span class="p">,</span> <span class="s2">"objective"</span><span class="p">):</span>

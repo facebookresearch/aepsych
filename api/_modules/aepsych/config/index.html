@@ -585,6 +585,9 @@
                         <span class="n">element_types</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">get_args</span><span class="p">(</span><span class="n">annotation</span><span class="p">)</span>
                         <span class="n">element_type</span> <span class="o">=</span> <span class="n">_sort_types</span><span class="p">(</span><span class="n">element_types</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 
+                        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">element_type</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">):</span>
+                            <span class="k">break</span>
+
                         <span class="n">value</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span>
                             <span class="n">name</span><span class="p">,</span>
                             <span class="n">key</span><span class="p">,</span>
