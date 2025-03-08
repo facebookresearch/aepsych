@@ -21,8 +21,6 @@ from botorch.acquisition import (
 )
 from botorch.acquisition.preference import AnalyticExpectedUtilityOfBestOption
 
-from ..models.model_protocol import ModelProtocol
-
 AEPsychModelType = TypeVar("AEPsychModelType", bound=AEPsychModelMixin)
 
 
@@ -166,12 +164,14 @@ class AcqfGenerator(AEPsychGenerator):
 
         return extra_acqf_args
 
-    def _instantiate_acquisition_fn(self, model: ModelProtocol) -> AcquisitionFunction:
+    def _instantiate_acquisition_fn(
+        self, model: AEPsychModelMixin
+    ) -> AcquisitionFunction:
         """
         Instantiates the acquisition function with the specified model and additional arguments.
 
         Args:
-            model (ModelProtocol): The model to use with the acquisition function.
+            model (AEPsychModelMixin): The model to use with the acquisition function.
 
         Returns:
             AcquisitionFunction: Configured acquisition function.
@@ -193,6 +193,8 @@ class AcqfGenerator(AEPsychGenerator):
                 self.acqf_kwargs["ub"] = self.acqf_kwargs["ub"].to(model.device)
 
         if self.acqf in self.baseline_requiring_acqfs:
+            if model.train_inputs is None:
+                raise ValueError(f"model needs data as a baseline for {self.acqf}")
             return self.acqf(model, model.train_inputs[0], **self.acqf_kwargs)
         else:
             return self.acqf(model=model, **self.acqf_kwargs)

@@ -11,7 +11,7 @@ import torch
 from aepsych.config import Config
 from aepsych.generators.base import AcqfGenerator, AEPsychGenerator
 from aepsych.generators.sobol_generator import SobolGenerator
-from aepsych.models.model_protocol import ModelProtocol
+from aepsych.models.base import AEPsychModelMixin
 from aepsych.utils_logging import getLogger
 from botorch.acquisition import AcquisitionFunction
 
@@ -53,14 +53,14 @@ class GridEvalAcqfGenerator(AcqfGenerator):
     def gen(
         self,
         num_points: int,
-        model: ModelProtocol,
+        model: AEPsychModelMixin,
         fixed_features: Optional[Dict[int, float]] = None,
         **gen_options,
     ) -> torch.Tensor:
         """Query next point(s) to run by optimizing the acquisition function.
         Args:
             num_points (int): Number of points to query.
-            model (ModelProtocol): Fitted model of the data.
+            model (AEPsychModelMixin): Fitted model of the data.
         Returns:
             torch.Tensor: Next set of point(s) to evaluate, [num_points x dim].
         """
@@ -89,7 +89,7 @@ class GridEvalAcqfGenerator(AcqfGenerator):
     def _gen(
         self,
         num_points: int,
-        model: ModelProtocol,
+        model: AEPsychModelMixin,
         fixed_features: Optional[Dict[int, float]] = None,
         **gen_options,
     ) -> torch.Tensor:
@@ -98,7 +98,7 @@ class GridEvalAcqfGenerator(AcqfGenerator):
     def _eval_acqf(
         self,
         num_points: int,
-        model: ModelProtocol,
+        model: AEPsychModelMixin,
         fixed_features: Optional[Dict[int, float]] = None,
         **gen_options,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
