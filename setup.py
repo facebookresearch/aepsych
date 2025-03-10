@@ -17,7 +17,7 @@ REQUIRES = [
     "SQLAlchemy==1.4.46",
     "dill",
     "pandas",
-    "aepsych_client==0.3.0",
+    "aepsych_client",
     "statsmodels",
     "botorch==0.12.0",
 ]
