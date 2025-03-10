@@ -271,16 +271,16 @@ class AEPsychClient:
                 - "x": dictionary, the parameter configuration dictionary for the query.
                 - "y": list, the y from the query.
         """
-        request = {
-            "type": "query",
-            "message": {
-                "query_type": query_type,
-                "probability_space": probability_space,
-                "x": x,
-                "y": y,
-                "constraints": constraints,
-            }.update(**kwargs),
+        message = {
+            "query_type": query_type,
+            "probability_space": probability_space,
+            "x": x,
+            "y": y,
+            "constraints": constraints,
         }
+        message.update(**kwargs)
+
+        request = {"type": "query", "message": message}
 
         return self._send_recv(request)
 

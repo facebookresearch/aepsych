@@ -94,6 +94,8 @@ class RemoteServerTestCase(unittest.TestCase):
         response = self.client.ask()
         self.assertTrue(response["is_finished"])
 
+        response = self.client.query("max")
+
         self.client.configure(config_str=config_str, config_name="second_config")
         self.assertEqual(self.s.strat._count, 0)
         self.assertEqual(self.s.strat_id, 1)
