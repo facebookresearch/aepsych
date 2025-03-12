@@ -10,23 +10,42 @@ import logging
 import select
 import socket
 import sys
+from typing import Any, Dict
 
 import aepsych.utils_logging as utils_logging
 import numpy as np
+import torch
 
 logger = utils_logging.getLogger(logging.INFO)
 BAD_REQUEST = "bad request"
 
 
-def SimplifyArrays(message):
-    return {
-        k: v.tolist()
-        if type(v) == np.ndarray
-        else SimplifyArrays(v)
-        if type(v) is dict
-        else v
-        for k, v in message.items()
-    }
+def SimplifyArrays(message: Dict[str, Any]) -> Dict[str, Any]:
+    """Recursively turn Numpy arrays and Torch tensors into lists within a message.
+
+    Args:
+        message (Dict[str, Any]): Dictionary to be turned into a json to send as a
+            message to the client.
+
+    Returns:
+        Dict[str, Any]: The same dictionary but any values that are arrays or tensors
+            are turned into lists.
+    """
+    out = {}
+    for key, value in message.items():
+        if isinstance(value, np.ndarray):
+            out[key] = value.tolist()
+
+        elif isinstance(value, torch.Tensor):
+            out[key] = value.numpy().tolist()
+
+        elif isinstance(value, dict):
+            out[key] = SimplifyArrays(value)
+
+        else:
+            out[key] = value
+
+    return out
 
 
 class DummySocket(object):
