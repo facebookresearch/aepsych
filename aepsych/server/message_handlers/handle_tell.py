@@ -154,7 +154,14 @@ def tell(
 
     if model_data:
         x = server._config_to_tensor(config)
-        server.strat.add_data(x, outcome)
+
+        if isinstance(outcome, dict):
+            values = []
+            for value in outcome.values():
+                values.append(value)
+            server.strat.add_data(x, torch.tensor([values]))
+        else:
+            server.strat.add_data(x, outcome)
 
         tell_response["model_data_added"] = len(x)
 
