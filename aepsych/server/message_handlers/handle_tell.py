@@ -156,10 +156,25 @@ def tell(
         x = server._config_to_tensor(config)
 
         if isinstance(outcome, dict):
+            # Make sure the outcome keys match outcome names exactly
+            if not set(outcome.keys()) == set(server.outcome_names):
+                raise KeyError(
+                    f"Outcome keys {outcome.keys()} do not match outcome names {server.outcome_names}."
+                )
+
             values = []
-            for value in outcome.values():
-                values.append(value)
-            server.strat.add_data(x, torch.tensor([values]))
+            for outcome_name in server.outcome_names:
+                value = outcome[outcome_name]
+                if isinstance(value, (str, float, int)):
+                    value = [float(value)]
+
+                value_tensor = torch.tensor(value)
+                if value_tensor.ndim == 1:
+                    value_tensor = value_tensor.unsqueeze(-1)
+
+                values.append(value_tensor)
+
+            server.strat.add_data(x, torch.hstack(values))
         else:
             server.strat.add_data(x, outcome)
 
