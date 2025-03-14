@@ -98,5 +98,146 @@ class MessageHandlerTellTests(BaseServerTestCase):
         self.assertTrue(extra_data["additional"] == 1)
 
 
+class MultiOutcomeTellTests(BaseServerTestCase):
+    def setUp(self):
+        super().setUp()
+        config_str = """
+            [common]
+            parnames = [x]
+            stimuli_per_trial = 1
+            outcome_types = [binary, continuous]
+            outcome_names = [binOut, contOut]
+            strategy_names = [init_strat, opt_strat]
+
+            [x]
+            par_type = continuous
+            lower_bound = 0
+            upper_bound = 1
+
+            [init_strat]
+            min_asks = 2
+            generator = SobolGenerator
+            min_total_outcome_occurrences = 0
+
+            [opt_strat]
+            min_asks = 2
+            generator = IndependentOptimizeAcqfGenerator
+            model = IndependentGPsModel
+            min_total_outcome_occurrences = 0
+
+            [IndependentOptimizeAcqfGenerator]
+            generators = [binGen, contGen]
+
+            [binGen]
+            class = OptimizeAcqfGenerator
+            acqf = MCLevelSetEstimation
+
+            [contGen]
+            class = OptimizeAcqfGenerator
+            acqf = qLogNoisyExpectedImprovement
+
+            [IndependentGPsModel]
+            models = [binModel, contModel]
+
+            [binModel]
+            class = GPClassificationModel
+            inducing_size = 10
+
+            [contModel]
+            class = GPRegressionModel
+        """
+
+        setup_request = {
+            "type": "setup",
+            "message": {"config_str": config_str},
+        }
+
+        self.s.db.record_message = MagicMock()
+
+        self.s.handle_request(setup_request)
+
+    def test_single_trial(self):
+        request = {
+            "type": "tell",
+            "message": {
+                "config": {"x": [0.5]},
+                "outcome": {"contOut": 0.5, "binOut": 1},
+            },
+        }
+
+        response = self.s.handle_request(request)
+        response = self.s.handle_request(request)
+        response = self.s.handle_request(request)
+
+        self.assertEqual(response["trials_recorded"], 1)
+        self.assertEqual(self.s.strat.y.shape, (3, 2))
+        self.assertEqual(self.s.strat.y[0, 0], 1.0)
+        self.assertEqual(self.s.strat.y[0, 1], 0.5)
+
+    def test_list_mixed_trial(self):
+        request = {
+            "type": "tell",
+            "message": {
+                "config": {"x": [0.5]},
+                "outcome": {"contOut": [0.5], "binOut": "1"},
+            },
+        }
+
+        response = self.s.handle_request(request)
+        response = self.s.handle_request(request)
+        response = self.s.handle_request(request)
+
+        self.assertEqual(response["trials_recorded"], 1)
+        self.assertEqual(self.s.strat.y.shape, (3, 2))
+        self.assertEqual(self.s.strat.y[0, 0], 1.0)
+        self.assertEqual(self.s.strat.y[0, 1], 0.5)
+
+    def test_multi_trial(self):
+        request = {
+            "type": "tell",
+            "message": {
+                "config": {"x": [[0.5], [0.75]]},
+                "outcome": {"contOut": [0.5, 0.5], "binOut": [1, 0]},
+            },
+        }
+
+        response = self.s.handle_request(request)
+        response = self.s.handle_request(request)
+
+        self.assertEqual(response["trials_recorded"], 2)
+        self.assertEqual(self.s.strat.y.shape, (4, 2))
+        self.assertEqual(self.s.strat.y[0, 0], 1.0)
+        self.assertEqual(self.s.strat.y[0, 1], 0.5)
+
+    def test_wrong_keys(self):
+        # Test with missing outcome key
+        request_missing_key = {
+            "type": "tell",
+            "message": {
+                "config": {"x": [0.5]},
+                "outcome": {"contOut": 0.5},  # Missing 'binOut'
+            },
+        }
+
+        with self.assertRaises(KeyError):
+            self.s.handle_request(request_missing_key)
+
+        # Test with extra outcome key
+        request_extra_key = {
+            "type": "tell",
+            "message": {
+                "config": {"x": [0.5]},
+                "outcome": {
+                    "contOut": 0.5,
+                    "binOut": 1,
+                    "extraOut": 0.1,
+                },  # Extra 'extraOut'
+            },
+        }
+
+        with self.assertRaises(KeyError):
+            self.s.handle_request(request_extra_key)
+
+
 if __name__ == "__main__":
     unittest.main()
