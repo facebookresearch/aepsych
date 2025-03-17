@@ -16,7 +16,7 @@ from botorch.posteriors import TransformedPosterior
 from gpytorch.likelihoods import BernoulliLikelihood, Likelihood
 
 from .transformed_posteriors import BernoulliProbitProbabilityPosterior
-from .variationalgp import VariationalGPModel
+from .variational_gp import VariationalGPModel
 
 logger = getLogger()
 
