@@ -29,7 +29,7 @@ from gpytorch.means import ConstantMean, ZeroMean
 from gpytorch.priors import GammaPrior
 from torch.distributions import Normal
 
-from .variationalgp import VariationalGPModel
+from .variational_gp import VariationalGPModel
 
 # TODO: Implement a covar factory and analytic method for getting the lse
 logger = getLogger()

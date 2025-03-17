@@ -19,7 +19,7 @@ from .semi_p import (
     semi_p_posterior_transform,
     SemiParametricGPModel,
 )
-from .variationalgp import VariationalGPModel
+from .variational_gp import VariationalGPModel
 
 __all__ = [
     "GPClassificationModel",

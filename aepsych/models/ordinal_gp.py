@@ -11,7 +11,7 @@ import gpytorch
 import torch
 from aepsych.likelihoods import OrdinalLikelihood
 from aepsych.models.inducing_points.base import InducingPointAllocator
-from aepsych.models.variationalgp import VariationalGPModel
+from aepsych.models.variational_gp import VariationalGPModel
 from gpytorch.likelihoods import Likelihood
 
 
