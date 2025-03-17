@@ -7,6 +7,7 @@
 
 import unittest
 
+import numpy as np
 import torch
 from aepsych import Config
 from aepsych.models import IndependentGPsModel
@@ -30,6 +31,9 @@ def f_2d(x, target=None):
 
 class IndependentGPStratTest(unittest.TestCase):
     def test_end_to_end(self):
+        torch.manual_seed(1)
+        np.random.seed(1)
+
         config_str = """
             [common]
             parnames = [foo, bar]
@@ -91,9 +95,6 @@ class IndependentGPStratTest(unittest.TestCase):
                 baz_response = torch.bernoulli(f_2d(point))
                 qux_response = f_2d(point, target=torch.tensor([-0.5, -0.5]))
 
-                print(
-                    f"adding data: x = {point}, baz = {baz_response}, qux = {qux_response}"
-                )
                 strat.add_data(
                     point.cpu(), torch.tensor([[baz_response, qux_response]])
                 )
@@ -101,11 +102,14 @@ class IndependentGPStratTest(unittest.TestCase):
         x_grid = dim_grid(lower=strat.lb, upper=strat.ub)
         pred_y = strat.model.predict(x_grid)
 
-        baz_max = x_grid[torch.argmax(pred_y[0][:, 0])]
+        norm = torch.distributions.Normal(0, 1)
+        baz_target = f_2d(
+            x_grid[np.argmin((norm.cdf(pred_y[0][:, 0].cpu()) - 0.75) ** 2)]
+        )
         qux_max = x_grid[torch.argmax(pred_y[0][:, 1])]
 
         # Pretty wide check on binary, but that's the nature of it
-        self.assertTrue(torch.all(torch.abs(baz_max) < 0.5))
+        self.assertLessEqual(torch.abs(baz_target - 0.75), 0.15)
         self.assertTrue(torch.all(torch.abs(qux_max - -0.5) < 0.1))
 
         self.assertEqual(strat.model.device.type, "cuda")
