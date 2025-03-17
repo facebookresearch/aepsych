@@ -17,178 +17,184 @@
 <div class="body" role="main">
 <h1>Source code for aepsych.models.variational_gp</h1><div class="highlight"><pre>
 <span></span><span class="ch">#!/usr/bin/env python3</span>
-<span class="c1"># Copyright (c) Facebook, Inc. and its affiliates.</span>
-<span class="c1"># All rights reserved.</span>
-
-<span class="c1"># This source code is licensed under the license found in the</span>
+<span class="c1"># Copyright (c) Meta Platforms, Inc. and affiliates.</span>
+<span class="c1">#</span>
+<span class="c1"># This source code is licensed under the MIT license found in the</span>
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span> <span class="nn">gpytorch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deepcopy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">gpytorch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">Config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.factory.default</span><span class="w"> </span><span class="kn">import</span> <span class="n">default_mean_covar_factory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.models.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">AEPsychModelMixin</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.models.inducing_points</span><span class="w"> </span><span class="kn">import</span> <span class="n">GreedyVarianceReduction</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.models.inducing_points.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">InducingPointAllocator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.utils_logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">getLogger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">gpytorch.likelihoods</span><span class="w"> </span><span class="kn">import</span> <span class="n">GaussianLikelihood</span><span class="p">,</span> <span class="n">Likelihood</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">gpytorch.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">ApproximateGP</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">gpytorch.variational</span><span class="w"> </span><span class="kn">import</span> <span class="n">CholeskyVariationalDistribution</span><span class="p">,</span> <span class="n">VariationalStrategy</span>
 
-<span class="kn">from</span> <span class="nn">aepsych.config</span> <span class="kn">import</span> <span class="n">Config</span>
-<span class="kn">from</span> <span class="nn">aepsych.factory.factory</span> <span class="kn">import</span> <span class="n">ordinal_mean_covar_factory</span>
-<span class="kn">from</span> <span class="nn">aepsych.likelihoods.ordinal</span> <span class="kn">import</span> <span class="n">OrdinalLikelihood</span>
-<span class="kn">from</span> <span class="nn">aepsych.models.base</span> <span class="kn">import</span> <span class="n">AEPsychModel</span>
-<span class="kn">from</span> <span class="nn">aepsych.models.ordinal_gp</span> <span class="kn">import</span> <span class="n">OrdinalGPModel</span>
-<span class="kn">from</span> <span class="nn">aepsych.models.utils</span> <span class="kn">import</span> <span class="n">get_probability_space</span><span class="p">,</span> <span class="n">select_inducing_points</span>
-<span class="kn">from</span> <span class="nn">aepsych.utils</span> <span class="kn">import</span> <span class="n">get_dim</span>
-<span class="kn">from</span> <span class="nn">botorch.models</span> <span class="kn">import</span> <span class="n">SingleTaskVariationalGP</span>
-<span class="kn">from</span> <span class="nn">gpytorch.likelihoods</span> <span class="kn">import</span> <span class="n">BernoulliLikelihood</span><span class="p">,</span> <span class="n">BetaLikelihood</span>
-<span class="kn">from</span> <span class="nn">gpytorch.mlls</span> <span class="kn">import</span> <span class="n">VariationalELBO</span>
-
-
-<span class="c1"># TODO: Find a better way to do this on the Ax/Botorch side</span>
-<span class="k">class</span> <span class="nc">MyHackyVariationalELBO</span><span class="p">(</span><span class="n">VariationalELBO</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">likelihood</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">combine_terms</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="n">num_data</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">train_targets</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">likelihood</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">num_data</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">combine_terms</span><span class="p">)</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">getLogger</span><span class="p">()</span>
 
 
-<div class="viewcode-block" id="VariationalGP"><a class="viewcode-back" href="../../../models.html#aepsych.models.VariationalGP">[docs]</a><span class="k">class</span> <span class="nc">VariationalGP</span><span class="p">(</span><span class="n">AEPsychModel</span><span class="p">,</span> <span class="n">SingleTaskVariationalGP</span><span class="p">):</span>
-<div class="viewcode-block" id="VariationalGP.get_mll_class"><a class="viewcode-back" href="../../../models.html#aepsych.models.VariationalGP.get_mll_class">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">get_mll_class</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">MyHackyVariationalELBO</span></div>
+<div class="viewcode-block" id="VariationalGPModel"><a class="viewcode-back" href="../../../models.html#aepsych.models.VariationalGPModel">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">VariationalGPModel</span><span class="p">(</span><span class="n">AEPsychModelMixin</span><span class="p">,</span> <span class="n">ApproximateGP</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Base GP model with variational inference"""</span>
 
-<div class="viewcode-block" id="VariationalGP.construct_inputs"><a class="viewcode-back" href="../../../models.html#aepsych.models.VariationalGP.construct_inputs">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">construct_inputs</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">training_data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="n">inputs</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">construct_inputs</span><span class="p">(</span><span class="n">training_data</span><span class="o">=</span><span class="n">training_data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
-        <span class="n">inducing_size</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"inducing_size"</span><span class="p">)</span>
-        <span class="n">inducing_point_method</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"inducing_point_method"</span><span class="p">)</span>
-        <span class="n">bounds</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"bounds"</span><span class="p">)</span>
-        <span class="n">inducing_points</span> <span class="o">=</span> <span class="n">select_inducing_points</span><span class="p">(</span>
-            <span class="n">inducing_size</span><span class="p">,</span>
-            <span class="n">inputs</span><span class="p">[</span><span class="s2">"covar_module"</span><span class="p">],</span>
-            <span class="n">inputs</span><span class="p">[</span><span class="s2">"train_X"</span><span class="p">],</span>
-            <span class="n">bounds</span><span class="p">,</span>
-            <span class="n">inducing_point_method</span><span class="p">,</span>
-        <span class="p">)</span>
-
-        <span class="n">inputs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-            <span class="p">{</span>
-                <span class="s2">"inducing_points"</span><span class="p">:</span> <span class="n">inducing_points</span><span class="p">,</span>
-            <span class="p">}</span>
-        <span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">inputs</span></div>
-
-<div class="viewcode-block" id="VariationalGP.get_config_options"><a class="viewcode-back" href="../../../models.html#aepsych.models.VariationalGP.get_config_options">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">get_config_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
-        <span class="n">classname</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
-
-        <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_config_options</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">classname</span><span class="p">)</span>
-
-        <span class="n">inducing_point_method</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-            <span class="n">classname</span><span class="p">,</span> <span class="s2">"inducing_point_method"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="s2">"auto"</span>
-        <span class="p">)</span>
-        <span class="n">inducing_size</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"inducing_size"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
-        <span class="n">learn_inducing_points</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span>
-            <span class="n">classname</span><span class="p">,</span> <span class="s2">"learn_inducing_points"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">False</span>
-        <span class="p">)</span>
-
-        <span class="n">options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-            <span class="p">{</span>
-                <span class="s2">"inducing_size"</span><span class="p">:</span> <span class="n">inducing_size</span><span class="p">,</span>
-                <span class="s2">"inducing_point_method"</span><span class="p">:</span> <span class="n">inducing_point_method</span><span class="p">,</span>
-                <span class="s2">"learn_inducing_points"</span><span class="p">:</span> <span class="n">learn_inducing_points</span><span class="p">,</span>
-            <span class="p">}</span>
-        <span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">options</span></div></div>
-
-
-<div class="viewcode-block" id="BinaryClassificationGP"><a class="viewcode-back" href="../../../models.html#aepsych.models.BinaryClassificationGP">[docs]</a><span class="k">class</span> <span class="nc">BinaryClassificationGP</span><span class="p">(</span><span class="n">VariationalGP</span><span class="p">):</span>
-    <span class="n">stimuli_per_trial</span> <span class="o">=</span> <span class="mi">1</span>
-    <span class="n">outcome_type</span> <span class="o">=</span> <span class="s2">"binary"</span>
-
-<div class="viewcode-block" id="BinaryClassificationGP.predict_probability"><a class="viewcode-back" href="../../../models.html#aepsych.models.BinaryClassificationGP.predict_probability">[docs]</a>    <span class="k">def</span> <span class="nf">predict_probability</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">"""Query the model for posterior mean and variance.</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">mean_module</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">gpytorch</span><span class="o">.</span><span class="n">means</span><span class="o">.</span><span class="n">Mean</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">covar_module</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">Kernel</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">likelihood</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Likelihood</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">inducing_point_method</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">InducingPointAllocator</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">inducing_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
+        <span class="n">max_fit_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">optimizer_options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Initialize the GP Classification model</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            x (torch.Tensor): Points at which to predict from the model.</span>
-<span class="sd">            probability_space (bool, optional): Return outputs in units of</span>
-<span class="sd">                response probability instead of latent function value. Defaults to False.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            Tuple[np.ndarray, np.ndarray]: Posterior mean and variance at queries points.</span>
+<span class="sd">            dim (int): The number of dimensions in the parameter space.</span>
+<span class="sd">            mean_module (gpytorch.means.Mean, optional): GP mean class. Defaults to a constant with a normal prior.</span>
+<span class="sd">            covar_module (gpytorch.kernels.Kernel, optional): GP covariance kernel class. Defaults to scaled RBF with a</span>
+<span class="sd">                gamma prior.</span>
+<span class="sd">            likelihood (gpytorch.likelihood.Likelihood, optional): The likelihood function to use. If None defaults to</span>
+<span class="sd">                Gaussian likelihood.</span>
+<span class="sd">            inducing_point_method (InducingPointAllocator, optional): The method to use for selecting inducing points.</span>
+<span class="sd">                If not set, a GreedyVarianceReduction is made.</span>
+<span class="sd">            inducing_size (int): Number of inducing points. Defaults to 100.</span>
+<span class="sd">            max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,</span>
+<span class="sd">                there is no limit to the fitting time.</span>
+<span class="sd">            optimizer_options (Dict[str, Any], optional): Optimizer options to pass to the SciPy optimizer during</span>
+<span class="sd">                fitting. Assumes we are using L-BFGS-B.</span>
 <span class="sd">        """</span>
-        <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
-            <span class="n">post</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">posterior</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">=</span> <span class="n">dim</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_fit_time</span> <span class="o">=</span> <span class="n">max_fit_time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inducing_size</span> <span class="o">=</span> <span class="n">inducing_size</span>
 
-            <span class="n">fmean</span><span class="p">,</span> <span class="n">fvar</span> <span class="o">=</span> <span class="n">get_probability_space</span><span class="p">(</span>
-                <span class="n">likelihood</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">likelihood</span><span class="p">,</span> <span class="n">posterior</span><span class="o">=</span><span class="n">post</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimizer_options</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">{</span><span class="s2">"options"</span><span class="p">:</span> <span class="n">optimizer_options</span><span class="p">}</span> <span class="k">if</span> <span class="n">optimizer_options</span> <span class="k">else</span> <span class="p">{</span><span class="s2">"options"</span><span class="p">:</span> <span class="p">{}}</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">likelihood</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">likelihood</span> <span class="o">=</span> <span class="n">GaussianLikelihood</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">mean_module</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">covar_module</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">default_mean</span><span class="p">,</span> <span class="n">default_covar</span> <span class="o">=</span> <span class="n">default_mean_covar_factory</span><span class="p">(</span>
+                <span class="n">dim</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">,</span> <span class="n">stimuli_per_trial</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">stimuli_per_trial</span>
             <span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">fmean</span><span class="p">,</span> <span class="n">fvar</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inducing_point_method</span> <span class="o">=</span> <span class="n">inducing_point_method</span> <span class="ow">or</span> <span class="n">GreedyVarianceReduction</span><span class="p">(</span>
+            <span class="n">dim</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span>
+        <span class="p">)</span>
+        <span class="n">inducing_points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inducing_point_method</span><span class="o">.</span><span class="n">allocate_inducing_points</span><span class="p">(</span>
+            <span class="n">num_inducing</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">inducing_size</span><span class="p">,</span>
+            <span class="n">covar_module</span><span class="o">=</span><span class="n">covar_module</span> <span class="ow">or</span> <span class="n">default_covar</span><span class="p">,</span>
+        <span class="p">)</span>
 
-<div class="viewcode-block" id="BinaryClassificationGP.get_config_options"><a class="viewcode-back" href="../../../models.html#aepsych.models.BinaryClassificationGP.get_config_options">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">get_config_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-        <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_config_options</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">options</span><span class="p">[</span><span class="s2">"likelihood"</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">options</span><span class="p">[</span><span class="s2">"likelihood"</span><span class="p">]</span> <span class="o">=</span> <span class="n">BernoulliLikelihood</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">options</span></div></div>
+        <span class="n">variational_distribution</span> <span class="o">=</span> <span class="n">CholeskyVariationalDistribution</span><span class="p">(</span>
+            <span class="n">inducing_points</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">inducing_points</span><span class="p">)</span>
 
+        <span class="n">variational_strategy</span> <span class="o">=</span> <span class="n">VariationalStrategy</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">inducing_points</span><span class="p">,</span>
+            <span class="n">variational_distribution</span><span class="p">,</span>
+            <span class="n">learn_inducing_locations</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">variational_strategy</span><span class="p">)</span>
 
-<div class="viewcode-block" id="BetaRegressionGP"><a class="viewcode-back" href="../../../models.html#aepsych.models.BetaRegressionGP">[docs]</a><span class="k">class</span> <span class="nc">BetaRegressionGP</span><span class="p">(</span><span class="n">VariationalGP</span><span class="p">):</span>
-    <span class="n">outcome_type</span> <span class="o">=</span> <span class="s2">"percentage"</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">likelihood</span> <span class="o">=</span> <span class="n">likelihood</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mean_module</span> <span class="o">=</span> <span class="n">mean_module</span> <span class="ow">or</span> <span class="n">default_mean</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">covar_module</span> <span class="o">=</span> <span class="n">covar_module</span> <span class="ow">or</span> <span class="n">default_covar</span>
 
-<div class="viewcode-block" id="BetaRegressionGP.get_config_options"><a class="viewcode-back" href="../../../models.html#aepsych.models.BetaRegressionGP.get_config_options">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">get_config_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-        <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_config_options</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">options</span><span class="p">[</span><span class="s2">"likelihood"</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">options</span><span class="p">[</span><span class="s2">"likelihood"</span><span class="p">]</span> <span class="o">=</span> <span class="n">BetaLikelihood</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fresh_state_dict</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state_dict</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fresh_likelihood_dict</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">state_dict</span><span class="p">())</span>
 
-        <span class="k">return</span> <span class="n">options</span></div></div>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_reset_hyperparameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Reset hyperparameters to their initial values."""</span>
+        <span class="c1"># warmstart_hyperparams affects hyperparams but not the variational strat,</span>
+        <span class="c1"># so we keep the old variational strat (which is only refreshed</span>
+        <span class="c1"># if warmstart_induc=False).</span>
+        <span class="n">vsd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">variational_strategy</span><span class="o">.</span><span class="n">state_dict</span><span class="p">()</span>  <span class="c1"># type: ignore</span>
+        <span class="n">vsd_hack</span> <span class="o">=</span> <span class="p">{</span><span class="sa">f</span><span class="s2">"variational_strategy.</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">"</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vsd</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="n">state_dict</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fresh_state_dict</span><span class="p">)</span>
+        <span class="n">state_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">vsd_hack</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">state_dict</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fresh_likelihood_dict</span><span class="p">)</span>
 
+    <span class="k">def</span><span class="w"> </span><span class="nf">_reset_variational_strategy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_inputs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># remember original device</span>
+            <span class="n">device</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">device</span>
+            <span class="n">inducing_points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inducing_point_method</span><span class="o">.</span><span class="n">allocate_inducing_points</span><span class="p">(</span>
+                <span class="n">num_inducing</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">inducing_size</span><span class="p">,</span>
+                <span class="n">covar_module</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">covar_module</span><span class="p">,</span>
+                <span class="n">inputs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">train_inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+            <span class="n">variational_distribution</span> <span class="o">=</span> <span class="n">CholeskyVariationalDistribution</span><span class="p">(</span>
+                <span class="n">inducing_points</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">variational_strategy</span> <span class="o">=</span> <span class="n">VariationalStrategy</span><span class="p">(</span>
+                <span class="bp">self</span><span class="p">,</span>
+                <span class="n">inducing_points</span><span class="p">,</span>
+                <span class="n">variational_distribution</span><span class="p">,</span>
+                <span class="n">learn_inducing_locations</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
 
-<div class="viewcode-block" id="OrdinalGP"><a class="viewcode-back" href="../../../models.html#aepsych.models.OrdinalGP">[docs]</a><span class="k">class</span> <span class="nc">OrdinalGP</span><span class="p">(</span><span class="n">VariationalGP</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    Convenience class for using a VariationalGP with an OrdinalLikelihood.</span>
-<span class="sd">    """</span>
+<div class="viewcode-block" id="VariationalGPModel.fit"><a class="viewcode-back" href="../../../models.html#aepsych.models.VariationalGPModel.fit">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">train_x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">train_y</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">warmstart_hyperparams</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">warmstart_induc</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Fit underlying model.</span>
 
-    <span class="n">outcome_type</span> <span class="o">=</span> <span class="s2">"ordinal"</span>
+<span class="sd">        Args:</span>
+<span class="sd">            train_x (torch.Tensor): Inputs.</span>
+<span class="sd">            train_y (torch.LongTensor): Responses.</span>
+<span class="sd">            warmstart_hyperparams (bool): Whether to reuse the previous hyperparameters (True) or fit from scratch</span>
+<span class="sd">                (False). Defaults to False.</span>
+<span class="sd">            warmstart_induc (bool): Whether to reuse the previous inducing points or fit from scratch (False).</span>
+<span class="sd">                Defaults to False.</span>
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_train_data</span><span class="p">(</span><span class="n">train_x</span><span class="p">,</span> <span class="n">train_y</span><span class="p">)</span>
 
-<div class="viewcode-block" id="OrdinalGP.predict_probability"><a class="viewcode-back" href="../../../models.html#aepsych.models.OrdinalGP.predict_probability">[docs]</a>    <span class="k">def</span> <span class="nf">predict_probability</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]):</span>
-        <span class="n">fmean</span><span class="p">,</span> <span class="n">fvar</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">OrdinalGPModel</span><span class="o">.</span><span class="n">calculate_probs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fmean</span><span class="p">,</span> <span class="n">fvar</span><span class="p">)</span></div>
+        <span class="c1"># by default we reuse the model state and likelihood. If we</span>
+        <span class="c1"># want a fresh fit (no warm start), copy the state from class initialization.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">warmstart_hyperparams</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_reset_hyperparameters</span><span class="p">()</span>
 
-<div class="viewcode-block" id="OrdinalGP.get_config_options"><a class="viewcode-back" href="../../../models.html#aepsych.models.OrdinalGP.get_config_options">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">get_config_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-        <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_config_options</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">warmstart_induc</span> <span class="ow">or</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">inducing_point_method</span><span class="o">.</span><span class="n">last_allocator_used</span> <span class="ow">is</span> <span class="kc">None</span>
+        <span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_reset_variational_strategy</span><span class="p">()</span>
 
-        <span class="k">if</span> <span class="n">options</span><span class="p">[</span><span class="s2">"likelihood"</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">options</span><span class="p">[</span><span class="s2">"likelihood"</span><span class="p">]</span> <span class="o">=</span> <span class="n">OrdinalLikelihood</span><span class="p">(</span><span class="n">n_levels</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">train_y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">mll</span> <span class="o">=</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">mlls</span><span class="o">.</span><span class="n">VariationalELBO</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">likelihood</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
 
-        <span class="n">dim</span> <span class="o">=</span> <span class="n">get_dim</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">"optimizer_kwargs"</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_fit_mll</span><span class="p">(</span><span class="n">mll</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_fit_mll</span><span class="p">(</span><span class="n">mll</span><span class="p">,</span> <span class="n">optimizer_kwargs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">optimizer_options</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="s2">"mean_covar_factory"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">mean</span><span class="p">,</span> <span class="n">covar</span> <span class="o">=</span> <span class="n">ordinal_mean_covar_factory</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-            <span class="n">options</span><span class="p">[</span><span class="s2">"mean_covar_factory"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">mean</span><span class="p">,</span> <span class="n">covar</span><span class="p">)</span>
-            <span class="n">ls_prior</span> <span class="o">=</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">priors</span><span class="o">.</span><span class="n">GammaPrior</span><span class="p">(</span><span class="n">concentration</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="mf">3.0</span><span class="p">)</span>
-            <span class="n">ls_prior_mode</span> <span class="o">=</span> <span class="p">(</span><span class="n">ls_prior</span><span class="o">.</span><span class="n">concentration</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">ls_prior</span><span class="o">.</span><span class="n">rate</span>
-            <span class="n">ls_constraint</span> <span class="o">=</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">Positive</span><span class="p">(</span>
-                <span class="n">transform</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">initial_value</span><span class="o">=</span><span class="n">ls_prior_mode</span>
-            <span class="p">)</span>
+<div class="viewcode-block" id="VariationalGPModel.update"><a class="viewcode-back" href="../../../models.html#aepsych.models.VariationalGPModel.update">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">train_y</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Perform a warm-start update of the model from previous fit.</span>
 
-            <span class="c1"># no outputscale due to shift identifiability in d.</span>
-            <span class="n">covar_module</span> <span class="o">=</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">RBFKernel</span><span class="p">(</span>
-                <span class="n">lengthscale_prior</span><span class="o">=</span><span class="n">ls_prior</span><span class="p">,</span>
-                <span class="n">lengthscale_constraint</span><span class="o">=</span><span class="n">ls_constraint</span><span class="p">,</span>
-                <span class="n">ard_num_dims</span><span class="o">=</span><span class="n">dim</span><span class="p">,</span>
-            <span class="p">)</span>
-
-            <span class="n">options</span><span class="p">[</span><span class="s2">"covar_module"</span><span class="p">]</span> <span class="o">=</span> <span class="n">covar_module</span>
-
-        <span class="k">assert</span> <span class="n">options</span><span class="p">[</span><span class="s2">"inducing_size"</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"Inducing size must be non-zero."</span>
-
-        <span class="k">return</span> <span class="n">options</span></div></div>
+<span class="sd">        Args:</span>
+<span class="sd">            train_x (torch.Tensor): Inputs.</span>
+<span class="sd">            train_y (torch.Tensor): Responses.</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+            <span class="n">train_x</span><span class="p">,</span> <span class="n">train_y</span><span class="p">,</span> <span class="n">warmstart_hyperparams</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">warmstart_induc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="p">)</span></div></div>
 </pre></div>
 </div>
 </div>
@@ -212,6 +218,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../likelihoods.html">aepsych.likelihoods</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../plotting.html">aepsych.plotting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../strategy.html">aepsych.strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../transforms.html">aepsych.transforms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../utils_logging.html">aepsych.utils_logging</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../utils.html">aepsych.utils</a></li>
 </ul>
