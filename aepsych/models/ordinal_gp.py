@@ -31,6 +31,7 @@ class OrdinalGPModel(VariationalGPModel):
         mean_module: Optional[gpytorch.means.Mean] = None,
         covar_module: Optional[gpytorch.kernels.Kernel] = None,
         likelihood: Optional[Likelihood] = None,
+        mll_class: Optional[gpytorch.mlls.MarginalLogLikelihood] = None,
         inducing_point_method: Optional[InducingPointAllocator] = None,
         inducing_size: int = 100,
         max_fit_time: Optional[float] = None,
@@ -45,6 +46,8 @@ class OrdinalGPModel(VariationalGPModel):
                 gamma prior.
             likelihood (gpytorch.likelihood.Likelihood, optional): The likelihood function to use. If None defaults to
                 Gaussian likelihood.
+            mll_class (gpytorch.mlls.MarginalLogLikelihood, optional): The approximate marginal log likelihood class to
+                use. If None defaults to VariationalELBO.
             inducing_point_method (InducingPointAllocator, optional): The method to use for selecting inducing points.
                 If not set, a GreedyVarianceReduction is made.
             inducing_size (int): Number of inducing points. Defaults to 100.
@@ -75,6 +78,7 @@ class OrdinalGPModel(VariationalGPModel):
             mean_module=mean_module,
             covar_module=covar_module,
             likelihood=likelihood,
+            mll_class=mll_class,
             inducing_point_method=inducing_point_method,
             inducing_size=inducing_size,
             max_fit_time=max_fit_time,
