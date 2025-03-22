@@ -19,6 +19,7 @@ from .semi_p import (
     semi_p_posterior_transform,
     SemiParametricGPModel,
 )
+from .utils import constraint_factory
 from .variational_gp import VariationalGPModel
 
 __all__ = [
@@ -35,3 +36,4 @@ __all__ = [
 ]
 
 Config.register_module(sys.modules[__name__])
+Config.register_object(constraint_factory)

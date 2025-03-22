@@ -28,6 +28,9 @@ _TRANSFORMABLE = [
     "ub",
     "points",
     "window",
+    "constraint_locations",
+    "constraint_lower",
+    "constraint_upper",
 ]
 
 
