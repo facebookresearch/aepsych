@@ -13,6 +13,7 @@ from aepsych.config import Config
 from aepsych.models.gp_classification import GPClassificationModel
 from aepsych.models.inducing_points import (
     FixedAllocator,
+    FixedPlusAllocator,
     GreedyVarianceReduction,
     KMeansAllocator,
     SobolAllocator,
@@ -335,7 +336,7 @@ class TestInducingPointAllocators(unittest.TestCase):
 
             [OptimizeAcqfGenerator]
             acqf = MCLevelSetEstimation
-            
+
             [GPClassificationModel]
             inducing_size = 2
         """
@@ -438,6 +439,50 @@ class TestInducingPointAllocators(unittest.TestCase):
 
         self.assertIsInstance(model.inducing_point_method, GreedyVarianceReduction)
         self.assertTrue(model.inducing_point_method.dim == 2)
+
+    def test_fixed_plus_allocator(self):
+        fixed_points = torch.tensor([[-0.1, -0.1], [1.1, 1.1]])
+
+        allocator = FixedPlusAllocator(
+            dim=2,
+            points=fixed_points,
+            main_allocator=KMeansAllocator,
+        )
+
+        x = torch.rand((10, 2))
+
+        points = allocator.allocate_inducing_points(inputs=x, num_inducing=10)
+
+        # Shoud be 12 points with fixed in there somewhere
+        self.assertEqual(points.shape[0], 12)
+        for point in fixed_points:
+            # Check if point is a row in points
+            self.assertTrue(
+                torch.any(torch.vmap(lambda x: torch.all(x == point))(points))
+            )
+
+        self.assertTrue(torch.all(torch.isin(fixed_points, points)))
+
+        x = torch.concat([torch.rand((10, 2)), fixed_points], dim=0)
+        points = allocator.allocate_inducing_points(inputs=x, num_inducing=12)
+
+        # Should still be 12 points with fixed inside
+        self.assertEqual(points.shape[0], 12)
+        for point in fixed_points:
+            # Check if point is a row in points
+            self.assertTrue(
+                torch.any(torch.vmap(lambda x: torch.all(x == point))(points))
+            )
+
+    def test_fixed_plus_allocator_dimension_mismatch(self):
+        fixed_points = torch.tensor([[-0.1, -0.1, -0.1], [1.1, 1.1, 1.1]])
+
+        with self.assertRaises(ValueError):
+            FixedPlusAllocator(
+                dim=2,
+                points=fixed_points,
+                main_allocator=KMeansAllocator,
+            )
 
 
 if __name__ == "__main__":
