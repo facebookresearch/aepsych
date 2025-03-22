@@ -33,6 +33,7 @@ class VariationalGPModel(AEPsychModelMixin, ApproximateGP):
         mean_module: Optional[gpytorch.means.Mean] = None,
         covar_module: Optional[gpytorch.kernels.Kernel] = None,
         likelihood: Optional[Likelihood] = None,
+        mll_class: Optional[gpytorch.mlls.MarginalLogLikelihood] = None,
         inducing_point_method: Optional[InducingPointAllocator] = None,
         inducing_size: int = 100,
         max_fit_time: Optional[float] = None,
@@ -47,6 +48,8 @@ class VariationalGPModel(AEPsychModelMixin, ApproximateGP):
                 gamma prior.
             likelihood (gpytorch.likelihood.Likelihood, optional): The likelihood function to use. If None defaults to
                 Gaussian likelihood.
+            mll_class (gpytorch.mlls.MarginalLogLikelihood, optional): The approximate marginal log likelihood class to
+                use. If None defaults to VariationalELBO.
             inducing_point_method (InducingPointAllocator, optional): The method to use for selecting inducing points.
                 If not set, a GreedyVarianceReduction is made.
             inducing_size (int): Number of inducing points. Defaults to 100.
@@ -65,6 +68,8 @@ class VariationalGPModel(AEPsychModelMixin, ApproximateGP):
 
         if likelihood is None:
             likelihood = GaussianLikelihood()
+
+        self.mll_class = mll_class or gpytorch.mlls.VariationalELBO
 
         if mean_module is None or covar_module is None:
             default_mean, default_covar = default_mean_covar_factory(
@@ -160,7 +165,7 @@ class VariationalGPModel(AEPsychModelMixin, ApproximateGP):
             self._reset_variational_strategy()
 
         n = train_y.shape[0]
-        mll = gpytorch.mlls.VariationalELBO(self.likelihood, self, n)
+        mll = self.mll_class(self.likelihood, self, n)
 
         if "optimizer_kwargs" in kwargs:
             self._fit_mll(mll, **kwargs)
