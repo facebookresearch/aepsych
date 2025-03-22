@@ -11,6 +11,7 @@ from typing import Mapping, Optional, Tuple, Union
 
 import numpy as np
 import torch
+from aepsych.config import Config
 from aepsych.models.base import AEPsychModelMixin
 from aepsych.utils import dim_grid, get_jnd_multid, promote_0d
 from botorch.acquisition import PosteriorMean
@@ -513,3 +514,63 @@ class TargetProbabilityDistancePosteriorTransform(TargetDistancePosteriorTransfo
         pmean = pmean.unsqueeze(-1).unsqueeze(-1)
         pvar = pvar.unsqueeze(-1).unsqueeze(-1)
         return self._forward(pmean, pvar)
+
+
+def constraint_factory(
+    config: Config,
+) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor | None]:
+    """Given a config, return a set of constraint locations and corresponding
+    values. The config should include the constraint bounds/values and how many
+    points to place in the bounds with that value.
+
+    Args:
+        config (Config): A config object containing the constraint information.
+            Must include constraint_lower, constraint_upper,
+            constraint_values, and optionally constraint_points and
+            constraint_strengths.
+
+    Returns:
+        tuple[torch.Tensor, torch.Tensor, torch.Tensor | None]: A tuple
+            containing the constraint locations, values, and strengths.
+    """
+    lowers = config.gettensor("constraint_factory", "constraint_lower")
+    uppers = config.gettensor("constraint_factory", "constraint_upper")
+    values = config.gettensor("constraint_factory", "constraint_values")
+    strengths = config.gettensor(
+        "constraint_factory", "constraint_strengths", fallback=None
+    )
+    points = config.getint("constraint_factory", "points_per_dim", fallback=10)
+
+    if lowers.ndim == 1:
+        lowers = lowers.unsqueeze(0)
+
+    if uppers.ndim == 1:
+        uppers = uppers.unsqueeze(0)
+
+    if values.ndim == 1:
+        values = values.unsqueeze(0)
+    loc_list = []
+    val_list = []
+    str_list = []
+
+    # For each constraint, create a uniform grid of points between the bounds
+    for i, (lower, upper, value) in enumerate(zip(lowers, uppers, values)):
+        grid = dim_grid(lower=lower, upper=upper, gridsize=points)
+        grid = grid.unique(dim=0)
+        val = value.repeat(grid.shape[0], 1)
+
+        if strengths is not None:
+            strength = strengths[i].repeat(grid.shape[0], 1)
+            str_list.append(strength)
+
+        loc_list.append(grid)
+        val_list.append(val)
+
+    locs = torch.cat(loc_list, dim=0)
+    vals = torch.cat(val_list, dim=0)
+    if strengths is not None:
+        strengths = torch.cat(str_list, dim=0)
+    else:
+        strengths = None
+
+    return locs, vals, strengths

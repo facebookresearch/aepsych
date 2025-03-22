@@ -8,13 +8,14 @@
 import sys
 
 from ...config import Config
-from .fixed import FixedAllocator
+from .fixed import FixedAllocator, FixedPlusAllocator
 from .greedy_variance_reduction import GreedyVarianceReduction
 from .kmeans import KMeansAllocator
 from .sobol import SobolAllocator
 
 __all__ = [
     "FixedAllocator",
+    "FixedPlusAllocator",
     "GreedyVarianceReduction",
     "KMeansAllocator",
     "SobolAllocator",
