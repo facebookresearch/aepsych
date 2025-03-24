@@ -909,7 +909,7 @@ class GPClassificationTest(unittest.TestCase):
         [common]
         parnames = [foo1, bar1, foo2, bar2]
         stimuli_per_trial = 1
-        
+
         [foo1]
         par_type = continuous
         lower_bound = 0.3
@@ -937,6 +937,46 @@ class GPClassificationTest(unittest.TestCase):
         m = GPClassificationModel.from_config(config=config)
         self.assertIsInstance(m.mean_module, ZeroMean)
         self.assertIsInstance(m.covar_module, PairwiseKernel)
+
+    def test_constraint_model(self):
+        x = torch.linspace(0, 1, 50).unsqueeze(-1)
+        y_true = f_1d(x, mu=0.75)
+        y = torch.tensor(bernoulli.rvs(y_true))
+
+        model = GPClassificationModel(
+            dim=1,
+            constraint_locations=torch.tensor([[0.0], [1.0]]),
+            constraint_values=torch.tensor([[y_true[0]], [y_true[-1]]]),
+            constraint_strengths=torch.tensor([[1e-4], [1e-4]]),
+        )
+
+        model.fit(x, y)
+
+        y_pred, y_var = model.predict_probability(x)
+
+        self.assertTrue(torch.allclose(y_pred[0], y_true[0], atol=1e-4, rtol=1e-4))
+        self.assertTrue(torch.allclose(y_pred[-1], y_true[-1], atol=1e-4, rtol=1e-4))
+
+        # Y_var should be small at the constraint locations
+        self.assertTrue(y_var[0] < 1e-4)
+        self.assertTrue(y_var[-1] < 1e-4)
+
+    def test_auto_constraint_strength(self):
+        x = torch.linspace(0, 1, 50).unsqueeze(-1)
+        y_true = f_1d(x, mu=0.75)
+        y = torch.tensor(bernoulli.rvs(y_true))
+
+        model = GPClassificationModel(
+            dim=1,
+            constraint_locations=torch.tensor([[0.0], [1.0]]),
+            constraint_values=torch.tensor([[y_true[0]], [y_true[-1]]]),
+        )
+
+        # Smoke test
+        model.fit(x, y)
+
+        self.assertLess(model.constraint_strengths[0], 0.2)
+        self.assertLess(model.constraint_strengths[1], 0.2)
 
 
 if __name__ == "__main__":
