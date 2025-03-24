@@ -51,6 +51,19 @@ def f_2d(x):
     return np.exp(-np.linalg.norm(x, axis=-1))
 
 
+def f_2d_target(x, target=None):
+    """
+    Distance to target
+    """
+    if target is None:
+        target = torch.tensor([0.0, 0.0])
+
+    if x.ndim > 1:
+        return torch.exp(-torch.linalg.vector_norm(x - target, dim=1))
+
+    return torch.exp(-torch.linalg.vector_norm(x - target))
+
+
 def new_novel_det_params(freq, scale_factor=1.0):
     """Get the loc and scale params for 2D synthetic novel_det(frequency) function
         Keyword arguments:
@@ -946,8 +959,8 @@ class GPClassificationTest(unittest.TestCase):
         model = GPClassificationModel(
             dim=1,
             constraint_locations=torch.tensor([[0.0], [1.0]]),
-            constraint_values=torch.tensor([[y_true[0]], [y_true[-1]]]),
-            constraint_strengths=torch.tensor([[1e-4], [1e-4]]),
+            constraint_values=torch.tensor([y_true[0], y_true[-1]]),
+            constraint_strengths=torch.tensor([1e-4, 1e-4]),
         )
 
         model.fit(x, y)
@@ -969,7 +982,7 @@ class GPClassificationTest(unittest.TestCase):
         model = GPClassificationModel(
             dim=1,
             constraint_locations=torch.tensor([[0.0], [1.0]]),
-            constraint_values=torch.tensor([[y_true[0]], [y_true[-1]]]),
+            constraint_values=torch.tensor([y_true[0], y_true[-1]]),
         )
 
         # Smoke test
@@ -977,6 +990,198 @@ class GPClassificationTest(unittest.TestCase):
 
         self.assertLess(model.constraint_strengths[0], 0.2)
         self.assertLess(model.constraint_strengths[1], 0.2)
+
+    def test_constraint_strat(self):
+        config_str = """
+            [common]
+            parnames = [par1, par2]
+            strategy_names = [init_strat, opt_strat]
+            stimuli_per_trial = 1
+            outcome_types = [binary]
+
+            [par1]
+            par_type = continuous
+            lower_bound = 0
+            upper_bound = 500
+
+            [par2]
+            par_type = continuous
+            lower_bound = 1
+            upper_bound = 2
+
+            [init_strat]
+            min_asks = 50
+            generator = SobolGenerator
+
+            [opt_strat]
+            min_asks = 2
+            model = GPClassificationModel
+            generator = OptimizeAcqfGenerator
+            refit_every = 2 # Checks warmstart
+
+            [GPClassificationModel]
+            constraint_locations = [0, 1]
+            constraint_values = [0.5]
+            constraint_strengths = [1e-4]
+
+            [OptimizeAcqfGenerator]
+            acqf = qLogNoisyExpectedImprovement
+        """
+        config = Config(config_str=config_str)
+        strat = SequentialStrategy.from_config(config=config)
+
+        while not strat.finished:
+            x = strat.gen()
+            prob = f_2d_target(
+                strat.transforms.transform(x), target=torch.tensor([0.5, 0.5])
+            )
+            response = bernoulli.rvs(prob)
+            strat.add_data(x, [response])
+
+        # These should be in transformed space and latent space
+        model = strat.model
+        self.assertTrue(
+            torch.all(model.constraint_locations == torch.tensor([[0.0, 0.0]]))
+        )
+        self.assertTrue(torch.all(model.constraint_values == torch.tensor([[0.0]])))
+
+        pred_y, pred_var = strat.predict(
+            torch.tensor([[0.0, 1.0]]), probability_space=True
+        )
+        self.assertLess(pred_y - 0.5, 1e-3)
+        self.assertLess(pred_var, 1e-4)
+
+    def test_multi_constraint_strat(self):
+        config_str = """
+            [common]
+            parnames = [par1, par2]
+            strategy_names = [init_strat, opt_strat]
+            stimuli_per_trial = 1
+            outcome_types = [binary]
+
+            [par1]
+            par_type = continuous
+            lower_bound = 0
+            upper_bound = 500
+
+            [par2]
+            par_type = continuous
+            lower_bound = 1
+            upper_bound = 2
+
+            [init_strat]
+            min_asks = 1
+            generator = SobolGenerator
+
+            [opt_strat]
+            min_asks = 1
+            model = GPClassificationModel
+            generator = OptimizeAcqfGenerator
+            refit_every = 2 # Checks warmstart
+
+            [GPClassificationModel]
+            constraint_locations = [[0, 1], [0, 2]]
+            constraint_values = [0.5, 0.5]
+            constraint_strengths = [1e-4, 1e-4]
+
+            [OptimizeAcqfGenerator]
+            acqf = qLogNoisyExpectedImprovement
+        """
+        config = Config(config_str=config_str)
+        strat = SequentialStrategy.from_config(config=config)
+
+        # Smoketest
+        while not strat.finished:
+            x = strat.gen()
+            prob = f_2d_target(
+                strat.transforms.transform(x), target=torch.tensor([0.5, 0.5])
+            )
+            response = bernoulli.rvs(prob)
+            strat.add_data(x, [response])
+
+        # These should be in transformed space and latent space
+        model = strat.model
+        self.assertTrue(
+            torch.all(model.constraint_locations == torch.tensor([[0, 0], [0, 1]]))
+        )
+        self.assertTrue(torch.all(model.constraint_values == torch.tensor([0.0, 0.0])))
+
+    def test_constraint_factory(self):
+        config_str = """
+            [common]
+            parnames = [par1, par2]
+            strategy_names = [init_strat, opt_strat]
+            stimuli_per_trial = 1
+            outcome_types = [binary]
+
+            [par1]
+            par_type = continuous
+            lower_bound = 0
+            upper_bound = 500
+
+            [par2]
+            par_type = continuous
+            lower_bound = 0
+            upper_bound = 2
+
+            [init_strat]
+            min_asks = 50
+            generator = SobolGenerator
+
+            [opt_strat]
+            min_asks = 1
+            model = GPClassificationModel
+            generator = OptimizeAcqfGenerator
+
+            [GPClassificationModel]
+            constraint_factory = constraint_factory
+
+            [constraint_factory]
+            constraint_lower = [[0, 0], [0, 0]]
+            constraint_upper = [[0, 2], [500, 0]]
+            constraint_values = [0.5, 0.5]
+            constraint_strengths = [1e-4, 1e-4]
+            points_per_dim = 3
+
+            [OptimizeAcqfGenerator]
+            acqf = qLogNoisyExpectedImprovement
+        """
+        config = Config(config_str=config_str)
+        strat = SequentialStrategy.from_config(config=config)
+
+        while not strat.finished:
+            x = strat.gen()
+            prob = f_2d_target(
+                strat.transforms.transform(x), target=torch.tensor([0.5, 0.5])
+            )
+            response = bernoulli.rvs(prob)
+            strat.add_data(x, [response])
+
+        # These should be in transformed space and latent space
+        model = strat.model
+
+        # Check if enough constraints were made, 5 cause 0, 0 is duplicated
+        self.assertEqual(model.constraint_locations.shape[0], 5)
+        self.assertEqual(model.constraint_values.shape[0], 5)
+        self.assertEqual(model.constraint_strengths.shape[0], 5)
+
+        # Check if all constraint_locations are in range
+        for loc in model.constraint_locations:
+            self.assertTrue(torch.all(loc >= 0))
+            self.assertTrue(torch.all(loc <= 1))
+            self.assertTrue(torch.any(loc == 0))
+
+        # Check if all constraint_values the expected value
+        self.assertTrue(torch.all(model.constraint_values == torch.tensor([[0.0]])))
+
+        pred_x_dim1 = torch.linspace(0, 500, 10)
+        pred_x_dim1 = torch.vstack([pred_x_dim1, torch.zeros_like(pred_x_dim1)]).T
+        pred_x_dim2 = torch.linspace(0, 2, 10)
+        pred_x_dim2 = torch.vstack([torch.zeros_like(pred_x_dim2), pred_x_dim2]).T
+        pred_x = torch.cat([pred_x_dim1, pred_x_dim2])
+        pred_y, pred_var = strat.predict(pred_x, probability_space=True)
+        self.assertTrue(torch.all(pred_y - 0.5 < 1e-2), pred_y)
+        self.assertTrue(torch.all(pred_var < 1e-2), pred_var)
 
 
 if __name__ == "__main__":

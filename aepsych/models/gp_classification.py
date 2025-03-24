@@ -11,6 +11,7 @@ from typing import Any, Dict, Optional, Tuple
 
 import gpytorch
 import torch
+from aepsych.config import Config
 from aepsych.likelihoods.mixed import ListLikelihood, MixedVariationalELBO
 from aepsych.models.inducing_points import FixedPlusAllocator, GreedyVarianceReduction
 from aepsych.models.inducing_points.base import InducingPointAllocator
@@ -107,10 +108,10 @@ class GPClassificationModel(VariationalGPModel):
         if self.constraint_locations is not None and self.constraint_values is not None:
             # Constraints need to be 2D
             if self.constraint_locations.dim() != 2:
-                raise ValueError("Constraint locations must be shaped (n, d).")
+                self.constraint_locations = self.constraint_locations.unsqueeze(0)
 
             if self.constraint_values.dim() != 2:
-                raise ValueError("Constraint values must be (n, 1).")
+                self.constraint_values = self.constraint_values.unsqueeze(1)
 
             # Needs the same n
             if self.constraint_locations.shape[0] != self.constraint_values.shape[0]:
@@ -129,14 +130,16 @@ class GPClassificationModel(VariationalGPModel):
                 # Make strengths based on values
                 self.constraint_strengths = (0.2 * self.constraint_values + 0.1) ** 2
 
+            # Constraint strengths need to be exactly 1D
+            if self.constraint_strengths.dim() == 2:
+                self.constraint_strengths = self.constraint_strengths.squeeze(1)
+
             # Replace necessary objects
             mll_class = MixedVariationalELBO
             likelihood = ListLikelihood(
                 likelihoods=[
                     likelihood,
-                    FixedNoiseGaussianLikelihood(
-                        noise=self.constraint_strengths.squeeze()
-                    ),
+                    FixedNoiseGaussianLikelihood(noise=self.constraint_strengths),
                 ],
             )
             if inducing_point_method is None:
@@ -187,6 +190,8 @@ class GPClassificationModel(VariationalGPModel):
             if inputs is not None:
                 inputs = torch.cat((inputs, self.constraint_locations), dim=0)
             if targets is not None:
+                if targets.dim() == 1:
+                    targets = targets.unsqueeze(1)
                 targets = torch.cat((targets, self.constraint_values), dim=0)
 
         if inputs is None:
@@ -300,3 +305,38 @@ class GPClassificationModel(VariationalGPModel):
             Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at query points.
         """
         return self.predict(x, probability_space=True)
+
+    @classmethod
+    def get_config_options(
+        cls,
+        config: Config,
+        name: Optional[str] = None,
+        options: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        """.
+
+        Args:
+            config (Config): Config to look for options in.
+            name (str, optional): The name of the strategy to warm start (Not actually optional here.)
+            options (Dict[str, Any], optional): options are ignored.
+
+        Raises:
+            ValueError: the name of the strategy is necessary to identify warm start search criteria.
+            KeyError: the config specified this strategy should be warm started but the associated config section wasn't defined.
+
+        Returns:
+            Dict[str, Any]: a dictionary of the search criteria described in the experiment's config
+        """
+        name = name or cls.__name__
+        options = super().get_config_options(config, name, options)
+
+        constraint_factory = config.getobj(name, "constraint_factory", fallback=None)
+        if constraint_factory is not None:
+            constraint_locations, constraint_values, constraint_strengths = (
+                constraint_factory(config)
+            )
+            options["constraint_locations"] = constraint_locations
+            options["constraint_values"] = constraint_values
+            options["constraint_strengths"] = constraint_strengths
+
+        return options
