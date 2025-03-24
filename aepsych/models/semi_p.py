@@ -255,6 +255,7 @@ class SemiParametricGPModel(VariationalGPModel):
         mean_module: Optional[gpytorch.means.Mean] = None,
         covar_module: Optional[gpytorch.kernels.Kernel] = None,
         likelihood: Optional[Any] = None,
+        mll_class: Optional[gpytorch.mlls.MarginalLogLikelihood] = None,
         slope_mean: float = 2.0,
         inducing_point_method: Optional[InducingPointAllocator] = None,
         inducing_size: int = 100,
@@ -271,6 +272,8 @@ class SemiParametricGPModel(VariationalGPModel):
                 gamma prior.
             likelihood (gpytorch.likelihood.Likelihood, optional): The likelihood function to use. If None defaults to
                 linear-Bernouli likelihood with probit link.
+            mll_class (gpytorch.mlls.MarginalLogLikelihood, optional): The approximate marginal log likelihood class to
+                use. If None defaults to VariationalELBO.
             slope_mean (float): The mean of the slope. Defaults to 2.
             inducing_point_method (InducingPointAllocator, optional): The method to use for selecting inducing points.
                 If not set, a GreedyVarianceReduction is made.
@@ -314,6 +317,7 @@ class SemiParametricGPModel(VariationalGPModel):
             mean_module=mean_module,
             covar_module=covar_module,
             likelihood=likelihood,
+            mll_class=mll_class,
             inducing_size=inducing_size,
             max_fit_time=max_fit_time,
             inducing_point_method=inducing_point_method,
@@ -459,6 +463,7 @@ class HadamardSemiPModel(VariationalGPModel):
         offset_mean_module: Optional[gpytorch.means.Mean] = None,
         offset_covar_module: Optional[gpytorch.kernels.Kernel] = None,
         likelihood: Optional[Likelihood] = None,
+        mll_class: Optional[gpytorch.mlls.MarginalLogLikelihood] = None,
         slope_mean: float = 2,
         inducing_point_method: Optional[InducingPointAllocator] = None,
         inducing_size: int = 100,
@@ -475,6 +480,8 @@ class HadamardSemiPModel(VariationalGPModel):
             offset_mean_module (gpytorch.means.Mean, optional): Mean module to use (default: constant mean) for offset.
             offset_covar_module (gpytorch.kernels.Kernel, optional): Covariance kernel to use (default: scaled RBF) for offset.
             likelihood (gpytorch.likelihood.Likelihood, optional)): defaults to bernoulli with logistic input and a floor of .5
+            mll_class (gpytorch.mlls.MarginalLogLikelihood, optional): The approximate marginal log likelihood class to
+                use. If None defaults to VariationalELBO.
             slope_mean (float): The mean of the slope. Defaults to 2.
             inducing_point_method (InducingPointAllocator, optional): The method to use for selecting inducing points.
                 If not set, a GreedyVarianceReduction is made.
@@ -487,6 +494,7 @@ class HadamardSemiPModel(VariationalGPModel):
         super().__init__(
             dim=dim,
             inducing_size=inducing_size,
+            mll_class=mll_class,
             max_fit_time=max_fit_time,
             inducing_point_method=inducing_point_method,
             optimizer_options=optimizer_options,
