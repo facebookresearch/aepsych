@@ -45,7 +45,9 @@ class MCLevelSetEstimation(MCAcquisitionFunction):
             sampler = SobolQMCNormalSampler(sample_shape=torch.Size([512]))
         if objective is None:
             objective = ProbitObjective()
-        super().__init__(model=model, sampler=sampler, objective=None, X_pending=None)
+        super().__init__(
+            model=model, sampler=sampler, objective=objective, X_pending=None
+        )
         self.objective = objective
         self.beta = beta
         self.target = target
