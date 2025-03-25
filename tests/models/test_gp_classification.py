@@ -1183,6 +1183,55 @@ class GPClassificationTest(unittest.TestCase):
         self.assertTrue(torch.all(pred_y - 0.5 < 1e-2), pred_y)
         self.assertTrue(torch.all(pred_var < 1e-2), pred_var)
 
+    def test_constraint_factory_zero_points(self):
+        config_str = """
+            [common]
+            parnames = [par1, par2]
+            strategy_names = [init_strat, opt_strat]
+            stimuli_per_trial = 1
+            outcome_types = [binary]
+
+            [par1]
+            par_type = continuous
+            lower_bound = 0
+            upper_bound = 500
+
+            [par2]
+            par_type = continuous
+            lower_bound = 0
+            upper_bound = 2
+
+            [init_strat]
+            min_asks = 0
+            generator = SobolGenerator
+
+            [opt_strat]
+            min_asks = 1
+            model = GPClassificationModel
+            generator = OptimizeAcqfGenerator
+
+            [GPClassificationModel]
+            constraint_factory = constraint_factory
+
+            [constraint_factory]
+            points_per_dim = 0
+            constraint_lower = [[0, 0], [0, 0]]
+            constraint_upper = [[0, 2], [500, 0]]
+            constraint_values = [0.5, 0.5]
+            constraint_strengths = [1e-4, 1e-4]
+
+            [OptimizeAcqfGenerator]
+            acqf = qLogNoisyExpectedImprovement
+        """
+        config = Config(config_str=config_str)
+        strat = SequentialStrategy.from_config(config=config)
+
+        # Verify that no constraints were created
+        model = strat.strat_list[-1].model
+        self.assertIsNone(model.constraint_locations)
+        self.assertIsNone(model.constraint_values)
+        self.assertIsNone(model.constraint_strengths)
+
 
 if __name__ == "__main__":
     unittest.main()
