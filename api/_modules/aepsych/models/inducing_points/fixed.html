@@ -40,8 +40,8 @@
 
 <div class="viewcode-block" id="FixedAllocator.allocate_inducing_points"><a class="viewcode-back" href="../../../../models.html#aepsych.models.inducing_points.FixedAllocator.allocate_inducing_points">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">allocate_inducing_points</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">inputs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">covar_module</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">inputs</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">covar_module</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">num_inducing</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
         <span class="n">input_batch_shape</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Size</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">([]),</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
@@ -63,6 +63,69 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">last_allocator_used</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span></div></div>
+
+
+<div class="viewcode-block" id="FixedPlusAllocator"><a class="viewcode-back" href="../../../../models.html#aepsych.models.inducing_points.FixedPlusAllocator">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">FixedPlusAllocator</span><span class="p">(</span><span class="n">BaseAllocator</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">points</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">main_allocator</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">BaseAllocator</span><span class="p">]</span> <span class="o">|</span> <span class="n">BaseAllocator</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Initialize the FixedPlusAllocator where inducing points are first</span>
+<span class="sd">        created by another inducing point algorithm, then the fixed points are</span>
+<span class="sd">        added if they are not already in the set.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dim (int): Dimensionality of the search space.</span>
+<span class="sd">            points (torch.Tensor): Inducing points to use (should be n, d).</span>
+<span class="sd">            main_allocator (type[BaseAllocator] | BaseAllocator): The inducing point</span>
+<span class="sd">                algorithm to use first. If it is a type, initialize it with the args</span>
+<span class="sd">                passed in, otherwise, just wrap it.</span>
+<span class="sd">            **kwargs: Keyword arguments to pass to the main_allocator to</span>
+<span class="sd">                initialize it.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">points</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">dim</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">"Points must have the same dimensionality as the search space. "</span>
+                <span class="sa">f</span><span class="s2">"Points have </span><span class="si">{</span><span class="n">points</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> dimensions, but the search "</span>
+                <span class="sa">f</span><span class="s2">"space has </span><span class="si">{</span><span class="n">dim</span><span class="si">}</span><span class="s2"> dimensions."</span>
+            <span class="p">)</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="n">dim</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extra_points</span> <span class="o">=</span> <span class="n">points</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">main_allocator</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">main_allocator</span> <span class="o">=</span> <span class="n">main_allocator</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="n">dim</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">main_allocator</span> <span class="o">=</span> <span class="n">main_allocator</span>
+
+<div class="viewcode-block" id="FixedPlusAllocator.allocate_inducing_points"><a class="viewcode-back" href="../../../../models.html#aepsych.models.inducing_points.FixedPlusAllocator.allocate_inducing_points">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">allocate_inducing_points</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">inputs</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">covar_module</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">num_inducing</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
+        <span class="n">input_batch_shape</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Size</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">([]),</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_allocator</span><span class="o">.</span><span class="n">allocate_inducing_points</span><span class="p">(</span>
+            <span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">,</span>
+            <span class="n">covar_module</span><span class="o">=</span><span class="n">covar_module</span><span class="p">,</span>
+            <span class="n">num_inducing</span><span class="o">=</span><span class="n">num_inducing</span><span class="p">,</span>
+            <span class="n">input_batch_shape</span><span class="o">=</span><span class="n">input_batch_shape</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Check if points are dummy, if so don't bother</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_allocator</span><span class="o">.</span><span class="n">last_allocator_used</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">points</span>
+
+        <span class="c1"># Concatenate the fixed points to the main points</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">points</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">extra_points</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># Apply unique to remove duplicates</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_allocator_used</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span>
+        <span class="k">return</span> <span class="n">points</span></div></div>
 </pre></div>
 </div>
 </div>

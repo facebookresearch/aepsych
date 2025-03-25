@@ -262,9 +262,18 @@ yes/no trials.</p>
 gamma prior.</p></li>
 <li><p><strong>likelihood</strong> (<em>gpytorch.likelihood.Likelihood</em><em>, </em><em>optional</em>) – The likelihood function to use. If None defaults to
 Bernouli likelihood. This should not be modified unless you know what you’re doing.</p></li>
+<li><p><strong>mll_class</strong> (<em>gpytorch.mlls.MarginalLogLikelihood</em><em>, </em><em>optional</em>) – The approximate marginal log likelihood class to
+use. If None defaults to VariationalELBO.</p></li>
 <li><p><strong>inducing_point_method</strong> (<em>InducingPointAllocator</em><em>, </em><em>optional</em>) – The method to use for selecting inducing points.
 If not set, a GreedyVarianceReduction is made.</p></li>
 <li><p><strong>inducing_size</strong> (<em>int</em>) – Number of inducing points. Defaults to 100.</p></li>
+<li><p><strong>constraint_locations</strong> (<em>torch.Tensor</em><em>, </em><em>optional</em>) – Locations at which to constrain the latent function. Defaults
+to None.</p></li>
+<li><p><strong>constraint_values</strong> (<em>torch.Tensor</em><em>, </em><em>optional</em>) – Values at which to constrain the latent function. There must be
+one value for each constraint location. Assumed to be in probability space unless likelihood is not None,
+If likelihood is set, no transformations to these values will be done. Defaults to None.</p></li>
+<li><p><strong>constraint_strengths</strong> (<em>torch.Tensor</em><em>, </em><em>optional</em>) – Strength of the constraints. There must be one value for each
+constraint location. If set to None, constraint strength will be based on the value (0.2 * value + 0.1).</p></li>
 <li><p><strong>max_fit_time</strong> (<em>float</em><em>, </em><em>optional</em>) – The maximum amount of time, in seconds, to spend fitting the model. If None,
 there is no limit to the fitting time.</p></li>
 <li><p><strong>optimizer_options</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>, </em><em>optional</em>) – Optimizer options to pass to the SciPy optimizer during
@@ -280,6 +289,43 @@ fitting. Assumes we are using L-BFGS-B.</p></li>
 <dt class="sig sig-object py" id="aepsych.models.gp_classification.GPClassificationModel.outcome_type">
 <span class="sig-name descname"><span class="pre">outcome_type</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'binary'</span></em><a class="headerlink" href="#aepsych.models.gp_classification.GPClassificationModel.outcome_type" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.models.gp_classification.GPClassificationModel.set_train_data">
+<span class="sig-name descname"><span class="pre">set_train_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/gp_classification.html#GPClassificationModel.set_train_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.gp_classification.GPClassificationModel.set_train_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the training data for the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>torch.Tensor</em><em>, </em><em>optional</em>) – The new training inputs X.</p></li>
+<li><p><strong>targets</strong> (<em>torch.Tensor</em><em>, </em><em>optional</em>) – The new training targets Y.</p></li>
+<li><p><strong>strict</strong> (<em>bool</em>) – Whether to strictly enforce the device of the inputs and targets.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.models.gp_classification.GPClassificationModel.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warmstart_hyperparams</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warmstart_induc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/gp_classification.html#GPClassificationModel.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.gp_classification.GPClassificationModel.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit underlying model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>train_x</strong> (<em>torch.Tensor</em>) – Inputs.</p></li>
+<li><p><strong>train_y</strong> (<em>torch.LongTensor</em>) – Responses.</p></li>
+<li><p><strong>warmstart_hyperparams</strong> (<em>bool</em>) – Whether to reuse the previous hyperparameters (True) or fit from scratch
+(False). Defaults to False.</p></li>
+<li><p><strong>warmstart_induc</strong> (<em>bool</em>) – Whether to reuse the previous inducing points or fit from scratch (False).
+Defaults to False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.models.gp_classification.GPClassificationModel.predict">
 <span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probability_space</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/gp_classification.html#GPClassificationModel.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.gp_classification.GPClassificationModel.predict" title="Permalink to this definition">¶</a></dt>
@@ -337,6 +383,32 @@ transformation is applied.</p></li>
 </dd>
 </dl>
 </dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.models.gp_classification.GPClassificationModel.get_config_options">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_config_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/gp_classification.html#GPClassificationModel.get_config_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.gp_classification.GPClassificationModel.get_config_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Config to look for options in.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – The name of the strategy to warm start (Not actually optional here.)</p></li>
+<li><p><strong>options</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>, </em><em>optional</em>) – options are ignored.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – the name of the strategy is necessary to identify warm start search criteria.</p></li>
+<li><p><strong>KeyError</strong> – the config specified this strategy should be warm started but the associated config section wasn’t defined.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>a dictionary of the search criteria described in the experiment’s config</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
 </dd></dl>
 </section>
 <section id="aepsych-models-monotonic-rejection-gp-module">
@@ -372,6 +444,51 @@ transformation is applied.</p></li>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The fixed inducing points.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="aepsych.models.inducing_points.FixedPlusAllocator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.models.inducing_points.</span></span><span class="sig-name descname"><span class="pre">FixedPlusAllocator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/inducing_points/fixed.html#FixedPlusAllocator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.inducing_points.FixedPlusAllocator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseAllocator</span></code></p>
+<p>Initialize the FixedPlusAllocator where inducing points are first
+created by another inducing point algorithm, then the fixed points are
+added if they are not already in the set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dim</strong> (<em>int</em>) – Dimensionality of the search space.</p></li>
+<li><p><strong>points</strong> (<em>torch.Tensor</em>) – Inducing points to use (should be n, d).</p></li>
+<li><p><strong>main_allocator</strong> (<em>type</em><em>[</em><em>BaseAllocator</em><em>] </em><em>| </em><em>BaseAllocator</em>) – The inducing point
+algorithm to use first. If it is a type, initialize it with the args
+passed in, otherwise, just wrap it.</p></li>
+<li><p><strong>**kwargs</strong> – Keyword arguments to pass to the main_allocator to
+initialize it.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.models.inducing_points.FixedPlusAllocator.allocate_inducing_points">
+<span class="sig-name descname"><span class="pre">allocate_inducing_points</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">covar_module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_inducing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_batch_shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">torch.Size([])</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/inducing_points/fixed.html#FixedPlusAllocator.allocate_inducing_points"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.inducing_points.FixedPlusAllocator.allocate_inducing_points" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract method for allocating inducing points. Must replace the
+last_allocator_used attribute for what was actually used to produce the
+inducing points. Dummy points should be made when it is not possible to create
+inducing points (e.g., inputs is None).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>torch.Tensor</em><em>, </em><em>optional</em>) – Input tensor, implementation-specific.</p></li>
+<li><p><strong>covar_module</strong> (<em>torch.nn.Module</em><em>, </em><em>optional</em>) – Kernel covariance module.</p></li>
+<li><p><strong>num_inducing</strong> (<em>int</em>) – Number of inducing points to allocate.</p></li>
+<li><p><strong>input_batch_shape</strong> (<em>torch.Size</em>) – Shape of the input batch.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Allocated inducing points.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>torch.Tensor</p>
@@ -542,9 +659,18 @@ yes/no trials.</p>
 gamma prior.</p></li>
 <li><p><strong>likelihood</strong> (<em>gpytorch.likelihood.Likelihood</em><em>, </em><em>optional</em>) – The likelihood function to use. If None defaults to
 Bernouli likelihood. This should not be modified unless you know what you’re doing.</p></li>
+<li><p><strong>mll_class</strong> (<em>gpytorch.mlls.MarginalLogLikelihood</em><em>, </em><em>optional</em>) – The approximate marginal log likelihood class to
+use. If None defaults to VariationalELBO.</p></li>
 <li><p><strong>inducing_point_method</strong> (<em>InducingPointAllocator</em><em>, </em><em>optional</em>) – The method to use for selecting inducing points.
 If not set, a GreedyVarianceReduction is made.</p></li>
 <li><p><strong>inducing_size</strong> (<em>int</em>) – Number of inducing points. Defaults to 100.</p></li>
+<li><p><strong>constraint_locations</strong> (<em>torch.Tensor</em><em>, </em><em>optional</em>) – Locations at which to constrain the latent function. Defaults
+to None.</p></li>
+<li><p><strong>constraint_values</strong> (<em>torch.Tensor</em><em>, </em><em>optional</em>) – Values at which to constrain the latent function. There must be
+one value for each constraint location. Assumed to be in probability space unless likelihood is not None,
+If likelihood is set, no transformations to these values will be done. Defaults to None.</p></li>
+<li><p><strong>constraint_strengths</strong> (<em>torch.Tensor</em><em>, </em><em>optional</em>) – Strength of the constraints. There must be one value for each
+constraint location. If set to None, constraint strength will be based on the value (0.2 * value + 0.1).</p></li>
 <li><p><strong>max_fit_time</strong> (<em>float</em><em>, </em><em>optional</em>) – The maximum amount of time, in seconds, to spend fitting the model. If None,
 there is no limit to the fitting time.</p></li>
 <li><p><strong>optimizer_options</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>, </em><em>optional</em>) – Optimizer options to pass to the SciPy optimizer during
@@ -559,6 +685,55 @@ fitting. Assumes we are using L-BFGS-B.</p></li>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="aepsych.models.GPClassificationModel.outcome_type">
 <span class="sig-name descname"><span class="pre">outcome_type</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'binary'</span></em><a class="headerlink" href="#aepsych.models.GPClassificationModel.outcome_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.models.GPClassificationModel.set_train_data">
+<span class="sig-name descname"><span class="pre">set_train_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/gp_classification.html#GPClassificationModel.set_train_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.GPClassificationModel.set_train_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the training data for the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>torch.Tensor</em><em>, </em><em>optional</em>) – The new training inputs X.</p></li>
+<li><p><strong>targets</strong> (<em>torch.Tensor</em><em>, </em><em>optional</em>) – The new training targets Y.</p></li>
+<li><p><strong>strict</strong> (<em>bool</em>) – Whether to strictly enforce the device of the inputs and targets.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.models.GPClassificationModel.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warmstart_hyperparams</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warmstart_induc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/gp_classification.html#GPClassificationModel.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.GPClassificationModel.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit underlying model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>train_x</strong> (<em>torch.Tensor</em>) – Inputs.</p></li>
+<li><p><strong>train_y</strong> (<em>torch.LongTensor</em>) – Responses.</p></li>
+<li><p><strong>warmstart_hyperparams</strong> (<em>bool</em>) – Whether to reuse the previous hyperparameters (True) or fit from scratch
+(False). Defaults to False.</p></li>
+<li><p><strong>warmstart_induc</strong> (<em>bool</em>) – Whether to reuse the previous inducing points or fit from scratch (False).
+Defaults to False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.models.GPClassificationModel.dim">
+<span class="sig-name descname"><span class="pre">dim</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#aepsych.models.GPClassificationModel.dim" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.models.GPClassificationModel.likelihood">
+<span class="sig-name descname"><span class="pre">likelihood</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Likelihood</span></em><a class="headerlink" href="#aepsych.models.GPClassificationModel.likelihood" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.models.GPClassificationModel.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#aepsych.models.GPClassificationModel.training" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.models.GPClassificationModel.predict">
@@ -617,18 +792,32 @@ transformation is applied.</p></li>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.models.GPClassificationModel.dim">
-<span class="sig-name descname"><span class="pre">dim</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#aepsych.models.GPClassificationModel.dim" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.models.GPClassificationModel.likelihood">
-<span class="sig-name descname"><span class="pre">likelihood</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Likelihood</span></em><a class="headerlink" href="#aepsych.models.GPClassificationModel.likelihood" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.models.GPClassificationModel.training">
-<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#aepsych.models.GPClassificationModel.training" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.models.GPClassificationModel.get_config_options">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_config_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/gp_classification.html#GPClassificationModel.get_config_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.GPClassificationModel.get_config_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Config to look for options in.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – The name of the strategy to warm start (Not actually optional here.)</p></li>
+<li><p><strong>options</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>, </em><em>optional</em>) – options are ignored.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – the name of the strategy is necessary to identify warm start search criteria.</p></li>
+<li><p><strong>KeyError</strong> – the config specified this strategy should be warm started but the associated config section wasn’t defined.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>a dictionary of the search criteria described in the experiment’s config</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
 </dd></dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.models.GPRegressionModel">
@@ -693,6 +882,8 @@ and likelihood to fit a Ordinal model.</p>
 gamma prior.</p></li>
 <li><p><strong>likelihood</strong> (<em>gpytorch.likelihood.Likelihood</em><em>, </em><em>optional</em>) – The likelihood function to use. If None defaults to
 Gaussian likelihood.</p></li>
+<li><p><strong>mll_class</strong> (<em>gpytorch.mlls.MarginalLogLikelihood</em><em>, </em><em>optional</em>) – The approximate marginal log likelihood class to
+use. If None defaults to VariationalELBO.</p></li>
 <li><p><strong>inducing_point_method</strong> (<em>InducingPointAllocator</em><em>, </em><em>optional</em>) – The method to use for selecting inducing points.
 If not set, a GreedyVarianceReduction is made.</p></li>
 <li><p><strong>inducing_size</strong> (<em>int</em>) – Number of inducing points. Defaults to 100.</p></li>
@@ -911,15 +1102,16 @@ Logistic or Gumbel nonlinearity with a floor.</p>
 :type offset_covar_module: gpytorch.kernels.Kernel, optional
 :param likelihood: defaults to bernoulli with logistic input and a floor of .5
 :type likelihood: gpytorch.likelihood.Likelihood, optional)
-:param slope_mean: The mean of the slope. Defaults to 2.
-:type slope_mean: float
-:param inducing_point_method: The method to use for selecting inducing points.</p>
+:param mll_class: The approximate marginal log likelihood class to</p>
 <blockquote>
-<div><p>If not set, a GreedyVarianceReduction is made.</p>
+<div><p>use. If None defaults to VariationalELBO.</p>
 </div></blockquote>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>slope_mean</strong> (<em>float</em>) – The mean of the slope. Defaults to 2.</p></li>
+<li><p><strong>inducing_point_method</strong> (<em>InducingPointAllocator</em><em>, </em><em>optional</em>) – The method to use for selecting inducing points.
+If not set, a GreedyVarianceReduction is made.</p></li>
 <li><p><strong>inducing_size</strong> (<em>int</em>) – Number of inducing points. Defaults to 100.</p></li>
 <li><p><strong>max_fit_time</strong> (<em>float</em><em>, </em><em>optional</em>) – The maximum amount of time, in seconds, to spend fitting the model. If None,
 there is no limit to the fitting time.</p></li>
@@ -932,8 +1124,7 @@ fitting. Assumes we are using L-BFGS-B.</p></li>
 <li><p><strong>offset_mean_module</strong> (<em>Optional</em><em>[</em><em>gpytorch.means.Mean</em><em>]</em>) – </p></li>
 <li><p><strong>offset_covar_module</strong> (<em>Optional</em><em>[</em><em>gpytorch.kernels.Kernel</em><em>]</em>) – </p></li>
 <li><p><strong>likelihood</strong> (<em>Optional</em><em>[</em><em>Likelihood</em><em>]</em>) – </p></li>
-<li><p><strong>slope_mean</strong> (<em>float</em>) – </p></li>
-<li><p><strong>inducing_point_method</strong> (<em>InducingPointAllocator</em><em>, </em><em>optional</em>) – </p></li>
+<li><p><strong>mll_class</strong> (<em>gpytorch.mlls.MarginalLogLikelihood</em><em>, </em><em>optional</em>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -1034,6 +1225,8 @@ Logistic or Gumbel nonlinearity with a floor.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>likelihood</strong> (<em>gpytorch.likelihood.Likelihood</em><em>, </em><em>optional</em>) – The likelihood function to use. If None defaults to
 linear-Bernouli likelihood with probit link.</p></li>
+<li><p><strong>mll_class</strong> (<em>gpytorch.mlls.MarginalLogLikelihood</em><em>, </em><em>optional</em>) – The approximate marginal log likelihood class to
+use. If None defaults to VariationalELBO.</p></li>
 <li><p><strong>slope_mean</strong> (<em>float</em>) – The mean of the slope. Defaults to 2.</p></li>
 <li><p><strong>inducing_point_method</strong> (<em>InducingPointAllocator</em><em>, </em><em>optional</em>) – The method to use for selecting inducing points.
 If not set, a GreedyVarianceReduction is made.</p></li>
@@ -1299,6 +1492,8 @@ from a configuration. TODO: document how this works in some tutorial.</p>
 gamma prior.</p></li>
 <li><p><strong>likelihood</strong> (<em>gpytorch.likelihood.Likelihood</em><em>, </em><em>optional</em>) – The likelihood function to use. If None defaults to
 Gaussian likelihood.</p></li>
+<li><p><strong>mll_class</strong> (<em>gpytorch.mlls.MarginalLogLikelihood</em><em>, </em><em>optional</em>) – The approximate marginal log likelihood class to
+use. If None defaults to VariationalELBO.</p></li>
 <li><p><strong>inducing_point_method</strong> (<em>InducingPointAllocator</em><em>, </em><em>optional</em>) – The method to use for selecting inducing points.
 If not set, a GreedyVarianceReduction is made.</p></li>
 <li><p><strong>inducing_size</strong> (<em>int</em>) – Number of inducing points. Defaults to 100.</p></li>

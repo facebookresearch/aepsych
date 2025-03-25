@@ -369,7 +369,7 @@
 
         <span class="n">metrics</span><span class="p">[</span><span class="s2">"prop_edge_sampling_mean"</span><span class="p">]</span> <span class="o">=</span> <span class="n">near_edge</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
         <span class="n">metrics</span><span class="p">[</span><span class="s2">"prop_edge_sampling_err"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="mi">2</span> <span class="o">*</span> <span class="n">near_edge</span><span class="o">.</span><span class="n">std</span><span class="p">()</span> <span class="o">/</span> <span class="n">torch</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">near_edge</span><span class="p">)))</span>
+            <span class="mi">2</span> <span class="o">*</span> <span class="n">near_edge</span><span class="o">.</span><span class="n">std</span><span class="p">()</span> <span class="o">/</span> <span class="n">torch</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">near_edge</span><span class="p">)))</span>
         <span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">metrics</span></div></div>
 </pre></div>
