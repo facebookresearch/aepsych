@@ -519,7 +519,7 @@ class TargetProbabilityDistancePosteriorTransform(TargetDistancePosteriorTransfo
 
 def constraint_factory(
     config: Config,
-) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor | None]:
+) -> tuple[torch.Tensor | None, torch.Tensor | None, torch.Tensor | None]:
     """Given a config, return a set of constraint locations and corresponding
     values. The config should include the constraint bounds/values and how many
     points to place in the bounds with that value.
@@ -531,8 +531,9 @@ def constraint_factory(
             constraint_strengths.
 
     Returns:
-        tuple[torch.Tensor, torch.Tensor, torch.Tensor | None]: A tuple
-            containing the constraint locations, values, and strengths.
+        tuple[torch.Tensor | None, torch.Tensor | None, torch.Tensor | None]: A tuple
+            containing the constraint locations, values, and strengths. Tuple can be
+            all None if points is set to 0.
     """
     lowers = config.gettensor("constraint_factory", "constraint_lower")
     uppers = config.gettensor("constraint_factory", "constraint_upper")
@@ -541,6 +542,9 @@ def constraint_factory(
         "constraint_factory", "constraint_strengths", fallback=None
     )
     points = config.getint("constraint_factory", "points_per_dim", fallback=10)
+
+    if points == 0:
+        return None, None, None
 
     if lowers.ndim == 1:
         lowers = lowers.unsqueeze(0)
