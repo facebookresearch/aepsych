@@ -351,6 +351,6 @@ class LSEProblemWithEdgeLogging(LSEProblem):
 
         metrics["prop_edge_sampling_mean"] = near_edge.mean().item()
         metrics["prop_edge_sampling_err"] = (
-            2 * near_edge.std() / torch.sqrt(torch.Tensor(len(near_edge)))
+            2 * near_edge.std() / torch.sqrt(torch.tensor(len(near_edge)))
         ).item()
         return metrics
