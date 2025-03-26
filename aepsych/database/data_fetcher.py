@@ -6,7 +6,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import json
-from typing import Any, Dict, Iterable, List, Optional, Tuple
+from typing import Any, Iterable
 
 import torch
 from aepsych.config import Config, ConfigurableMixin
@@ -39,27 +39,27 @@ OUTCOME_ID = 3
 class DataFetcher(ConfigurableMixin):
     def __init__(
         self,
-        exp_names: Optional[List[str]] = None,
-        exp_desc: Optional[List[str]] = None,
-        exp_ids: Optional[List[str]] = None,
-        par_ids: Optional[List[str]] = None,
-        ex_data: Optional[Dict[str, str]] = None,
+        exp_names: list[str] | None = None,
+        exp_desc: list[str] | None = None,
+        exp_ids: list[str] | None = None,
+        par_ids: list[str] | None = None,
+        ex_data: dict[str, str] | None = None,
         **kwargs,
     ):
         """Initialize the DataFetcher object.
 
         Args:
-            exp_names (List[str], optional): A list of experiment names to use as a filter on warm start data.
-            exp_desc (List[str], optional): A list of experiment descriptions to use as a filter on warm start data.
-            exp_ids (List[str], optional): A list of experiment ids to use as a filter on warm start data.
-            par_ids (List[str], optional): A list of participant ids to use as a filter on warm start data.
-            ex_data (Dict[str, str], optional): A map of key-value pairs to use as a filter on warm start data.
+            exp_names (list[str], optional): A list of experiment names to use as a filter on warm start data.
+            exp_desc (list[str], optional): A list of experiment descriptions to use as a filter on warm start data.
+            exp_ids (list[str], optional): A list of experiment ids to use as a filter on warm start data.
+            par_ids (list[str], optional): A list of participant ids to use as a filter on warm start data.
+            ex_data (dict[str, str], optional): A map of key-value pairs to use as a filter on warm start data.
         """
-        self.experiment_names: Optional[List[str]] = exp_names
-        self.experiment_desc: Optional[List[str]] = exp_desc
-        self.experiment_ids: Optional[List[str]] = exp_ids
-        self.participant_ids: Optional[List[str]] = par_ids
-        self.extra_metadata: Optional[Dict[str, str]] = ex_data
+        self.experiment_names: list[str] | None = exp_names
+        self.experiment_desc: list[str] | None = exp_desc
+        self.experiment_ids: list[str] | None = exp_ids
+        self.participant_ids: list[str] | None = par_ids
+        self.extra_metadata: dict[str, str] | None = ex_data
 
     @property
     def _has_search_criteria(self) -> bool:
@@ -77,7 +77,7 @@ class DataFetcher(ConfigurableMixin):
         )
 
     def _build_query(self) -> str:
-        query_clauses: List[str] = []
+        query_clauses: list[str] = []
         if self.experiment_names is not None:
             query_clauses.append(
                 f"experiment_name in {_print_in_params(self.experiment_names)}"
@@ -239,7 +239,7 @@ class DataFetcher(ConfigurableMixin):
 
         return False
 
-    def _get_valid_data_ids(self, server) -> List[int]:
+    def _get_valid_data_ids(self, server) -> list[int]:
         """Gets all master table ids associated with the data defined by provided search criteria.
            The data is then filtered by the current strategy's properties to see if it would be valid for use.
 
@@ -247,7 +247,7 @@ class DataFetcher(ConfigurableMixin):
             server (AEPsychServer): the instance of the server.
 
         Returns:
-            List[int]: a list of master table ids that meet all criteria to be valid for use in the current strategy.
+            list[int]: a list of master table ids that meet all criteria to be valid for use in the current strategy.
         """
         valid_match_ids = []
         query = self._build_query()
@@ -277,7 +277,7 @@ class DataFetcher(ConfigurableMixin):
             valid_match_ids.append(id[0])
         return valid_match_ids
 
-    def _construct_data_query(self, ids: List[int]) -> str:
+    def _construct_data_query(self, ids: list[int]) -> str:
         # !!!!!! WARNING !!!!!
         # If you modify the parameter order in the query
         # ensure you update the "const" id values to match!
@@ -292,15 +292,15 @@ class DataFetcher(ConfigurableMixin):
                 inner join master on raw_data.master_table_id = master.unique_id
                 where master.unique_id in {_print_in_params(ids)}"""
 
-    def _get_data(self, server, ids: List[int]) -> List[Tuple[Any]]:
+    def _get_data(self, server, ids: list[int]) -> list[tuple[Any]]:
         """Gets the actual data to be fed into the strategy's tensors.
 
         Args:
             server (AEPsychServer): The instance of the server.
-            ids (List[int]): A list of master table ids used to identify and retrive experiment data.
+            ids (list[int]): A list of master table ids used to identify and retrive experiment data.
 
         Returns:
-            results (List[Tuple[Any]]): a list of all data to be fed into the strategy's tensors.
+            results (list[tuple[Any]]): a list of all data to be fed into the strategy's tensors.
         """
         query = self._construct_data_query(ids)
         results = server.db.execute_sql_query(query, None)
@@ -364,7 +364,7 @@ class DataFetcher(ConfigurableMixin):
                 strat.pre_warm_model(x, outcome)
         if len(data) - fetch_count > 0:
             logger.warning(
-                f"""{len(data) - fetch_count} rows of data had parameters that were undefined in the bounds 
+                f"""{len(data) - fetch_count} rows of data had parameters that were undefined in the bounds
                 of the current experiment, discarding."""
             )
         logger.info(
@@ -375,22 +375,22 @@ class DataFetcher(ConfigurableMixin):
     def get_config_options(
         cls,
         config: Config,
-        name: Optional[str] = None,
-        options: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        name: str | None = None,
+        options: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """Populate an instance of DataFetcher with search criteria provided in the experiment's config.
 
         Args:
             config (Config): Config to look for options in.
             name (str, optional): The name of the strategy to warm start (Not actually optional here.)
-            options (Dict[str, Any], optional): options are ignored.
+            options (dict[str, Any], optional): options are ignored.
 
         Raises:
             ValueError: the name of the strategy is necessary to identify warm start search criteria.
             KeyError: the config specified this strategy should be warm started but the associated config section wasn't defined.
 
         Returns:
-            Dict[str, Any]: a dictionary of the search criteria described in the experiment's config
+            dict[str, Any]: a dictionary of the search criteria described in the experiment's config
         """
         if name is None:
             raise ValueError("name of strategy must be set to warm start strategy.")
@@ -445,7 +445,7 @@ class DataFetcher(ConfigurableMixin):
         }
 
 
-def _print_in_params(list_to_print: List[Any]) -> str:
+def _print_in_params(list_to_print: list[Any]) -> str:
     # This prints a list of values to be used in a sql in statement
 
     out_string = "("
@@ -457,7 +457,7 @@ def _print_in_params(list_to_print: List[Any]) -> str:
     return out_string
 
 
-def _print_like_params(column_name: str, dict_to_print: Dict[str, str]) -> str:
+def _print_like_params(column_name: str, dict_to_print: dict[str, str]) -> str:
     # This prints a list of values to be in a sequence of sql like statments
     # that are combined using a binary or operation.
 

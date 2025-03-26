@@ -13,7 +13,7 @@ import os
 import uuid
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import aepsych.database.tables as tables
 import dill
@@ -29,7 +29,7 @@ logger = logging.getLogger()
 
 
 class Database:
-    def __init__(self, db_path: Optional[str] = None, update: bool = True) -> None:
+    def __init__(self, db_path: str | None = None, update: bool = True) -> None:
         """Initialize the database object.
 
         Args:
@@ -125,29 +125,29 @@ class Database:
             session.close()
 
     # @retry(stop_max_attempt_number=8, wait_exponential_multiplier=1.8)
-    def execute_sql_query(self, query: str, vals: Dict[str, str]) -> List[Any]:
+    def execute_sql_query(self, query: str, vals: dict[str, str]) -> list[Any]:
         """Execute an arbitrary query written in sql.
 
         Args:
             query (str): The query to execute.
-            vals (Dict[str, str]): The values to use in the query.
+            vals (dict[str, str]): The values to use in the query.
 
         Returns:
-            List[Any]: The results of the query.
+            list[Any]: The results of the query.
         """
         with self.session_scope() as session:
             return session.execute(query, vals).all()
 
-    def get_master_records(self) -> List[tables.DBMasterTable]:
+    def get_master_records(self) -> list[tables.DBMasterTable]:
         """Grab the list of master records.
 
         Returns:
-            List[tables.DBMasterTable]: The list of master records.
+            list[tables.DBMasterTable]: The list of master records.
         """
         records = self._session.query(tables.DBMasterTable).all()
         return records
 
-    def get_master_record(self, master_id: int) -> Optional[tables.DBMasterTable]:
+    def get_master_record(self, master_id: int) -> tables.DBMasterTable | None:
         """Grab the list of master record for a specific master id (uniquie_id of master table).
 
         Args:
@@ -167,14 +167,14 @@ class Database:
 
         return None
 
-    def get_replay_for(self, master_id: int) -> Optional[List[tables.DbReplayTable]]:
+    def get_replay_for(self, master_id: int) -> list[tables.DbReplayTable] | None:
         """Get the replay records for a specific master row.
 
         Args:
             master_id (int): The unique id for the master row (it's the master key).
 
         Returns:
-            List[tables.DbReplayTable] or None: The replay records or None if they don't exist.
+            list[tables.DbReplayTable] or None: The replay records or None if they don't exist.
         """
         master_record = self.get_master_record(master_id)
 
@@ -183,14 +183,14 @@ class Database:
 
         return None
 
-    def get_strats_for(self, master_id: int = 0) -> Optional[List[Any]]:
+    def get_strats_for(self, master_id: int = 0) -> list[Any] | None:
         """Get the strat records for a specific master row.
 
         Args:
             master_id (int): The master table unique ID. Defaults to 0.
 
         Returns:
-            List[Any] or None: The strat records or None if they don't exist.
+            list[Any] or None: The strat records or None if they don't exist.
         """
         master_record = self.get_master_record(master_id)
 
@@ -208,7 +208,7 @@ class Database:
             return strats
         return None
 
-    def get_strat_for(self, master_id: int, strat_id: int = -1) -> Optional[Any]:
+    def get_strat_for(self, master_id: int, strat_id: int = -1) -> Any | None:
         """Get a specific strat record for a specific master row.
 
         Args:
@@ -232,7 +232,7 @@ class Database:
 
         return None
 
-    def get_config_for(self, master_id: int) -> Optional[Any]:
+    def get_config_for(self, master_id: int) -> Any | None:
         """Get the strat records for a specific master row.
 
         Args:
@@ -247,14 +247,14 @@ class Database:
             return master_record.children_config[0].config
         return None
 
-    def get_raw_for(self, master_id: int) -> Optional[List[tables.DbRawTable]]:
+    def get_raw_for(self, master_id: int) -> list[tables.DbRawTable] | None:
         """Get the raw data for a specific master row.
 
         Args:
             master_id (int): The master id.
 
         Returns:
-            List[tables.DbRawTable] or None: The raw data or None if it doesn't exist.
+            list[tables.DbRawTable] or None: The raw data or None if it doesn't exist.
         """
         master_record = self.get_master_record(master_id)
 
@@ -263,7 +263,7 @@ class Database:
 
         return None
 
-    def get_params_for(self, master_id: int) -> List[List[tables.DbParamTable]]:
+    def get_params_for(self, master_id: int) -> list[list[tables.DbParamTable]]:
         """Get the rows of the parameter table for the master_id's experiment. Each
         row contains data for a certain trial: the parameter name and its values.
         If a trial has multiple parameters, there will be multiple rows for that trial.
@@ -273,7 +273,7 @@ class Database:
             master_id (int): The master id.
 
         Returns:
-            List[List[tables.DbParamTable]]: The parameters as a list of lists, where each inner list represents one trial.
+            list[list[tables.DbParamTable]]: The parameters as a list of lists, where each inner list represents one trial.
         """
         raw_record = self.get_raw_for(master_id)
 
@@ -286,7 +286,7 @@ class Database:
 
         return []
 
-    def get_outcomes_for(self, master_id: int) -> List[List[tables.DbParamTable]]:
+    def get_outcomes_for(self, master_id: int) -> list[list[tables.DbParamTable]]:
         """Get the rows of the outcome table for the master_id's experiment. Each
         row contains data for a certain trial: the outcome name and its values.
         If a trial has multiple outcomes, there will be multiple rows for that trial.
@@ -296,7 +296,7 @@ class Database:
             master_id (int): The master id.
 
         Returns:
-            List[List[tables.DbOutcomeTable]]: The outcomes as a list of lists, where each inner list represents one trial.
+            list[list[tables.DbOutcomeTable]]: The outcomes as a list of lists, where each inner list represents one trial.
         """
         raw_record = self.get_raw_for(master_id)
 
@@ -313,10 +313,10 @@ class Database:
         self,
         description: str = None,
         name: str = None,
-        extra_metadata: Optional[str] = None,
-        exp_id: Optional[str] = None,
-        request: Optional[Dict[str, Any]] = None,
-        par_id: Optional[int] = None,
+        extra_metadata: str | None = None,
+        exp_id: str | None = None,
+        request: dict[str, Any] | None = None,
+        par_id: int | None = None,
     ) -> str:
         """Record the setup of an experiment.
 
@@ -325,7 +325,7 @@ class Database:
             name (str, optional): The name of the experiment, defaults to None.
             extra_metadata (str, optional): Extra metadata. Defaults to None.
             exp_id (str, optional): The id of the experiment. Defaults to a generated uuid.
-            request (Dict[str, Any], optional): The request. Defaults to None.
+            request (dict[str, Any], optional): The request. Defaults to None.
             par_id (int, optional): The participant id. Defaults to generated uuid.
 
         Returns:
@@ -364,14 +364,14 @@ class Database:
         return master_table
 
     def record_message(
-        self, master_table: tables.DBMasterTable, type: str, request: Dict[str, Any]
+        self, master_table: tables.DBMasterTable, type: str, request: dict[str, Any]
     ) -> None:
         """Record a message in the database.
 
         Args:
             master_table (tables.DBMasterTable): The master table.
             type (str): The type of the message.
-            request (Dict[str, Any]): The request.
+            request (dict[str, Any]): The request.
         """
         # create a linked setup table
         record = tables.DbReplayTable()
@@ -391,7 +391,7 @@ class Database:
         self,
         master_table: tables.DBMasterTable,
         model_data: Any,
-        timestamp: Optional[datetime.datetime] = None,
+        timestamp: datetime.datetime | None = None,
         **extra_data,
     ) -> tables.DbRawTable:
         """Record raw data in the database.
