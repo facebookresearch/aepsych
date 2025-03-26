@@ -5,7 +5,7 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-from typing import Dict, Optional
+from typing import Any
 
 import torch
 from aepsych.config import Config
@@ -23,7 +23,7 @@ class RandomGenerator(AEPsychGenerator):
         self,
         lb: torch.Tensor,
         ub: torch.Tensor,
-        dim: Optional[int] = None,
+        dim: int | None = None,
     ) -> None:
         """Iniatialize RandomGenerator.
         Args:
@@ -38,15 +38,15 @@ class RandomGenerator(AEPsychGenerator):
     def gen(
         self,
         num_points: int = 1,
-        model: Optional[AEPsychModelMixin] = None,  # included for API compatibility.
-        fixed_features: Optional[Dict[int, float]] = None,
+        model: AEPsychModelMixin | None = None,  # included for API compatibility.
+        fixed_features: dict[int, float] | None = None,
         **kwargs,
     ) -> torch.Tensor:
         """Query next point(s) to run by randomly sampling the parameter space.
         Args:
             num_points (int): Number of points to query. Currently, only 1 point can be queried at a time.
             model (AEPsychModelMixin, optional): Model to use for generating points. Not used in this generator.
-            fixed_features: (Dict[int, float], optional): Parameters that are fixed to specific values.
+            fixed_features: (dict[int, float], optional): Parameters that are fixed to specific values.
             **kwargs: Ignored, API compatibility
 
         Returns:

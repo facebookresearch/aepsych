@@ -6,7 +6,7 @@
 # LICENSE file in the root directory of this source tree.
 from __future__ import annotations
 
-from typing import Dict, Optional
+from typing import Any
 
 import torch
 from aepsych.config import Config
@@ -25,8 +25,8 @@ class SobolGenerator(AEPsychGenerator):
         self,
         lb: torch.Tensor,
         ub: torch.Tensor,
-        dim: Optional[int] = None,
-        seed: Optional[int] = None,
+        dim: int | None = None,
+        seed: int | None = None,
         stimuli_per_trial: int = 1,
     ) -> None:
         """Iniatialize SobolGenerator.
@@ -49,15 +49,15 @@ class SobolGenerator(AEPsychGenerator):
     def gen(
         self,
         num_points: int = 1,
-        model: Optional[AEPsychModelMixin] = None,  # included for API compatibility
-        fixed_features: Optional[Dict[int, float]] = None,
+        model: AEPsychModelMixin | None = None,  # included for API compatibility
+        fixed_features: dict[int, float] | None = None,
         **kwargs,
     ) -> torch.Tensor:
         """Query next point(s) to run by quasi-randomly sampling the parameter space.
         Args:
             num_points (int): Number of points to query. Defaults to 1.
             moodel (AEPsychModelMixin, optional): Model to use for generating points. Not used in this generator. Defaults to None.
-            fixed_features: (Dict[int, float], optional): Parameters that are fixed to specific values.
+            fixed_features: (dict[int, float], optional): Parameters that are fixed to specific values.
             **kwargs: Ignored, API compatibility
         Returns:
             torch.Tensor: Next set of point(s) to evaluate, [num_points x dim] or [num_points x dim x stimuli_per_trial] if stimuli_per_trial != 1.
