@@ -12,7 +12,7 @@ import traceback
 from copy import deepcopy
 from pathlib import Path
 from random import shuffle
-from typing import Any, Dict, List, Mapping, Optional, Tuple, Union
+from typing import Any, Mapping
 
 import aepsych.utils_logging as utils_logging
 import multiprocess.context as ctx
@@ -74,19 +74,19 @@ class PathosBenchmark(Benchmark):
     def run_experiment(
         self,
         problem: Problem,
-        config_dict: Dict[str, Any],
+        config_dict: dict[str, Any],
         seed: int,
         rep: int,
-    ) -> Tuple[List[Dict[str, Any]], Union[SequentialStrategy, None]]:
+    ) -> tuple[list[dict[str, Any]], SequentialStrategy | None]:
         """Run one simulated experiment.
 
         Args:
-            config_dict (Dict[str, Any]): AEPsych configuration to use.
+            config_dict (dict[str, Any]): AEPsych configuration to use.
             seed (int): Random seed for this run.
             rep (int): Index of this repetition.
 
         Returns:
-            Tuple[List[Dict[str, Any]], SequentialStrategy]: A tuple containing a log of the results and the strategy as
+            tuple[list[dict[str, Any]], SequentialStrategy | None]: A tuple containing a log of the results and the strategy as
                 of the end of the simulated experiment. This is ignored in large-scale benchmarks but useful for
                 one-off visualization.
         """
@@ -103,7 +103,7 @@ class PathosBenchmark(Benchmark):
 
             return [], SequentialStrategy([])
 
-    def __getstate__(self) -> Dict[str, Any]:
+    def __getstate__(self) -> dict[str, Any]:
         self_dict = self.__dict__.copy()
         if "pool" in self_dict.keys():
             del self_dict["pool"]
@@ -129,7 +129,7 @@ class PathosBenchmark(Benchmark):
         status of benchmarks running in parallel.
         """
 
-        def run_discard_strat(*conf) -> List[Dict[str, Any]]:
+        def run_discard_strat(*conf) -> list[dict[str, Any]]:
             logger, _ = self.run_experiment(*conf)
             return logger
 
@@ -178,13 +178,13 @@ class PathosBenchmark(Benchmark):
 def run_benchmarks_with_checkpoints(
     out_path: str,
     benchmark_name: str,
-    problems: List[Problem],
-    configs: Mapping[str, Union[str, list]],
-    global_seed: Optional[int] = None,
+    problems: list[Problem],
+    configs: Mapping[str, str | list],
+    global_seed: int | None = None,
     start_idx: int = 0,
     n_chunks: int = 1,
     n_reps_per_chunk: int = 1,
-    log_every: Optional[int] = None,
+    log_every: int | None = None,
     checkpoint_every: int = 60,
     n_proc: int = 1,
     serial_debug: bool = False,
@@ -197,8 +197,8 @@ def run_benchmarks_with_checkpoints(
         out_path (str): The path to save the results to.
         benchmark_name (str): A name give to this set of benchmarks. Results will be saved in files named like
             "out_path/benchmark_name_chunk{chunk_number}_out.csv"
-        problems (List[Problem]): Problem objects containing the test function to evaluate.
-        configs (Mapping[str, Union[str, list]]): Dictionary of configs to run.
+        problems (list[Problem]): Problem objects containing the test function to evaluate.
+        configs (Mapping[str, str | list]): Dictionary of configs to run.
             Lists at leaves are used to construct a cartesian product of configurations.
         global_seed (int, optional): Global seed to use for reproducible benchmarks.
             Defaults to randomized seeds.
