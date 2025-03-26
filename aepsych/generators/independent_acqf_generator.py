@@ -5,7 +5,7 @@
 # LICENSE file in the root directory of this source tree.
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import torch
 from aepsych.config import Config
@@ -22,11 +22,11 @@ class IndependentOptimizeAcqfGenerator(AEPsychGenerator):
 
     _requires_model = True
     stimuli_per_trial = 1
-    max_asks: Optional[int] = None
+    max_asks: int | None = None
     dim: int
 
     def __init__(
-        self, generators: List[AEPsychGenerator], lb: torch.Tensor, ub: torch.Tensor
+        self, generators: list[AEPsychGenerator], lb: torch.Tensor, ub: torch.Tensor
     ) -> None:
         # Validate the generators all have commensurate attributes
         self.stimuli_per_trial = generators[0].stimuli_per_trial
@@ -63,8 +63,8 @@ class IndependentOptimizeAcqfGenerator(AEPsychGenerator):
         self,
         num_points: int,
         model: IndependentGPsModel,
-        fixed_features: Optional[Dict[int, float]] = None,
-        order: Optional[Union[List[int], torch.Tensor]] = None,
+        fixed_features: dict[int, float] | None = None,
+        order: list[int] | torch.Tensor | None = None,
         **kwargs,
     ) -> torch.Tensor:
         if order is None:
@@ -91,9 +91,9 @@ class IndependentOptimizeAcqfGenerator(AEPsychGenerator):
     def get_config_options(
         cls,
         config: Config,
-        name: Optional[str] = None,
-        options: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        name: str | None = None,
+        options: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """
         Return a dictionary of the relevant options to initialize the
         IndependentOptimizeAcqfGenerator. Primarily, this creates all the necessary
@@ -103,11 +103,11 @@ class IndependentOptimizeAcqfGenerator(AEPsychGenerator):
             config (Config): Config to look for options in.
             name (str, optional): Primary section to look for options for this class and
                 the name to infer options from other sections in the config.
-            options (Dict[str, Any], optional): Options to override from the config,
+            options (dict[str, Any], optional): Options to override from the config,
                 defaults to None.
 
         Return:
-            Dict[str, Any]: A dictionary of options to initialize this class.
+            dict[str, Any]: A dictionary of options to initialize this class.
         """
         name = name or cls.__name__
         options = super().get_config_options(config=config, name=name, options=options)

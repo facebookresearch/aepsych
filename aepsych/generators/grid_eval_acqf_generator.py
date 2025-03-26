@@ -5,7 +5,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import abc
-from typing import Any, Dict, Optional, Tuple
+from typing import Any
 
 import torch
 from aepsych.config import Config
@@ -26,17 +26,17 @@ class GridEvalAcqfGenerator(AcqfGenerator):
         lb: torch.Tensor,
         ub: torch.Tensor,
         acqf: AcquisitionFunction,
-        acqf_kwargs: Optional[Dict[str, Any]] = None,
+        acqf_kwargs: dict[str, Any] | None = None,
         samps: int = 1024,
         stimuli_per_trial: int = 1,
-        grid_generator: Optional[AEPsychGenerator] = None,
+        grid_generator: AEPsychGenerator | None = None,
     ) -> None:
         """Initialize GridEvalAcqfGenerator.
         Args:
             lb (torch.Tensor): Lower bounds for the optimization.
             ub (torch.Tensor): Upper bounds for the optimization.
             acqf (AcquisitionFunction): Acquisition function to use.
-            acqf_kwargs (Dict[str, object], optional): Extra arguments to
+            acqf_kwargs (dict[str, object], optional): Extra arguments to
                 pass to acquisition function. Defaults to no arguments.
             samps (int): Number of quasi-random samples to evaluate acquisition function on. Defaults to 1000.
             stimuli_per_trial (int): Number of stimuli per trial. Defaults to 1.
@@ -54,7 +54,7 @@ class GridEvalAcqfGenerator(AcqfGenerator):
         self,
         num_points: int,
         model: AEPsychModelMixin,
-        fixed_features: Optional[Dict[int, float]] = None,
+        fixed_features: dict[int, float] | None = None,
         **gen_options,
     ) -> torch.Tensor:
         """Query next point(s) to run by optimizing the acquisition function.
@@ -90,7 +90,7 @@ class GridEvalAcqfGenerator(AcqfGenerator):
         self,
         num_points: int,
         model: AEPsychModelMixin,
-        fixed_features: Optional[Dict[int, float]] = None,
+        fixed_features: dict[int, float] | None = None,
         **gen_options,
     ) -> torch.Tensor:
         pass
@@ -99,9 +99,9 @@ class GridEvalAcqfGenerator(AcqfGenerator):
         self,
         num_points: int,
         model: AEPsychModelMixin,
-        fixed_features: Optional[Dict[int, float]] = None,
+        fixed_features: dict[int, float] | None = None,
         **gen_options,
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         # eval should be inherited from superclass
         model.eval()  # type: ignore
         acqf = self._instantiate_acquisition_fn(model)
