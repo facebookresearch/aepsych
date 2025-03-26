@@ -7,7 +7,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 import torch
 from aepsych.config import ConfigurableMixin
@@ -73,19 +73,19 @@ class SemiPProbabilityObjective(SemiPObjectiveBase):
     def get_config_options(
         cls,
         config,
-        name: Optional[str] = None,
-        options: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        name: str | None = None,
+        options: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """Find the config options for the objective.
 
         Args:
             config (Config): Config to look for options in.
             name (str, optional): Unused, kept for API conformity.
-            options (Dict[str, Any], optional): Existing options, any key in options
+            options (dict[str, Any], optional): Existing options, any key in options
                 will be ignored from the config.
 
         Return:
-            Dict[str, Any]: A dictionary of options to initialize the objective.
+            dict[str, Any]: A dictionary of options to initialize the objective.
         """
         options = super().get_config_options(config, name, options)
 
@@ -104,7 +104,7 @@ class SemiPThresholdObjective(SemiPObjectiveBase):
     def __init__(
         self,
         target: float = 0.75,
-        likelihood: Optional[LinearBernoulliLikelihood] = None,
+        likelihood: LinearBernoulliLikelihood | None = None,
         *args,
         **kwargs,
     ):
@@ -121,7 +121,7 @@ class SemiPThresholdObjective(SemiPObjectiveBase):
         self.likelihood = likelihood or LinearBernoulliLikelihood()
         self.fspace_target = self.likelihood.objective.inverse(torch.tensor(target))
 
-    def forward(self, samples: Tensor, X: Optional[Tensor] = None) -> Tensor:
+    def forward(self, samples: Tensor, X: Tensor | None = None) -> Tensor:
         """Evaluates the probability objective.
 
         Args:
@@ -139,19 +139,19 @@ class SemiPThresholdObjective(SemiPObjectiveBase):
     def get_config_options(
         cls,
         config,
-        name: Optional[str] = None,
-        options: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        name: str | None = None,
+        options: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """Find the config options for the objective.
 
         Args:
             config (Config): Config to look for options in.
             name (str, optional): Unused, kept for API conformity.
-            options (Dict[str, Any], optional): Existing options, any key in options
+            options (dict[str, Any], optional): Existing options, any key in options
                 will be ignored from the config.
 
         Return:
-            Dict[str, Any]: A dictionary of options to initialize the objective.
+            dict[str, Any]: A dictionary of options to initialize the objective.
         """
         options = super().get_config_options(config, name, options)
 

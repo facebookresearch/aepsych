@@ -8,7 +8,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 import torch
 from aepsych.acquisition.objective import ProbitObjective
@@ -62,8 +62,8 @@ class BernoulliMCMutualInformation(MCAcquisitionFunction):
     def __init__(
         self,
         model: Model,
-        objective: MCAcquisitionObjective = None,
-        sampler: Optional[MCSampler] = None,
+        objective: MCAcquisitionObjective | None = None,
+        sampler: MCSampler | None = None,
     ) -> None:
         r"""Single Bernoulli mutual information for active learning
 
@@ -113,10 +113,10 @@ class BernoulliMCMutualInformation(MCAcquisitionFunction):
 def construct_inputs_mi(
     model: Model,
     training_data: None,
-    objective: Optional[MCAcquisitionObjective] = None,
-    sampler: Optional[MCSampler] = None,
+    objective: MCAcquisitionObjective | None = None,
+    sampler: MCSampler | None = None,
     **kwargs,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Constructs the input dictionary for initializing the BernoulliMCMutualInformation acquisition function.
 
@@ -127,7 +127,7 @@ def construct_inputs_mi(
         sampler (MCSampler, optional): Sampler for Monte Carlo sampling; defaults to SobolQMCNormalSampler if not provided.
 
     Returns:
-        Dict[str, Any]: Dictionary of constructed inputs for the BernoulliMCMutualInformation acquisition function.
+        dict[str, Any]: Dictionary of constructed inputs for the BernoulliMCMutualInformation acquisition function.
     """
 
     return {
