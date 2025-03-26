@@ -4,7 +4,7 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
-from typing import Callable, Optional
+from typing import Callable
 
 import torch
 from botorch.posteriors import Posterior, TransformedPosterior
@@ -51,7 +51,7 @@ class MCTransformedPosterior(TransformedPosterior):
     def __init__(
         self,
         posterior: Posterior,
-        sample_transform: Optional[Callable[[Tensor], Tensor]] = None,
+        sample_transform: Callable[[Tensor], Tensor] | None = None,
         num_samples: int = 1000,
     ):
         """Constructor for the transformed posterior.

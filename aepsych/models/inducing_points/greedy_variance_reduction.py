@@ -1,5 +1,3 @@
-from typing import Optional
-
 import torch
 from aepsych.models.inducing_points.base import BaseAllocator
 from botorch.models.utils.inducing_point_allocators import (
@@ -10,8 +8,8 @@ from botorch.models.utils.inducing_point_allocators import (
 class GreedyVarianceReduction(BaseGreedyVarianceReduction, BaseAllocator):
     def allocate_inducing_points(
         self,
-        inputs: Optional[torch.Tensor] = None,
-        covar_module: Optional[torch.nn.Module] = None,
+        inputs: torch.Tensor | None = None,
+        covar_module: torch.nn.Module | None = None,
         num_inducing: int = 100,
         input_batch_shape: torch.Size = torch.Size([]),
     ) -> torch.Tensor:

@@ -8,7 +8,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from typing import Any, Dict, Optional, Tuple
+from typing import Any
 
 import gpytorch
 import torch
@@ -41,7 +41,7 @@ def _hadamard_mvn_approx(
     slope_cov: torch.Tensor,
     offset_mean: torch.Tensor,
     offset_cov: torch.Tensor,
-) -> Tuple[torch.Tensor, torch.Tensor]:
+) -> tuple[torch.Tensor, torch.Tensor]:
     """
 
     MVN approximation to the hadamard product of GPs (from the SemiP paper, extending the
@@ -55,7 +55,7 @@ def _hadamard_mvn_approx(
         offset_cov (torch.Tensor): The covariance of the offset GP
 
     Returns:
-        Tuple[torch.Tensor, torch.Tensor]: The mean and covariance of the approximated MVN
+        tuple[torch.Tensor, torch.Tensor]: The mean and covariance of the approximated MVN
     """
     offset_mean = offset_mean + x_intensity
 
@@ -147,8 +147,8 @@ class SemiPPosterior(GPyTorchPosterior):
 
     def rsample(
         self,
-        sample_shape: Optional[torch.Size] = None,
-        base_samples: Optional[torch.Tensor] = None,
+        sample_shape: torch.Size | None = None,
+        base_samples: torch.Tensor | None = None,
     ) -> torch.Tensor:
         """Sample from the posterior distribution using the reparameterization trick
 
@@ -174,8 +174,8 @@ class SemiPPosterior(GPyTorchPosterior):
 
     def sample_p(
         self,
-        sample_shape: Optional[torch.Size] = None,
-        base_samples: Optional[torch.Tensor] = None,
+        sample_shape: torch.Size | None = None,
+        base_samples: torch.Tensor | None = None,
     ) -> torch.Tensor:
         """Sample from the likelihood distribution of the modeled function.
 
@@ -191,8 +191,8 @@ class SemiPPosterior(GPyTorchPosterior):
 
     def sample_f(
         self,
-        sample_shape: Optional[torch.Size] = None,
-        base_samples: Optional[torch.Tensor] = None,
+        sample_shape: torch.Size | None = None,
+        base_samples: torch.Tensor | None = None,
     ) -> torch.Tensor:
         """Sample from the function values of the modeled distribution.
 
@@ -210,8 +210,8 @@ class SemiPPosterior(GPyTorchPosterior):
     def sample_thresholds(
         self,
         threshold_level: float,
-        sample_shape: Optional[torch.Size] = None,
-        base_samples: Optional[torch.Tensor] = None,
+        sample_shape: torch.Size | None = None,
+        base_samples: torch.Tensor | None = None,
     ) -> SemiPThresholdObjective:
         """Sample the thresholds based on the given threshold level.
 
@@ -252,15 +252,15 @@ class SemiParametricGPModel(VariationalGPModel):
         self,
         dim: int,
         stim_dim: int = 0,
-        mean_module: Optional[gpytorch.means.Mean] = None,
-        covar_module: Optional[gpytorch.kernels.Kernel] = None,
-        likelihood: Optional[Any] = None,
-        mll_class: Optional[gpytorch.mlls.MarginalLogLikelihood] = None,
+        mean_module: gpytorch.means.Mean | None = None,
+        covar_module: gpytorch.kernels.Kernel | None = None,
+        likelihood: Any | None = None,
+        mll_class: gpytorch.mlls.MarginalLogLikelihood | None = None,
         slope_mean: float = 2.0,
-        inducing_point_method: Optional[InducingPointAllocator] = None,
+        inducing_point_method: InducingPointAllocator | None = None,
         inducing_size: int = 100,
-        max_fit_time: Optional[float] = None,
-        optimizer_options: Optional[Dict[str, Any]] = None,
+        max_fit_time: float | None = None,
+        optimizer_options: dict[str, Any] | None = None,
     ) -> None:
         """
         Initialize SemiParametricGP.
@@ -382,7 +382,7 @@ class SemiParametricGPModel(VariationalGPModel):
 
     def predict(
         self, x: torch.Tensor, probability_space: bool = False
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         """Query the model for posterior mean and variance.
 
         Args:
@@ -391,7 +391,7 @@ class SemiParametricGPModel(VariationalGPModel):
                 response probability instead of latent function value. Defaults to False.
 
         Returns:
-            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at query points.
+            tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at query points.
         """
         with torch.no_grad():
             samps = self.sample(
@@ -401,7 +401,7 @@ class SemiParametricGPModel(VariationalGPModel):
         return promote_0d(m), promote_0d(v)
 
     def posterior(
-        self, X: torch.Tensor, posterior_transform: Optional[PosteriorTransform] = None
+        self, X: torch.Tensor, posterior_transform: PosteriorTransform | None = None
     ) -> SemiPPosterior:
         """Get the posterior distribution at the given points.
 
@@ -458,17 +458,17 @@ class HadamardSemiPModel(VariationalGPModel):
         self,
         dim: int,
         stim_dim: int = 0,
-        slope_mean_module: Optional[gpytorch.means.Mean] = None,
-        slope_covar_module: Optional[gpytorch.kernels.Kernel] = None,
-        offset_mean_module: Optional[gpytorch.means.Mean] = None,
-        offset_covar_module: Optional[gpytorch.kernels.Kernel] = None,
-        likelihood: Optional[Likelihood] = None,
-        mll_class: Optional[gpytorch.mlls.MarginalLogLikelihood] = None,
+        slope_mean_module: gpytorch.means.Mean | None = None,
+        slope_covar_module: gpytorch.kernels.Kernel | None = None,
+        offset_mean_module: gpytorch.means.Mean | None = None,
+        offset_covar_module: gpytorch.kernels.Kernel | None = None,
+        likelihood: Likelihood | None = None,
+        mll_class: gpytorch.mlls.MarginalLogLikelihood | None = None,
         slope_mean: float = 2,
-        inducing_point_method: Optional[InducingPointAllocator] = None,
+        inducing_point_method: InducingPointAllocator | None = None,
         inducing_size: int = 100,
-        max_fit_time: Optional[float] = None,
-        optimizer_options: Optional[Dict[str, Any]] = None,
+        max_fit_time: float | None = None,
+        optimizer_options: dict[str, Any] | None = None,
     ) -> None:
         """
         Initialize HadamardSemiPModel.
@@ -579,9 +579,9 @@ class HadamardSemiPModel(VariationalGPModel):
     def get_config_options(
         cls,
         config: Config,
-        name: Optional[str] = None,
-        options: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        name: str | None = None,
+        options: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """Get configuration options for the model.
 
         Args:
@@ -605,7 +605,7 @@ class HadamardSemiPModel(VariationalGPModel):
 
     def predict(
         self, x: torch.Tensor, probability_space: bool = False
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         """Query the model for posterior mean and variance.
 
         Args:
@@ -614,7 +614,7 @@ class HadamardSemiPModel(VariationalGPModel):
                 response probability instead of latent function value. Defaults to False.
 
         Returns:
-            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at query points.
+            tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at query points.
         """
         if probability_space:
             if hasattr(self.likelihood, "objective"):

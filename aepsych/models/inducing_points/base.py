@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Any, Dict, Optional
+from typing import Any
 
 import torch
 from aepsych.config import Config, ConfigurableMixin
@@ -19,13 +19,13 @@ class BaseAllocator(InducingPointAllocator, ConfigurableMixin):
             *args, **kwargs: Other allocator specific arguments.
         """
         self.dim = dim
-        self.last_allocator_used: Optional[InducingPointAllocator] = None
+        self.last_allocator_used: InducingPointAllocator | None = None
 
     @abstractmethod
     def allocate_inducing_points(
         self,
-        inputs: Optional[torch.Tensor] = None,
-        covar_module: Optional[torch.nn.Module] = None,
+        inputs: torch.Tensor | None = None,
+        covar_module: torch.nn.Module | None = None,
         num_inducing: int = 100,
         input_batch_shape: torch.Size = torch.Size([]),
     ) -> torch.Tensor:
@@ -61,18 +61,18 @@ class BaseAllocator(InducingPointAllocator, ConfigurableMixin):
     def get_config_options(
         cls,
         config: Config,
-        name: Optional[str] = None,
-        options: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        name: str | None = None,
+        options: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """Get configuration options for the allocator.
 
         Args:
             config (Config): Configuration object.
             name (str, optional): Name of the allocator, defaults to None. Ignored.
-            options (Dict[str, Any], optional): Additional options, defaults to None.
+            options (dict[str, Any], optional): Additional options, defaults to None.
 
         Returns:
-            Dict[str, Any]: Configuration options for the DummyAllocator.
+            dict[str, Any]: Configuration options for the DummyAllocator.
         """
         options = super().get_config_options(config, name, options)
 
