@@ -6,7 +6,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import logging
-from typing import Any, Dict, List, TypedDict
+from typing import Any, TypedDict
 
 import aepsych.utils_logging as utils_logging
 
@@ -18,7 +18,7 @@ InfoResponse = TypedDict(
         "db_name": str,
         "exp_id": int,
         "strat_count": int,
-        "all_strat_names": List[str],
+        "all_strat_names": list[str],
         "current_strat_index": int,
         "current_strat_name": str,
         "current_strat_data_pts": int,
@@ -30,12 +30,12 @@ InfoResponse = TypedDict(
 )
 
 
-def handle_info(server, request: Dict[str, Any]) -> InfoResponse:
+def handle_info(server, request: dict[str, Any]) -> InfoResponse:
     """Returns info on the current running experiment.
 
     Args:
         server (AEPsychServer): AEPsych server responding to the message.
-        request (Dict[str, Any]): A dictionary from the request message. Currently
+        request (dict[str, Any]): A dictionary from the request message. Currently
             ignored.
 
     Returns:

@@ -6,7 +6,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import logging
-from typing import Any, Dict, TypedDict
+from typing import Any, TypedDict
 
 import aepsych.utils_logging as utils_logging
 
@@ -15,12 +15,12 @@ logger = utils_logging.getLogger(logging.INFO)
 ResumeResponse = TypedDict("ResumeResponse", {"strat_id": int})
 
 
-def handle_resume(server, request: Dict[str, Any]) -> ResumeResponse:
+def handle_resume(server, request: dict[str, Any]) -> ResumeResponse:
     """Resume a specific strategy given its ID.
 
     Args:
         server (AEPsychServer): AEPsych server responding to the message.
-        request (Dict[str, Any]): A dictionary from the request message, must include
+        request (dict[str, Any]): A dictionary from the request message, must include
             the "strat_id" key in its message.
 
     Returns:
