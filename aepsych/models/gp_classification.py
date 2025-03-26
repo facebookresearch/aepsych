@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 import warnings
-from typing import Any, Dict, Optional, Tuple
+from typing import Any
 
 import gpytorch
 import torch
@@ -48,17 +48,17 @@ class GPClassificationModel(VariationalGPModel):
     def __init__(
         self,
         dim: int,
-        mean_module: Optional[gpytorch.means.Mean] = None,
-        covar_module: Optional[gpytorch.kernels.Kernel] = None,
-        likelihood: Optional[Likelihood] = None,
-        mll_class: Optional[gpytorch.mlls.MarginalLogLikelihood] = None,
-        inducing_point_method: Optional[InducingPointAllocator] = None,
+        mean_module: gpytorch.means.Mean | None = None,
+        covar_module: gpytorch.kernels.Kernel | None = None,
+        likelihood: Likelihood | None = None,
+        mll_class: gpytorch.mlls.MarginalLogLikelihood | None = None,
+        inducing_point_method: InducingPointAllocator | None = None,
         inducing_size: int = 100,
-        constraint_locations: Optional[torch.Tensor] = None,
-        constraint_values: Optional[torch.Tensor] = None,
-        constraint_strengths: Optional[torch.Tensor] = None,
-        max_fit_time: Optional[float] = None,
-        optimizer_options: Optional[Dict[str, Any]] = None,
+        constraint_locations: torch.Tensor | None = None,
+        constraint_values: torch.Tensor | None = None,
+        constraint_strengths: torch.Tensor | None = None,
+        max_fit_time: float | None = None,
+        optimizer_options: dict[str, Any] | None = None,
     ) -> None:
         """Initialize the GP Classification model
 
@@ -67,7 +67,7 @@ class GPClassificationModel(VariationalGPModel):
             mean_module (gpytorch.means.Mean, optional): GP mean class. Defaults to a constant with a normal prior.
             covar_module (gpytorch.kernels.Kernel, optional): GP covariance kernel class. Defaults to scaled RBF with a
                 gamma prior.
-            likelihood (gpytorch.likelihood.Likelihood, optional): The likelihood function to use. If None defaults to
+            likelihood (Likelihood, optional): The likelihood function to use. If None defaults to
                 Bernouli likelihood. This should not be modified unless you know what you're doing.
             mll_class (gpytorch.mlls.MarginalLogLikelihood, optional): The approximate marginal log likelihood class to
                 use. If None defaults to VariationalELBO.
@@ -83,7 +83,7 @@ class GPClassificationModel(VariationalGPModel):
                 constraint location. If set to None, constraint strength will be based on the value (0.2 * value + 0.1).
             max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,
                 there is no limit to the fitting time.
-            optimizer_options (Dict[str, Any], optional): Optimizer options to pass to the SciPy optimizer during
+            optimizer_options (dict[str, Any], optional): Optimizer options to pass to the SciPy optimizer during
                 fitting. Assumes we are using L-BFGS-B.
         """
         self.constraint_locations = constraint_locations
@@ -169,8 +169,8 @@ class GPClassificationModel(VariationalGPModel):
 
     def set_train_data(
         self,
-        inputs: Optional[torch.Tensor] = None,
-        targets: Optional[torch.Tensor] = None,
+        inputs: torch.Tensor | None = None,
+        targets: torch.Tensor | None = None,
         strict: bool = True,
     ) -> None:
         """Set the training data for the model.
@@ -252,7 +252,7 @@ class GPClassificationModel(VariationalGPModel):
 
     def predict(
         self, x: torch.Tensor, probability_space: bool = False
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         """Query the model for posterior mean and variance.
 
         Args:
@@ -261,7 +261,7 @@ class GPClassificationModel(VariationalGPModel):
                 response probability instead of latent function value. Defaults to False.
 
         Returns:
-            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at query points.
+            tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at query points.
         """
 
         if not probability_space:
@@ -274,35 +274,33 @@ class GPClassificationModel(VariationalGPModel):
     def predict_transform(
         self,
         x: torch.Tensor,
-        transformed_posterior_cls: Optional[
-            type[TransformedPosterior]
-        ] = BernoulliProbitProbabilityPosterior,
+        transformed_posterior_cls: type[TransformedPosterior]
+        | None = BernoulliProbitProbabilityPosterior,
         **transform_kwargs,
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         """Query the model for posterior mean and variance under some tranformation.
 
         Args:
             x (torch.Tensor): Points at which to predict from the model.
-            transformed_posterior_cls (TransformedPosterior type, optional): The type of transformation to apply to the posterior.
-                Note that you should give TransformedPosterior itself, rather than an instance. Defaults to None, in which case no
-                transformation is applied.
+            transformed_posterior_cls (type[TransformedPosterior], optional): The type of transformation to apply to the posterior.
+                Note that you should give TransformedPosterior itself, rather than an instance. Defaults to BernoulliProbitProbabilityPosterior.
 
         Returns:
-            Tuple[torch.Tensor, torch.Tensor]: Transformed posterior mean and variance at query points.
+            tuple[torch.Tensor, torch.Tensor]: Transformed posterior mean and variance at query points.
         """
 
         return super().predict_transform(
             x=x, transformed_posterior_cls=transformed_posterior_cls
         )
 
-    def predict_probability(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+    def predict_probability(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
         """Query the model for posterior mean and variance in probability space.
 
         Args:
             x (torch.Tensor): Points at which to predict from the model.
 
         Returns:
-            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at query points.
+            tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at query points.
         """
         return self.predict(x, probability_space=True)
 
@@ -310,22 +308,22 @@ class GPClassificationModel(VariationalGPModel):
     def get_config_options(
         cls,
         config: Config,
-        name: Optional[str] = None,
-        options: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        name: str | None = None,
+        options: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """.
 
         Args:
             config (Config): Config to look for options in.
             name (str, optional): The name of the strategy to warm start (Not actually optional here.)
-            options (Dict[str, Any], optional): options are ignored.
+            options (dict[str, Any], optional): options are ignored.
 
         Raises:
             ValueError: the name of the strategy is necessary to identify warm start search criteria.
             KeyError: the config specified this strategy should be warm started but the associated config section wasn't defined.
 
         Returns:
-            Dict[str, Any]: a dictionary of the search criteria described in the experiment's config
+            dict[str, Any]: a dictionary of the search criteria described in the experiment's config
         """
         name = name or cls.__name__
         options = super().get_config_options(config, name, options)
