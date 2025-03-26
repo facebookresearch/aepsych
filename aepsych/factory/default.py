@@ -8,7 +8,6 @@
 import math
 import warnings
 from configparser import NoOptionError
-from typing import List, Optional, Tuple
 
 import gpytorch
 import torch
@@ -25,10 +24,10 @@ from .utils import __default_invgamma_concentration, __default_invgamma_rate
 
 
 def default_mean_covar_factory(
-    config: Optional[Config] = None,
-    dim: Optional[int] = None,
+    config: Config | None = None,
+    dim: int | None = None,
     stimuli_per_trial: int = 1,
-) -> Tuple[gpytorch.means.ConstantMean, gpytorch.kernels.ScaleKernel]:
+) -> tuple[gpytorch.means.ConstantMean, gpytorch.kernels.ScaleKernel]:
     """Default factory for generic GP models
 
     Args:
@@ -39,7 +38,7 @@ def default_mean_covar_factory(
         stimuli_per_trial (int): Number of stimuli per trial. Defaults to 1.
 
     Returns:
-        Tuple[gpytorch.means.Mean, gpytorch.kernels.Kernel]: Instantiated
+        tuple[gpytorch.means.Mean, gpytorch.kernels.Kernel]: Instantiated
             ConstantMean and ScaleKernel with priors based on bounds.
     """
 
@@ -72,7 +71,7 @@ def default_mean_covar_factory(
 
 
 def _get_default_mean_function(
-    config: Optional[Config] = None, zero_mean: bool = False
+    config: Config | None = None, zero_mean: bool = False
 ) -> gpytorch.means.ConstantMean:
     """Creates a default mean function for Gaussian Processes.
 
@@ -107,10 +106,10 @@ def _get_default_mean_function(
 
 
 def _get_default_cov_function(
-    config: Optional[Config],
+    config: Config | None,
     dim: int,
     stimuli_per_trial: int,
-    active_dims: Optional[List[int]] = None,
+    active_dims: list[int] | None = None,
 ) -> gpytorch.kernels.Kernel:
     """Creates a default covariance function for Gaussian Processes.
 
@@ -118,7 +117,7 @@ def _get_default_cov_function(
         config (Config, optional): Configuration object.
         dim (int): Dimensionality of the parameter space.
         stimuli_per_trial (int): Number of stimuli per trial.
-        active_dims (List[int], optional): List of dimensions to use in the covariance function. Defaults to None.
+        active_dims (list[int], optional): List of dimensions to use in the covariance function. Defaults to None.
 
     Returns:
         gpytorch.kernels.Kernel: An instantiated kernel with appropriate priors based on the configuration.
