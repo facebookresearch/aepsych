@@ -5,8 +5,6 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-from typing import Optional
-
 import torch
 from aepsych.acquisition.objective import AEPsychObjective, FloorProbitObjective
 from aepsych.config import ConfigurableMixin
@@ -19,7 +17,7 @@ class LinearBernoulliLikelihood(_OneDimensionalLikelihood, ConfigurableMixin):
     GPs and sigma is a flexible link function.
     """
 
-    def __init__(self, objective: Optional[AEPsychObjective] = None) -> None:
+    def __init__(self, objective: AEPsychObjective | None = None) -> None:
         """Initializes the linear bernoulli likelihood.
 
         Args:
