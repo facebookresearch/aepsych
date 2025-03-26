@@ -15,17 +15,7 @@ import typing
 import warnings
 from copy import deepcopy
 from types import ModuleType, NoneType, UnionType
-from typing import (
-    Any,
-    Callable,
-    ClassVar,
-    Dict,
-    List,
-    Mapping,
-    Optional,
-    Sequence,
-    TypeVar,
-)
+from typing import Any, Callable, ClassVar, Mapping, Sequence, TypeVar
 
 import botorch
 import gpytorch
@@ -48,13 +38,13 @@ DEPRECATED_OBJS = [
 
 class Config(configparser.ConfigParser):
     # names in these packages can be referred to by string name
-    registered_names: ClassVar[Dict[str, object]] = {}
+    registered_names: ClassVar[dict[str, object]] = {}
 
     def __init__(
         self,
-        config_dict: Optional[Mapping[str, Any]] = None,
-        config_fnames: Optional[Sequence[str]] = None,
-        config_str: Optional[str] = None,
+        config_dict: Mapping[str, Any] | None = None,
+        config_fnames: Sequence[str] | None = None,
+        config_str: str | None = None,
     ) -> None:
         """Initialize the AEPsych config object. This can be used to instantiate most
         objects in AEPsych by calling object.from_config(config).
@@ -95,7 +85,7 @@ class Config(configparser.ConfigParser):
         option: str,
         *,
         raw: bool = False,
-        vars: Optional[Dict[str, Any]] = None,
+        vars: dict[str, Any] | None = None,
         fallback: _T = configparser._UNSET,
         **kwargs,
     ):
@@ -112,7 +102,7 @@ class Config(configparser.ConfigParser):
             conv (_T): Converter to use.
             option (str): Option to get.
             raw (bool): Whether to return the raw value. Defaults to False.
-            vars (Dict[str, Any], optional): Optional dictionary to use for interpolation. Defaults to None.
+            vars (dict[str, Any], optional): Optional dictionary to use for interpolation. Defaults to None.
             fallback (_T): Value to return if the option is not found. Defaults to configparser._UNSET.
 
         Returns:
@@ -143,7 +133,7 @@ class Config(configparser.ConfigParser):
             )
 
     # Convert config into a dictionary (eliminate duplicates from defaulted 'common' section.)
-    def to_dict(self, deduplicate: bool = True) -> Dict[str, Any]:
+    def to_dict(self, deduplicate: bool = True) -> dict[str, Any]:
         """Convert the config into a dictionary.
 
         Args:
@@ -152,7 +142,7 @@ class Config(configparser.ConfigParser):
         Returns:
             dict: Dictionary representation of the config.
         """
-        _dict: Dict[str, Any] = {}
+        _dict: dict[str, Any] = {}
         for section in self:
             _dict[section] = {}
             for setting in self[section]:
@@ -161,14 +151,14 @@ class Config(configparser.ConfigParser):
                 _dict[section][setting] = self[section][setting]
         return _dict
 
-    def get_metadata(self, only_extra: bool = False) -> Dict[Any, Any]:
+    def get_metadata(self, only_extra: bool = False) -> dict[Any, Any]:
         """Return a dictionary of the metadata section.
 
         Args:
             only_extra (bool, optional): Only gather the extra metadata. Defaults to False.
 
         Returns:
-            Dict[Any, Any]: a collection of the metadata stored in this conig.
+            dict[Any, Any]: a collection of the metadata stored in this conig.
         """
         configdict = self.to_dict()
         metadata = configdict["metadata"].copy()
@@ -214,7 +204,7 @@ class Config(configparser.ConfigParser):
 
     def update(
         self,
-        config_dict: Optional[Mapping[str, str]] = None,
+        config_dict: Mapping[str, str] | None = None,
         config_fnames: Sequence[str] = None,
         config_str: str = None,
     ) -> None:
@@ -269,7 +259,7 @@ class Config(configparser.ConfigParser):
 
     def _str_to_list(
         self, v: str, element_type: Callable[[_ET], _ET] = float
-    ) -> List[_T]:
+    ) -> list[_T]:
         """Convert a string to a list.
 
         Args:
@@ -277,7 +267,7 @@ class Config(configparser.ConfigParser):
             element_type (Callable[[_ET], _ET]): Type of the elements in the list. Defaults to float.
 
         Returns:
-            List[_T]: List of elements of type _T.
+            list[_T]: List of elements of type _T.
         """
         v = re.sub(r",]", "]", v)
         if re.search(r"^\[.*\]$", v, flags=re.DOTALL):
@@ -454,14 +444,14 @@ class Config(configparser.ConfigParser):
             )
         cls.registered_names.update({obj.__name__: obj})
 
-    def get_section(self, section: str) -> Dict[str, Any]:
+    def get_section(self, section: str) -> dict[str, Any]:
         """Get a section of the config.
 
         Args:
             section (str): Section to get.
 
         Returns:
-            Dict[str, Any]: Dictionary representation of the section.
+            dict[str, Any]: Dictionary representation of the section.
         """
         sec = {}
         for setting in self[section]:
@@ -486,9 +476,9 @@ class ConfigurableMixin(abc.ABC):
     def get_config_options(
         cls,
         config: Config,
-        name: Optional[str] = None,
-        options: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        name: str | None = None,
+        options: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """
         Return a dictionary of the relevant options to initialize this class from the
         config, even if it is outside of the named section. By default, this will look
@@ -498,12 +488,12 @@ class ConfigurableMixin(abc.ABC):
             config (Config): Config to look for options in.
             name (str, optional): Primary section to look for options for this class and
                 the name to infer options from other sections in the config.
-            options (Dict[str, Any], optional): Options to override from the config,
+            options (dict[str, Any], optional): Options to override from the config,
                 defaults to None.
 
 
         Return:
-            Dict[str, Any]: A dictionary of options to initialize this class.
+            dict[str, Any]: A dictionary of options to initialize this class.
         """
         if name is None:
             name = cls.__name__
@@ -623,8 +613,8 @@ class ConfigurableMixin(abc.ABC):
     def from_config(
         cls,
         config: Config,
-        name: Optional[str] = None,
-        options: Optional[Dict[str, Any]] = None,
+        name: str | None = None,
+        options: dict[str, Any] | None = None,
     ) -> "ConfigurableMixin":
         """
         Return a initialized instance of this class using the config and the name.
@@ -632,7 +622,7 @@ class ConfigurableMixin(abc.ABC):
         Args:
             config (Config): Config to use to initialize this class.
             name (str, optional): Name of section to look in first for this class.
-            options (Dict[str, Any], optional): Options to override from the config,
+            options (dict[str, Any], optional): Options to override from the config,
                 defaults to None.
 
         Return:
