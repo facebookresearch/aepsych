@@ -23,16 +23,15 @@
 <span class="c1"># This source code is licensed under the license found in the</span>
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">gpytorch</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConfigurableMixin</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">gpytorch.likelihoods</span><span class="w"> </span><span class="kn">import</span> <span class="n">Likelihood</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">torch.distributions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Categorical</span><span class="p">,</span> <span class="n">Normal</span>
+<span class="kn">import</span> <span class="nn">gpytorch</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">gpytorch.likelihoods</span> <span class="kn">import</span> <span class="n">Likelihood</span>
+<span class="kn">from</span> <span class="nn">torch.distributions</span> <span class="kn">import</span> <span class="n">Categorical</span><span class="p">,</span> <span class="n">Normal</span>
 
 
-<div class="viewcode-block" id="OrdinalLikelihood"><a class="viewcode-back" href="../../../likelihoods.html#aepsych.likelihoods.OrdinalLikelihood">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">OrdinalLikelihood</span><span class="p">(</span><span class="n">Likelihood</span><span class="p">,</span> <span class="n">ConfigurableMixin</span><span class="p">):</span>
+<div class="viewcode-block" id="OrdinalLikelihood"><a class="viewcode-back" href="../../../likelihoods.html#aepsych.likelihoods.OrdinalLikelihood">[docs]</a><span class="k">class</span> <span class="nc">OrdinalLikelihood</span><span class="p">(</span><span class="n">Likelihood</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Ordinal likelihood, suitable for rating models (e.g. likert scales). Formally,</span>
 <span class="sd">    .. math:: z_k(x\\mid f) := p(d_k &lt; f(x) \\le d_{k+1}) = \\sigma(d_{k+1}-f(x)) - \\sigma(d_{k}-f(x)),</span>
@@ -41,13 +40,7 @@
 <span class="sd">    and :math:`d_k` is a learned cutpoint parameter for each level.</span>
 <span class="sd">    """</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_levels</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">link</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Initialize OrdinalLikelihood.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            n_levels (int): Number of levels in the ordinal scale.</span>
-<span class="sd">            link (Callable, optional): Link function. Defaults to None.</span>
-<span class="sd">        """</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_levels</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">link</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">n_levels</span> <span class="o">=</span> <span class="n">n_levels</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">register_parameter</span><span class="p">(</span>
@@ -58,29 +51,17 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">link</span> <span class="o">=</span> <span class="n">link</span> <span class="ow">or</span> <span class="n">Normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">cdf</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">cutpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">cutpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">cutpoint_deltas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw_cutpoint_deltas_constraint</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">raw_cutpoint_deltas</span>
         <span class="p">)</span>
         <span class="c1"># for identification, the first cutpoint is 0</span>
-        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span>
-            <span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">cutpoint_deltas</span><span class="p">),</span> <span class="n">torch</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">cutpoint_deltas</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
-        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">0</span><span class="p">]),</span> <span class="n">torch</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">cutpoint_deltas</span><span class="p">,</span> <span class="mi">0</span><span class="p">)))</span>
 
-<div class="viewcode-block" id="OrdinalLikelihood.forward"><a class="viewcode-back" href="../../../likelihoods.html#aepsych.likelihoods.OrdinalLikelihood.forward">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function_samples</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="o">*</span><span class="n">params</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Categorical</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Forward pass for Ordinal</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            function_samples (torch.Tensor): Function samples.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            Categorical: Categorical distribution object.</span>
-<span class="sd">        """</span>
+<div class="viewcode-block" id="OrdinalLikelihood.forward"><a class="viewcode-back" href="../../../likelihoods.html#aepsych.likelihoods.OrdinalLikelihood.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function_samples</span><span class="p">,</span> <span class="o">*</span><span class="n">params</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="c1"># this whole thing can probably be some clever batched thing, meh</span>
-        <span class="n">probs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="o">*</span><span class="n">function_samples</span><span class="o">.</span><span class="n">size</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_levels</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span>
-            <span class="n">function_samples</span>
-        <span class="p">)</span>
+        <span class="n">probs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="o">*</span><span class="n">function_samples</span><span class="o">.</span><span class="n">size</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_levels</span><span class="p">)</span>
 
         <span class="n">probs</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">link</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cutpoints</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">function_samples</span><span class="p">)</span>
 
@@ -90,7 +71,14 @@
             <span class="p">)</span>
         <span class="n">probs</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">link</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cutpoints</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">function_samples</span><span class="p">)</span>
         <span class="n">res</span> <span class="o">=</span> <span class="n">Categorical</span><span class="p">(</span><span class="n">probs</span><span class="o">=</span><span class="n">probs</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">res</span></div></div>
+        <span class="k">return</span> <span class="n">res</span></div>
+
+<div class="viewcode-block" id="OrdinalLikelihood.from_config"><a class="viewcode-back" href="../../../likelihoods.html#aepsych.likelihoods.OrdinalLikelihood.from_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+        <span class="n">classname</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="n">n_levels</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"n_levels"</span><span class="p">)</span>
+        <span class="n">link</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"link"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">n_levels</span><span class="o">=</span><span class="n">n_levels</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">link</span><span class="p">)</span></div></div>
 </pre></div>
 </div>
 </div>
@@ -114,7 +102,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../likelihoods.html">aepsych.likelihoods</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../plotting.html">aepsych.plotting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../strategy.html">aepsych.strategy</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../transforms.html">aepsych.transforms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../utils_logging.html">aepsych.utils_logging</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../utils.html">aepsych.utils</a></li>
 </ul>

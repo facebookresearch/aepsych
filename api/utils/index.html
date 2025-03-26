@@ -86,11 +86,11 @@ Parameters</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> (<em>Union</em><em>[</em><em>torch.Tensor</em><em>, </em><em>np.ndarray</em><em>]</em>) – x values.</p></li>
-<li><p><strong>y</strong> (<em>Union</em><em>[</em><em>torch.Tensor</em><em>, </em><em>np.ndarray</em><em>]</em>) – y values.</p></li>
-<li><p><strong>z</strong> (<em>Union</em><em>[</em><em>torch.Tensor</em><em>, </em><em>np.ndarray</em><em>, </em><em>float</em><em>]</em>) – z values.</p></li>
-<li><p><strong>min_x</strong> (<em>Union</em><em>[</em><em>torch.Tensor</em><em>, </em><em>np.ndarray</em><em>, </em><em>float</em><em>]</em>) – Minimum x value. Defaults to -np.inf.</p></li>
-<li><p><strong>max_x</strong> (<em>Union</em><em>[</em><em>torch.Tensor</em><em>, </em><em>np.ndarray</em><em>, </em><em>float</em><em>]</em>) – Maximum x value. Defaults to np.inf.</p></li>
+<li><p><strong>x</strong> (<em>torch.Tensor</em><em> | </em><em>np.ndarray</em>) – x values.</p></li>
+<li><p><strong>y</strong> (<em>torch.Tensor</em><em> | </em><em>np.ndarray</em>) – y values.</p></li>
+<li><p><strong>z</strong> (<em>torch.Tensor</em><em> | </em><em>np.ndarray</em><em> | </em><em>float</em>) – z values.</p></li>
+<li><p><strong>min_x</strong> (<em>torch.Tensor</em><em> | </em><em>np.ndarray</em><em> | </em><em>float</em>) – Minimum x value. Defaults to -np.inf.</p></li>
+<li><p><strong>max_x</strong> (<em>torch.Tensor</em><em> | </em><em>np.ndarray</em><em> | </em><em>float</em>) – Maximum x value. Defaults to np.inf.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -109,7 +109,7 @@ Parameters</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>model</strong> (<em>GPyTorchModel</em>) – Model to use for sampling.</p></li>
-<li><p><strong>mono_grid</strong> (<em>Union</em><em>[</em><em>torch.Tensor</em><em>, </em><em>np.ndarray</em><em>]</em>) – Monotonic grid.</p></li>
+<li><p><strong>mono_grid</strong> (<em>torch.Tensor</em><em> | </em><em>np.ndarray</em>) – Monotonic grid.</p></li>
 <li><p><strong>target_level</strong> (<em>float</em>) – Target level.</p></li>
 <li><p><strong>grid_lb</strong> (<em>torch.Tensor</em>) – The lower bound of the grid to sample from to calculate
 LSE.</p></li>
@@ -129,7 +129,7 @@ float(“inf”).</p></li>
 <dd class="field-even"><p>Level set estimate interval.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Union[Tuple[torch.Tensor, torch.Tensor, torch.Tensor], torch.Tensor]</p>
+<dd class="field-odd"><p>tuple[torch.Tensor, torch.Tensor, torch.Tensor] | torch.Tensor</p>
 </dd>
 </dl>
 </dd></dl>
@@ -141,7 +141,7 @@ float(“inf”).</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>post_mean</strong> (<em>torch.Tensor</em>) – Posterior mean.</p></li>
-<li><p><strong>mono_grid</strong> (<em>Union</em><em>[</em><em>torch.Tensor</em><em>, </em><em>np.ndarray</em><em>]</em>) – Monotonic grid.</p></li>
+<li><p><strong>mono_grid</strong> (<em>torch.Tensor</em><em> | </em><em>np.ndarray</em>) – Monotonic grid.</p></li>
 <li><p><strong>level</strong> (<em>float</em>) – Level.</p></li>
 <li><p><strong>mono_dim</strong> (<em>int</em>) – Monotonic dimension. Defaults to -1.</p></li>
 <li><p><strong>lb</strong> (<em>float</em>) – Lower bound. Defaults to -np.inf.</p></li>
@@ -167,8 +167,8 @@ float(“inf”).</p></li>
 <li><p><strong>mono_grid</strong> (<em>torch.Tensor</em>) – Monotonic grid.</p></li>
 <li><p><strong>df</strong> (<em>int</em>) – Degrees of freedom. Defaults to 1.</p></li>
 <li><p><strong>mono_dim</strong> (<em>int</em>) – Monotonic dimension. Defaults to -1.</p></li>
-<li><p><strong>lb</strong> (<em>Union</em><em>[</em><em>torch.Tensor</em><em>, </em><em>float</em><em>]</em>) – Lower bound. Defaults to -float(“inf”).</p></li>
-<li><p><strong>ub</strong> (<em>Union</em><em>[</em><em>torch.Tensor</em><em>, </em><em>float</em><em>]</em>) – Upper bound. Defaults to float(“inf”).</p></li>
+<li><p><strong>lb</strong> (<em>torch.Tensor</em><em> | </em><em>float</em>) – Lower bound. Defaults to -float(“inf”).</p></li>
+<li><p><strong>ub</strong> (<em>torch.Tensor</em><em> | </em><em>float</em>) – Upper bound. Defaults to float(“inf”).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -190,8 +190,8 @@ float(“inf”).</p></li>
 <li><p><strong>mono_grid</strong> (<em>torch.Tensor</em>) – Monotonic grid.</p></li>
 <li><p><strong>df</strong> (<em>int</em>) – Degrees of freedom. Defaults to 1.</p></li>
 <li><p><strong>mono_dim</strong> (<em>int</em>) – Monotonic dimension. Defaults to -1.</p></li>
-<li><p><strong>lb</strong> (<em>Union</em><em>[</em><em>torch.Tensor</em><em>, </em><em>float</em><em>]</em>) – Lower bound. Defaults to -float(“inf”).</p></li>
-<li><p><strong>ub</strong> (<em>Union</em><em>[</em><em>torch.Tensor</em><em>, </em><em>float</em><em>]</em>) – Upper bound. Defaults to float(“inf”).</p></li>
+<li><p><strong>lb</strong> (<em>torch.Tensor</em><em> | </em><em>float</em>) – Lower bound. Defaults to -float(“inf”).</p></li>
+<li><p><strong>ub</strong> (<em>torch.Tensor</em><em> | </em><em>float</em>) – Upper bound. Defaults to float(“inf”).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -248,7 +248,7 @@ ftol, gtol, maxfun, maxiter, maxls. See docs for details:
 </p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Dict[str, Any]</p>
+<dd class="field-odd"><p>dict[str, Any]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -278,7 +278,7 @@ parameters will not be included).</p>
 <dd class="field-odd"><p><strong>count</strong> (<em>int</em>) – </p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>List</em>[str]</p>
+<dd class="field-even"><p>list[str]</p>
 </dd>
 </dl>
 </dd></dl>

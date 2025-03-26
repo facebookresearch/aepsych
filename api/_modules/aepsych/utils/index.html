@@ -25,7 +25,7 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">configparser</span><span class="w"> </span><span class="kn">import</span> <span class="n">NoOptionError</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Mapping</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
@@ -35,7 +35,7 @@
 
 
 <div class="viewcode-block" id="make_scaled_sobol"><a class="viewcode-back" href="../../utils.html#aepsych.utils.make_scaled_sobol">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">make_scaled_sobol</span><span class="p">(</span>
-    <span class="n">lb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">ub</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">lb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">ub</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Create a scaled Sobol grid</span>
 
@@ -76,7 +76,7 @@
     <span class="n">lower</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
     <span class="n">upper</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
     <span class="n">gridsize</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span>
-    <span class="n">slice_dims</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">slice_dims</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Create a grid</span>
 <span class="sd">    Create a grid based on lower, upper, and dim.</span>
@@ -107,19 +107,19 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_process_bounds</span><span class="p">(</span>
-    <span class="n">lb</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">List</span><span class="p">],</span>
-    <span class="n">ub</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">List</span><span class="p">],</span>
-    <span class="n">dim</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+    <span class="n">lb</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">|</span> <span class="nb">list</span><span class="p">,</span>
+    <span class="n">ub</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">|</span> <span class="nb">list</span><span class="p">,</span>
+    <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""Helper function for ensuring bounds are correct shape and type.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        lb (Union[np.ndarray, torch.Tensor, List]): Lower bounds.</span>
-<span class="sd">        ub (Union[np.ndarray, torch.Tensor, List]): Upper bounds.</span>
+<span class="sd">        lb (np.ndarray | torch.Tensor | list): Lower bounds.</span>
+<span class="sd">        ub (np.ndarray | torch.Tensor | list): Upper bounds.</span>
 <span class="sd">        dim (int, optional): Dimension of the bounds.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        Tuple[torch.Tensor, torch.Tensor, int]: Tuple of lower bounds, upper bounds, and dimension.</span>
+<span class="sd">        tuple[torch.Tensor, torch.Tensor, int]: Tuple of lower bounds, upper bounds, and dimension.</span>
 <span class="sd">    """</span>
     <span class="n">lb</span> <span class="o">=</span> <span class="n">promote_0d</span><span class="p">(</span><span class="n">lb</span><span class="p">)</span>
     <span class="n">ub</span> <span class="o">=</span> <span class="n">promote_0d</span><span class="p">(</span><span class="n">ub</span><span class="p">)</span>
@@ -152,20 +152,20 @@
 
 
 <div class="viewcode-block" id="interpolate_monotonic"><a class="viewcode-back" href="../../utils.html#aepsych.utils.interpolate_monotonic">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">interpolate_monotonic</span><span class="p">(</span>
-    <span class="n">x</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
-    <span class="n">y</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
-    <span class="n">z</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
-    <span class="n">min_x</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span>
-    <span class="n">max_x</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span>
+    <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">y</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">z</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">min_x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span>
+    <span class="n">max_x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Interpolate a monotonic function</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        x (Union[torch.Tensor, np.ndarray]): x values.</span>
-<span class="sd">        y (Union[torch.Tensor, np.ndarray]): y values.</span>
-<span class="sd">        z (Union[torch.Tensor, np.ndarray, float]): z values.</span>
-<span class="sd">        min_x (Union[torch.Tensor, np.ndarray, float]): Minimum x value. Defaults to -np.inf.</span>
-<span class="sd">        max_x (Union[torch.Tensor, np.ndarray, float]): Maximum x value. Defaults to np.inf.</span>
+<span class="sd">        x (torch.Tensor | np.ndarray): x values.</span>
+<span class="sd">        y (torch.Tensor | np.ndarray): y values.</span>
+<span class="sd">        z (torch.Tensor | np.ndarray | float): z values.</span>
+<span class="sd">        min_x (torch.Tensor | np.ndarray | float): Minimum x value. Defaults to -np.inf.</span>
+<span class="sd">        max_x (torch.Tensor | np.ndarray | float): Maximum x value. Defaults to np.inf.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Any: Interpolated value.</span>
@@ -194,23 +194,23 @@
 
 <div class="viewcode-block" id="get_lse_interval"><a class="viewcode-back" href="../../utils.html#aepsych.utils.get_lse_interval">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_lse_interval</span><span class="p">(</span>
     <span class="n">model</span><span class="p">:</span> <span class="n">GPyTorchModel</span><span class="p">,</span>
-    <span class="n">mono_grid</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+    <span class="n">mono_grid</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">target_level</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">grid_lb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
     <span class="n">grid_ub</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
-    <span class="n">cred_level</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">cred_level</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">mono_dim</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
     <span class="n">n_samps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">500</span><span class="p">,</span>
     <span class="n">lb</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">-</span><span class="nb">float</span><span class="p">(</span><span class="s2">"inf"</span><span class="p">),</span>
     <span class="n">ub</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">"inf"</span><span class="p">),</span>
     <span class="n">gridsize</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">],</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">|</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Get the level set estimate interval</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        model (GPyTorchModel): Model to use for sampling.</span>
-<span class="sd">        mono_grid (Union[torch.Tensor, np.ndarray]): Monotonic grid.</span>
+<span class="sd">        mono_grid (torch.Tensor | np.ndarray): Monotonic grid.</span>
 <span class="sd">        target_level (float): Target level.</span>
 <span class="sd">        grid_lb (torch.Tensor): The lower bound of the grid to sample from to calculate</span>
 <span class="sd">            LSE.</span>
@@ -226,7 +226,7 @@
 <span class="sd">        gridsize (int): Grid size. Defaults to 30.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        Union[Tuple[torch.Tensor, torch.Tensor, torch.Tensor], torch.Tensor]: Level set estimate interval.</span>
+<span class="sd">        tuple[torch.Tensor, torch.Tensor, torch.Tensor] | torch.Tensor: Level set estimate interval.</span>
 <span class="sd">    """</span>
     <span class="c1"># Create a meshgrid using torch.linspace</span>
     <span class="n">xgrid</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
@@ -274,17 +274,17 @@
 
 <div class="viewcode-block" id="get_lse_contour"><a class="viewcode-back" href="../../utils.html#aepsych.utils.get_lse_contour">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_lse_contour</span><span class="p">(</span>
     <span class="n">post_mean</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
-    <span class="n">mono_grid</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+    <span class="n">mono_grid</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">level</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">mono_dim</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
-    <span class="n">lb</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span>
-    <span class="n">ub</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span>
+    <span class="n">lb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span>
+    <span class="n">ub</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Get the level set estimate contour</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        post_mean (torch.Tensor): Posterior mean.</span>
-<span class="sd">        mono_grid (Union[torch.Tensor, np.ndarray]): Monotonic grid.</span>
+<span class="sd">        mono_grid (torch.Tensor | np.ndarray): Monotonic grid.</span>
 <span class="sd">        level (float): Level.</span>
 <span class="sd">        mono_dim (int): Monotonic dimension. Defaults to -1.</span>
 <span class="sd">        lb (float): Lower bound. Defaults to -np.inf.</span>
@@ -307,8 +307,8 @@
     <span class="n">mono_grid</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
     <span class="n">df</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="n">mono_dim</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
-    <span class="n">lb</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="nb">float</span><span class="p">(</span><span class="s2">"inf"</span><span class="p">),</span>
-    <span class="n">ub</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">"inf"</span><span class="p">),</span>
+    <span class="n">lb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">-</span><span class="nb">float</span><span class="p">(</span><span class="s2">"inf"</span><span class="p">),</span>
+    <span class="n">ub</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">"inf"</span><span class="p">),</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Get the just noticeable difference for a 1D function</span>
 
@@ -317,8 +317,8 @@
 <span class="sd">        mono_grid (torch.Tensor): Monotonic grid.</span>
 <span class="sd">        df (int): Degrees of freedom. Defaults to 1.</span>
 <span class="sd">        mono_dim (int): Monotonic dimension. Defaults to -1.</span>
-<span class="sd">        lb (Union[torch.Tensor, float]): Lower bound. Defaults to -float("inf").</span>
-<span class="sd">        ub (Union[torch.Tensor, float]): Upper bound. Defaults to float("inf").</span>
+<span class="sd">        lb (torch.Tensor | float): Lower bound. Defaults to -float("inf").</span>
+<span class="sd">        ub (torch.Tensor | float): Upper bound. Defaults to float("inf").</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        torch.Tensor: Just noticeable difference.</span>
@@ -342,8 +342,8 @@
     <span class="n">mono_grid</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
     <span class="n">df</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="n">mono_dim</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
-    <span class="n">lb</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="nb">float</span><span class="p">(</span><span class="s2">"inf"</span><span class="p">),</span>
-    <span class="n">ub</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">"inf"</span><span class="p">),</span>
+    <span class="n">lb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">-</span><span class="nb">float</span><span class="p">(</span><span class="s2">"inf"</span><span class="p">),</span>
+    <span class="n">ub</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">"inf"</span><span class="p">),</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Get the just noticeable difference for a multidimensional function</span>
 
@@ -352,8 +352,8 @@
 <span class="sd">        mono_grid (torch.Tensor): Monotonic grid.</span>
 <span class="sd">        df (int): Degrees of freedom. Defaults to 1.</span>
 <span class="sd">        mono_dim (int): Monotonic dimension. Defaults to -1.</span>
-<span class="sd">        lb (Union[torch.Tensor, float]): Lower bound. Defaults to -float("inf").</span>
-<span class="sd">        ub (Union[torch.Tensor, float]): Upper bound. Defaults to float("inf").</span>
+<span class="sd">        lb (torch.Tensor | float): Lower bound. Defaults to -float("inf").</span>
+<span class="sd">        ub (torch.Tensor | float): Upper bound. Defaults to float("inf").</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        torch.Tensor: Just noticeable difference.</span>
@@ -408,7 +408,7 @@
     <span class="k">return</span> <span class="n">bounds</span></div>
 
 
-<div class="viewcode-block" id="get_optimizer_options"><a class="viewcode-back" href="../../utils.html#aepsych.utils.get_optimizer_options">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_optimizer_options</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<div class="viewcode-block" id="get_optimizer_options"><a class="viewcode-back" href="../../utils.html#aepsych.utils.get_optimizer_options">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_optimizer_options</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""Return the optimizer options for the model to pass to the SciPy L-BFGS-B</span>
 <span class="sd">    optimizer. Only the somewhat useful ones for AEPsych are searched for: maxcor,</span>
 <span class="sd">    ftol, gtol, maxfun, maxiter, maxls. See docs for details:</span>
@@ -419,10 +419,10 @@
 <span class="sd">        name (str): Model name to look for options for.</span>
 
 <span class="sd">    Return:</span>
-<span class="sd">        Dict[str, Any]: Dictionary of options to pass to SciPy's minimize, assuming the</span>
+<span class="sd">        dict[str, Any]: Dictionary of options to pass to SciPy's minimize, assuming the</span>
 <span class="sd">            method is L-BFGS-B.</span>
 <span class="sd">    """</span>
-    <span class="n">options</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">options</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="n">options</span><span class="p">[</span><span class="s2">"maxcor"</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"maxcor"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
     <span class="n">options</span><span class="p">[</span><span class="s2">"ftol"</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"ftol"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
@@ -462,7 +462,7 @@
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s2">"common"</span><span class="p">,</span> <span class="s2">"lb"</span><span class="p">,</span> <span class="n">element_type</span><span class="o">=</span><span class="nb">float</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="generate_default_outcome_names"><a class="viewcode-back" href="../../utils.html#aepsych.utils.generate_default_outcome_names">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">generate_default_outcome_names</span><span class="p">(</span><span class="n">count</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<div class="viewcode-block" id="generate_default_outcome_names"><a class="viewcode-back" href="../../utils.html#aepsych.utils.generate_default_outcome_names">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">generate_default_outcome_names</span><span class="p">(</span><span class="n">count</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
     <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">[</span><span class="s2">"outcome"</span><span class="p">]</span>
 

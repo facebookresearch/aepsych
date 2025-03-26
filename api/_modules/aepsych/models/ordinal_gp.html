@@ -16,64 +16,28 @@
 <div class="bodywrapper">
 <div class="body" role="main">
 <h1>Source code for aepsych.models.ordinal_gp</h1><div class="highlight"><pre>
-<span></span><span class="ch">#!/usr/bin/env python3</span>
-<span class="c1"># Copyright (c) Facebook, Inc. and its affiliates.</span>
-<span class="c1"># All rights reserved.</span>
-
-<span class="c1"># This source code is licensed under the license found in the</span>
-<span class="c1"># LICENSE file in the root directory of this source tree.</span>
-
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
-
-<span class="kn">import</span><span class="w"> </span><span class="nn">gpytorch</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.likelihoods</span><span class="w"> </span><span class="kn">import</span> <span class="n">OrdinalLikelihood</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.models.inducing_points.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">InducingPointAllocator</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.models.variational_gp</span><span class="w"> </span><span class="kn">import</span> <span class="n">VariationalGPModel</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">gpytorch.likelihoods</span><span class="w"> </span><span class="kn">import</span> <span class="n">Likelihood</span>
+<span></span><span class="kn">import</span> <span class="nn">gpytorch</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">aepsych.likelihoods</span> <span class="kn">import</span> <span class="n">OrdinalLikelihood</span>
+<span class="kn">from</span> <span class="nn">aepsych.models</span> <span class="kn">import</span> <span class="n">GPClassificationModel</span>
 
 
-<div class="viewcode-block" id="OrdinalGPModel"><a class="viewcode-back" href="../../../models.html#aepsych.models.OrdinalGPModel">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">OrdinalGPModel</span><span class="p">(</span><span class="n">VariationalGPModel</span><span class="p">):</span>
+<div class="viewcode-block" id="OrdinalGPModel"><a class="viewcode-back" href="../../../models.html#aepsych.models.OrdinalGPModel">[docs]</a><span class="k">class</span> <span class="nc">OrdinalGPModel</span><span class="p">(</span><span class="n">GPClassificationModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    A convenience wrapper about the base VariationalGPs with default covariance module</span>
-<span class="sd">    and likelihood to fit a Ordinal model.</span>
+<span class="sd">    Convenience wrapper for GPClassificationModel that hardcodes</span>
+<span class="sd">    an ordinal likelihood, better priors for this setting, and</span>
+<span class="sd">    adds a convenience method for computing outcome probabilities.</span>
+
+<span class="sd">    TODO: at some point we should refactor posteriors so that things like</span>
+<span class="sd">    OrdinalPosterior and MonotonicPosterior don't have to have their own</span>
+<span class="sd">    model classes.</span>
 <span class="sd">    """</span>
 
     <span class="n">outcome_type</span> <span class="o">=</span> <span class="s2">"ordinal"</span>
-    <span class="n">_num_outputs</span> <span class="o">=</span> <span class="mi">1</span>
-    <span class="n">_stimuli_per_trial</span> <span class="o">=</span> <span class="mi">1</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-        <span class="n">mean_module</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">gpytorch</span><span class="o">.</span><span class="n">means</span><span class="o">.</span><span class="n">Mean</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">covar_module</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">Kernel</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">likelihood</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Likelihood</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">mll_class</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">gpytorch</span><span class="o">.</span><span class="n">mlls</span><span class="o">.</span><span class="n">MarginalLogLikelihood</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">inducing_point_method</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">InducingPointAllocator</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">inducing_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
-        <span class="n">max_fit_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">optimizer_options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Initialize the GP Classification model</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            dim (int): The number of dimensions in the parameter space.</span>
-<span class="sd">            mean_module (gpytorch.means.Mean, optional): GP mean class. Defaults to a constant with a normal prior.</span>
-<span class="sd">            covar_module (gpytorch.kernels.Kernel, optional): GP covariance kernel class. Defaults to scaled RBF with a</span>
-<span class="sd">                gamma prior.</span>
-<span class="sd">            likelihood (gpytorch.likelihood.Likelihood, optional): The likelihood function to use. If None defaults to</span>
-<span class="sd">                Gaussian likelihood.</span>
-<span class="sd">            mll_class (gpytorch.mlls.MarginalLogLikelihood, optional): The approximate marginal log likelihood class to</span>
-<span class="sd">                use. If None defaults to VariationalELBO.</span>
-<span class="sd">            inducing_point_method (InducingPointAllocator, optional): The method to use for selecting inducing points.</span>
-<span class="sd">                If not set, a GreedyVarianceReduction is made.</span>
-<span class="sd">            inducing_size (int): Number of inducing points. Defaults to 100.</span>
-<span class="sd">            max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,</span>
-<span class="sd">                there is no limit to the fitting time.</span>
-<span class="sd">            optimizer_options (Dict[str, Any], optional): Optimizer options to pass to the SciPy optimizer during</span>
-<span class="sd">                fitting. Assumes we are using L-BFGS-B.</span>
-<span class="sd">        """</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">likelihood</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">covar_module</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"covar_module"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">dim</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"dim"</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">covar_module</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">ls_prior</span> <span class="o">=</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">priors</span><span class="o">.</span><span class="n">GammaPrior</span><span class="p">(</span><span class="n">concentration</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="mf">3.0</span><span class="p">)</span>
             <span class="n">ls_prior_mode</span> <span class="o">=</span> <span class="p">(</span><span class="n">ls_prior</span><span class="o">.</span><span class="n">concentration</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">ls_prior</span><span class="o">.</span><span class="n">rate</span>
@@ -90,41 +54,18 @@
 
         <span class="k">if</span> <span class="n">likelihood</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">likelihood</span> <span class="o">=</span> <span class="n">OrdinalLikelihood</span><span class="p">(</span><span class="n">n_levels</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
-
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="n">dim</span><span class="o">=</span><span class="n">dim</span><span class="p">,</span>
-            <span class="n">mean_module</span><span class="o">=</span><span class="n">mean_module</span><span class="p">,</span>
+            <span class="o">*</span><span class="n">args</span><span class="p">,</span>
             <span class="n">covar_module</span><span class="o">=</span><span class="n">covar_module</span><span class="p">,</span>
             <span class="n">likelihood</span><span class="o">=</span><span class="n">likelihood</span><span class="p">,</span>
-            <span class="n">mll_class</span><span class="o">=</span><span class="n">mll_class</span><span class="p">,</span>
-            <span class="n">inducing_point_method</span><span class="o">=</span><span class="n">inducing_point_method</span><span class="p">,</span>
-            <span class="n">inducing_size</span><span class="o">=</span><span class="n">inducing_size</span><span class="p">,</span>
-            <span class="n">max_fit_time</span><span class="o">=</span><span class="n">max_fit_time</span><span class="p">,</span>
-            <span class="n">optimizer_options</span><span class="o">=</span><span class="n">optimizer_options</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
         <span class="p">)</span>
 
-<div class="viewcode-block" id="OrdinalGPModel.predict_probs"><a class="viewcode-back" href="../../../models.html#aepsych.models.OrdinalGPModel.predict_probs">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">predict_probs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xgrid</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Predict probabilities of each ordinal level at xgrid</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            xgrid (torch.Tensor): Tensor of input points to predict at</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            torch.Tensor: Tensor of probabilities of each ordinal level at xgrid</span>
-<span class="sd">        """</span>
+<div class="viewcode-block" id="OrdinalGPModel.predict_probs"><a class="viewcode-back" href="../../../models.html#aepsych.models.OrdinalGPModel.predict_probs">[docs]</a>    <span class="k">def</span> <span class="nf">predict_probs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xgrid</span><span class="p">):</span>
         <span class="n">fmean</span><span class="p">,</span> <span class="n">fvar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">xgrid</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculate_probs</span><span class="p">(</span><span class="n">fmean</span><span class="p">,</span> <span class="n">fvar</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="OrdinalGPModel.calculate_probs"><a class="viewcode-back" href="../../../models.html#aepsych.models.OrdinalGPModel.calculate_probs">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">calculate_probs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fmean</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">fvar</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Calculate probabilities of each ordinal level given a mean and variance</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            fmean (torch.Tensor): Mean of the latent function</span>
-<span class="sd">            fvar (torch.Tensor): Variance of the latent function</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            torch.Tensor: Tensor of probabilities of each ordinal level</span>
-<span class="sd">        """</span>
+<div class="viewcode-block" id="OrdinalGPModel.calculate_probs"><a class="viewcode-back" href="../../../models.html#aepsych.models.OrdinalGPModel.calculate_probs">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_probs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fmean</span><span class="p">,</span> <span class="n">fvar</span><span class="p">):</span>
         <span class="n">fsd</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">fvar</span><span class="p">)</span>
         <span class="n">probs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="o">*</span><span class="n">fmean</span><span class="o">.</span><span class="n">size</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">n_levels</span><span class="p">)</span>
 
@@ -163,7 +104,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../likelihoods.html">aepsych.likelihoods</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../plotting.html">aepsych.plotting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../strategy.html">aepsych.strategy</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../transforms.html">aepsych.transforms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../utils_logging.html">aepsych.utils_logging</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../utils.html">aepsych.utils</a></li>
 </ul>

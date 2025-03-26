@@ -23,93 +23,38 @@
 <span class="c1"># This source code is licensed under the license found in the</span>
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">aepsych.config</span> <span class="kn">import</span> <span class="n">Config</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.models.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">AEPsychModelMixin</span>
-
-<span class="kn">from</span><span class="w"> </span><span class="nn">.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">AEPsychGenerator</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.optimize_acqf_generator</span><span class="w"> </span><span class="kn">import</span> <span class="n">OptimizeAcqfGenerator</span>
+<span class="kn">from</span> <span class="nn">..models.base</span> <span class="kn">import</span> <span class="n">ModelProtocol</span>
+<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">AEPsychGenerator</span>
+<span class="kn">from</span> <span class="nn">.optimize_acqf_generator</span> <span class="kn">import</span> <span class="n">OptimizeAcqfGenerator</span>
 
 
-<div class="viewcode-block" id="EpsilonGreedyGenerator"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.epsilon_greedy_generator.EpsilonGreedyGenerator">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">EpsilonGreedyGenerator</span><span class="p">(</span><span class="n">AEPsychGenerator</span><span class="p">):</span>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">lb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
-        <span class="n">ub</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
-        <span class="n">subgenerator</span><span class="p">:</span> <span class="n">AEPsychGenerator</span><span class="p">,</span>
-        <span class="n">epsilon</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Initialize EpsilonGreedyGenerator.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            lb (torch.Tensor): Lower bounds for the optimization.</span>
-<span class="sd">            ub (torch.Tensor): Upper bounds for the optimization.</span>
-<span class="sd">            subgenerator (AEPsychGenerator): The generator to use when not exploiting.</span>
-<span class="sd">            epsilon (float): The probability of exploration. Defaults to 0.1.</span>
-<span class="sd">        """</span>
+<div class="viewcode-block" id="EpsilonGreedyGenerator"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.epsilon_greedy_generator.EpsilonGreedyGenerator">[docs]</a><span class="k">class</span> <span class="nc">EpsilonGreedyGenerator</span><span class="p">(</span><span class="n">AEPsychGenerator</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subgenerator</span><span class="p">:</span> <span class="n">AEPsychGenerator</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">subgenerator</span> <span class="o">=</span> <span class="n">subgenerator</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">epsilon</span> <span class="o">=</span> <span class="n">epsilon</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">lb</span> <span class="o">=</span> <span class="n">lb</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ub</span> <span class="o">=</span> <span class="n">ub</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">lb</span><span class="p">)</span>
 
-<div class="viewcode-block" id="EpsilonGreedyGenerator.get_config_options"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.epsilon_greedy_generator.EpsilonGreedyGenerator.get_config_options">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_config_options</span><span class="p">(</span>
-        <span class="bp">cls</span><span class="p">,</span>
-        <span class="n">config</span><span class="p">,</span>
-        <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">"""Find the config options for the generator.</span>
+<div class="viewcode-block" id="EpsilonGreedyGenerator.from_config"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.epsilon_greedy_generator.EpsilonGreedyGenerator.from_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">):</span>
+        <span class="n">classname</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="n">subgen_cls</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span>
+            <span class="n">classname</span><span class="p">,</span> <span class="s2">"subgenerator"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="n">OptimizeAcqfGenerator</span>
+        <span class="p">)</span>
+        <span class="n">subgen</span> <span class="o">=</span> <span class="n">subgen_cls</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="n">epsilon</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"epsilon"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">subgenerator</span><span class="o">=</span><span class="n">subgen</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="n">epsilon</span><span class="p">)</span></div>
 
-<span class="sd">        Args:</span>
-<span class="sd">            config (Config): Config to look for options in.</span>
-<span class="sd">            name (str, optional): Unused, kept for API conformity.</span>
-<span class="sd">            options (Dict[str, Any], optional): Existing options, any key in options</span>
-<span class="sd">                will be ignored from the config.</span>
-
-<span class="sd">        Return:</span>
-<span class="sd">            Dict[str, Any]: A dictionary of options to initialize the generator.</span>
-<span class="sd">        """</span>
-        <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_config_options</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="s2">"subgenerator"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">options</span><span class="p">:</span>  <span class="c1"># Missing subgenerator</span>
-            <span class="n">options</span><span class="p">[</span><span class="s2">"subgenerator"</span><span class="p">]</span> <span class="o">=</span> <span class="n">OptimizeAcqfGenerator</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">options</span></div>
-
-<div class="viewcode-block" id="EpsilonGreedyGenerator.gen"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.epsilon_greedy_generator.EpsilonGreedyGenerator.gen">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">gen</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">num_points</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-        <span class="n">model</span><span class="p">:</span> <span class="n">AEPsychModelMixin</span><span class="p">,</span>
-        <span class="n">fixed_features</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Query next point(s) to run by sampling from the subgenerator with probability 1-epsilon, and randomly otherwise.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            num_points (int): Number of points to query.</span>
-<span class="sd">            model (AEPsychModelMixin): Model to use for generating points.</span>
-<span class="sd">            fixed_features: (Dict[int, float], optional): Parameters that are fixed to specific values.</span>
-<span class="sd">            **kwargs: Passed to subgenerator if not exploring</span>
-<span class="sd">        """</span>
+<div class="viewcode-block" id="EpsilonGreedyGenerator.gen"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.epsilon_greedy_generator.EpsilonGreedyGenerator.gen">[docs]</a>    <span class="k">def</span> <span class="nf">gen</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_points</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">ModelProtocol</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">num_points</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">"Epsilon-greedy batched gen is not implemented!"</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">()</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">epsilon</span><span class="p">:</span>
-            <span class="n">sample_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lb</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ub</span><span class="p">)</span>
-            <span class="n">sample</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">sample_</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="n">fixed_features</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">fixed_features</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                    <span class="n">sample</span><span class="p">[:,</span> <span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
-
-            <span class="k">return</span> <span class="n">sample</span>
+            <span class="n">sample</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">lb</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">ub</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">sample</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">subgenerator</span><span class="o">.</span><span class="n">gen</span><span class="p">(</span>
-                <span class="n">num_points</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">fixed_features</span><span class="o">=</span><span class="n">fixed_features</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
-            <span class="p">)</span></div></div>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">subgenerator</span><span class="o">.</span><span class="n">gen</span><span class="p">(</span><span class="n">num_points</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span></div></div>
 </pre></div>
 </div>
 </div>
@@ -133,7 +78,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../likelihoods.html">aepsych.likelihoods</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../plotting.html">aepsych.plotting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../strategy.html">aepsych.strategy</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../transforms.html">aepsych.transforms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../utils_logging.html">aepsych.utils_logging</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../utils.html">aepsych.utils</a></li>
 </ul>

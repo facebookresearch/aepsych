@@ -23,31 +23,31 @@
 <span class="c1"># This source code is licensed under the license found in the</span>
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.acquisition.objective</span><span class="w"> </span><span class="kn">import</span> <span class="n">AEPsychObjective</span><span class="p">,</span> <span class="n">FloorProbitObjective</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConfigurableMixin</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">gpytorch.likelihoods</span><span class="w"> </span><span class="kn">import</span> <span class="n">_OneDimensionalLikelihood</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">aepsych.acquisition.objective</span> <span class="kn">import</span> <span class="n">AEPsychObjective</span><span class="p">,</span> <span class="n">FloorProbitObjective</span>
+<span class="kn">from</span> <span class="nn">aepsych.config</span> <span class="kn">import</span> <span class="n">Config</span>
+<span class="kn">from</span> <span class="nn">gpytorch.likelihoods</span> <span class="kn">import</span> <span class="n">_OneDimensionalLikelihood</span>
 
 
-<div class="viewcode-block" id="LinearBernoulliLikelihood"><a class="viewcode-back" href="../../../likelihoods.html#aepsych.likelihoods.LinearBernoulliLikelihood">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">LinearBernoulliLikelihood</span><span class="p">(</span><span class="n">_OneDimensionalLikelihood</span><span class="p">,</span> <span class="n">ConfigurableMixin</span><span class="p">):</span>
+<div class="viewcode-block" id="LinearBernoulliLikelihood"><a class="viewcode-back" href="../../../likelihoods.html#aepsych.likelihoods.LinearBernoulliLikelihood">[docs]</a><span class="k">class</span> <span class="nc">LinearBernoulliLikelihood</span><span class="p">(</span><span class="n">_OneDimensionalLikelihood</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A likelihood of the form Bernoulli(sigma(k(x+c))), where k and c are</span>
 <span class="sd">    GPs and sigma is a flexible link function.</span>
 <span class="sd">    """</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">objective</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AEPsychObjective</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">objective</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AEPsychObjective</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""Initializes the linear bernoulli likelihood.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            objective (AEPsychObjective, optional): Link function to use (sigma in the notation above).</span>
+<span class="sd">            objective (Callable, optional): Link function to use (sigma in the notation above).</span>
 <span class="sd">                Defaults to probit with no floor.</span>
 <span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">objective</span> <span class="o">=</span> <span class="n">objective</span> <span class="ow">or</span> <span class="n">FloorProbitObjective</span><span class="p">(</span><span class="n">floor</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
 
-<div class="viewcode-block" id="LinearBernoulliLikelihood.f"><a class="viewcode-back" href="../../../likelihoods.html#aepsych.likelihoods.LinearBernoulliLikelihood.f">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">f</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function_samples</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">Xi</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<div class="viewcode-block" id="LinearBernoulliLikelihood.f"><a class="viewcode-back" href="../../../likelihoods.html#aepsych.likelihoods.LinearBernoulliLikelihood.f">[docs]</a>    <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function_samples</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">Xi</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the latent function value, k(x-c).</span>
 
 <span class="sd">        Args:</span>
@@ -83,7 +83,7 @@
             <span class="n">fsamps</span> <span class="o">=</span> <span class="n">fsamps</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">fsamps</span></div>
 
-<div class="viewcode-block" id="LinearBernoulliLikelihood.p"><a class="viewcode-back" href="../../../likelihoods.html#aepsych.likelihoods.LinearBernoulliLikelihood.p">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">p</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function_samples</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">Xi</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<div class="viewcode-block" id="LinearBernoulliLikelihood.p"><a class="viewcode-back" href="../../../likelihoods.html#aepsych.likelihoods.LinearBernoulliLikelihood.p">[docs]</a>    <span class="k">def</span> <span class="nf">p</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function_samples</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">Xi</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Returns the response probability sigma(k(x+c)).</span>
 
 <span class="sd">        Args:</span>
@@ -96,7 +96,7 @@
         <span class="n">fsamps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">(</span><span class="n">function_samples</span><span class="p">,</span> <span class="n">Xi</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">objective</span><span class="p">(</span><span class="n">fsamps</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="LinearBernoulliLikelihood.forward"><a class="viewcode-back" href="../../../likelihoods.html#aepsych.likelihoods.LinearBernoulliLikelihood.forward">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span>
+<div class="viewcode-block" id="LinearBernoulliLikelihood.forward"><a class="viewcode-back" href="../../../likelihoods.html#aepsych.likelihoods.LinearBernoulliLikelihood.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">function_samples</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">Xi</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">Bernoulli</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Forward pass for the likelihood</span>
@@ -111,35 +111,30 @@
         <span class="n">output_probs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">(</span><span class="n">function_samples</span><span class="p">,</span> <span class="n">Xi</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">Bernoulli</span><span class="p">(</span><span class="n">probs</span><span class="o">=</span><span class="n">output_probs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="LinearBernoulliLikelihood.expected_log_prob"><a class="viewcode-back" href="../../../likelihoods.html#aepsych.likelihoods.LinearBernoulliLikelihood.expected_log_prob">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">expected_log_prob</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">function_dist</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<div class="viewcode-block" id="LinearBernoulliLikelihood.expected_log_prob"><a class="viewcode-back" href="../../../likelihoods.html#aepsych.likelihoods.LinearBernoulliLikelihood.expected_log_prob">[docs]</a>    <span class="k">def</span> <span class="nf">expected_log_prob</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">,</span> <span class="n">function_dist</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""This has to be overridden to fix a bug in gpytorch where the kwargs</span>
 <span class="sd">        aren't being passed along to self.forward.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            observations (torch.Tensor): Observations.</span>
-<span class="sd">            function_dist (torch.Tensor): Function distribution.</span>
-
-
-<span class="sd">        Returns:</span>
-<span class="sd">            torch.Tensor: Expected log probability.</span>
 <span class="sd">        """</span>
 
         <span class="c1"># modified, TODO fixme upstream (cc @bletham)</span>
-        <span class="k">def</span><span class="w"> </span><span class="nf">log_prob_lambda</span><span class="p">(</span><span class="n">function_samples</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-<span class="w">            </span><span class="sd">"""Lambda function to compute the log probability.</span>
-
-<span class="sd">            Args:</span>
-<span class="sd">                function_samples (torch.Tensor): Function samples.</span>
-
-<span class="sd">            Returns:</span>
-<span class="sd">                torch.Tensor: Log probability.</span>
-<span class="sd">            """</span>
+        <span class="k">def</span> <span class="nf">log_prob_lambda</span><span class="p">(</span><span class="n">function_samples</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">function_samples</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">log_prob</span><span class="p">(</span><span class="n">observations</span><span class="p">)</span>
 
         <span class="n">log_prob</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">quadrature</span><span class="p">(</span><span class="n">log_prob_lambda</span><span class="p">,</span> <span class="n">function_dist</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">log_prob</span></div></div>
+        <span class="k">return</span> <span class="n">log_prob</span></div>
+
+<div class="viewcode-block" id="LinearBernoulliLikelihood.from_config"><a class="viewcode-back" href="../../../likelihoods.html#aepsych.likelihoods.LinearBernoulliLikelihood.from_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">):</span>
+        <span class="n">classname</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
+
+        <span class="n">objective</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"objective"</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">objective</span><span class="p">,</span> <span class="s2">"from_config"</span><span class="p">):</span>
+            <span class="n">objective</span> <span class="o">=</span> <span class="n">objective</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">objective</span> <span class="o">=</span> <span class="n">objective</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">objective</span><span class="o">=</span><span class="n">objective</span><span class="p">)</span></div></div>
 </pre></div>
 </div>
 </div>
@@ -163,7 +158,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../likelihoods.html">aepsych.likelihoods</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../plotting.html">aepsych.plotting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../strategy.html">aepsych.strategy</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../transforms.html">aepsych.transforms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../utils_logging.html">aepsych.utils_logging</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../utils.html">aepsych.utils</a></li>
 </ul>

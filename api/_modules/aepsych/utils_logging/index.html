@@ -23,52 +23,21 @@
 <span class="c1"># This source code is licensed under the license found in the</span>
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">logging.config</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">logging.config</span>
+<span class="kn">import</span> <span class="nn">os</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span>
 
 
-<div class="viewcode-block" id="ColorFormatter"><a class="viewcode-back" href="../../utils_logging.html#aepsych.utils_logging.ColorFormatter">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">ColorFormatter</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">):</span>
-    <span class="n">grey</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\x1b</span><span class="s2">[0;30m"</span>
-    <span class="n">white</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\x1b</span><span class="s2">[0;37m"</span>
-    <span class="n">yellow</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\x1b</span><span class="s2">[33;20m"</span>
-    <span class="n">red</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\x1b</span><span class="s2">[31;20m"</span>
-    <span class="n">bold_red</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\x1b</span><span class="s2">[31;1m"</span>
-    <span class="n">reset</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\x1b</span><span class="s2">[0m"</span>
+<div class="viewcode-block" id="getLogger"><a class="viewcode-back" href="../../utils_logging.html#aepsych.utils_logging.getLogger">[docs]</a><span class="k">def</span> <span class="nf">getLogger</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span> <span class="n">log_path</span><span class="o">=</span><span class="s2">"logs"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">:</span>
     <span class="n">my_format</span> <span class="o">=</span> <span class="s2">"</span><span class="si">%(asctime)-15s</span><span class="s2"> [</span><span class="si">%(levelname)-7s</span><span class="s2">] </span><span class="si">%(message)s</span><span class="s2">"</span>
-
-    <span class="n">FORMATS</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">:</span> <span class="n">reset</span> <span class="o">+</span> <span class="n">grey</span> <span class="o">+</span> <span class="n">my_format</span><span class="p">,</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">:</span> <span class="n">reset</span> <span class="o">+</span> <span class="n">white</span> <span class="o">+</span> <span class="n">my_format</span><span class="p">,</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">:</span> <span class="n">reset</span> <span class="o">+</span> <span class="n">yellow</span> <span class="o">+</span> <span class="n">my_format</span><span class="p">,</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">:</span> <span class="n">reset</span> <span class="o">+</span> <span class="n">red</span> <span class="o">+</span> <span class="n">my_format</span><span class="p">,</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">CRITICAL</span><span class="p">:</span> <span class="n">reset</span> <span class="o">+</span> <span class="n">bold_red</span> <span class="o">+</span> <span class="n">my_format</span><span class="p">,</span>
-    <span class="p">}</span>
-
-<div class="viewcode-block" id="ColorFormatter.format"><a class="viewcode-back" href="../../utils_logging.html#aepsych.utils_logging.ColorFormatter.format">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">):</span>
-        <span class="n">log_fmt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">FORMATS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">levelno</span><span class="p">)</span>
-        <span class="n">formatter</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">(</span><span class="n">log_fmt</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">formatter</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">record</span><span class="p">)</span></div></div>
-
-
-<div class="viewcode-block" id="getLogger"><a class="viewcode-back" href="../../utils_logging.html#aepsych.utils_logging.getLogger">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">getLogger</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span> <span class="n">log_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"logs"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Get a logger with the specified level and log path.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        level: logging level. Default is logging.INFO.</span>
-<span class="sd">        log_path (str): path to save the log file. Default is "logs".</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        logger: a logger object.</span>
-<span class="sd">    """</span>
     <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">log_path</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="n">logging_config</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">"version"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
         <span class="s2">"disable_existing_loggers"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="s2">"formatters"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"standard"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"()"</span><span class="p">:</span> <span class="n">ColorFormatter</span><span class="p">}},</span>
+        <span class="s2">"formatters"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"standard"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"format"</span><span class="p">:</span> <span class="n">my_format</span><span class="p">}},</span>
         <span class="s2">"handlers"</span><span class="p">:</span> <span class="p">{</span>
             <span class="s2">"default"</span><span class="p">:</span> <span class="p">{</span>
                 <span class="s2">"level"</span><span class="p">:</span> <span class="n">level</span><span class="p">,</span>
@@ -78,7 +47,7 @@
             <span class="s2">"file"</span><span class="p">:</span> <span class="p">{</span>
                 <span class="s2">"class"</span><span class="p">:</span> <span class="s2">"logging.FileHandler"</span><span class="p">,</span>
                 <span class="s2">"level"</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span>
-                <span class="s2">"filename"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">log_path</span><span class="si">}</span><span class="s2">/aepsych_server.log"</span><span class="p">,</span>
+                <span class="s2">"filename"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">log_path</span><span class="si">}</span><span class="s2">/bayes_opt_server.log"</span><span class="p">,</span>
                 <span class="s2">"formatter"</span><span class="p">:</span> <span class="s2">"standard"</span><span class="p">,</span>
             <span class="p">},</span>
         <span class="p">},</span>
@@ -112,7 +81,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../../likelihoods.html">aepsych.likelihoods</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../plotting.html">aepsych.plotting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../strategy.html">aepsych.strategy</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../transforms.html">aepsych.transforms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../utils_logging.html">aepsych.utils_logging</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../utils.html">aepsych.utils</a></li>
 </ul>
