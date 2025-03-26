@@ -1,6 +1,5 @@
 # Copyright (c) Meta Platforms, Inc. and affiliates. All rights reserved.
 import os
-from typing import List, Union
 
 import numpy as np
 import torch
@@ -22,9 +21,7 @@ class DiscrimLowDim(LSEProblemWithEdgeLogging):
     name = "discrim_lowdim"
     bounds = torch.tensor([[-1, 1], [-1, 1]], dtype=torch.double).T
 
-    def __init__(
-        self, thresholds: Union[float, List, torch.Tensor, None] = None
-    ) -> None:
+    def __init__(self, thresholds: float | list | torch.Tensor | None = None) -> None:
         thresholds = 0.75 if thresholds is None else thresholds
         super().__init__(thresholds=thresholds)
 
@@ -48,9 +45,7 @@ class DiscrimHighDim(LSEProblemWithEdgeLogging):
         dtype=torch.double,
     ).T
 
-    def __init__(
-        self, thresholds: Union[float, List, torch.Tensor, None] = None
-    ) -> None:
+    def __init__(self, thresholds: float | list | torch.Tensor | None = None) -> None:
         thresholds = 0.75 if thresholds is None else thresholds
         super().__init__(thresholds=thresholds)
 
@@ -67,9 +62,7 @@ class Hartmann6Binary(LSEProblemWithEdgeLogging):
         )
     )
 
-    def __init__(
-        self, thresholds: Union[float, List, torch.Tensor, None] = None
-    ) -> None:
+    def __init__(self, thresholds: float | list | torch.Tensor | None = None) -> None:
         thresholds = 0.5 if thresholds is None else thresholds
         super().__init__(thresholds=thresholds)
 
@@ -90,9 +83,7 @@ class ContrastSensitivity6d(LSEProblemWithEdgeLogging):
         dtype=torch.double,
     ).T
 
-    def __init__(
-        self, thresholds: Union[float, List, torch.Tensor, None] = None
-    ) -> None:
+    def __init__(self, thresholds: float | list | torch.Tensor | None = None) -> None:
         thresholds = 0.75 if thresholds is None else thresholds
         super().__init__(thresholds=thresholds)
 

@@ -10,7 +10,7 @@ from __future__ import annotations
 import itertools
 import time
 from random import shuffle
-from typing import Any, Callable, Dict, List, Mapping, Optional, Tuple, Union
+from typing import Any, Callable, Mapping
 
 import numpy as np
 import pandas as pd
@@ -36,17 +36,17 @@ class Benchmark:
 
     def __init__(
         self,
-        problems: List[Problem],
-        configs: Mapping[str, Union[str, list]],
-        seed: Optional[int] = None,
+        problems: list[Problem],
+        configs: Mapping[str, str | list],
+        seed: int | None = None,
         n_reps: int = 1,
-        log_every: Optional[int] = 10,
+        log_every: int | None = 10,
     ) -> None:
         """Initialize benchmark.
 
         Args:
-            problems (List[Problem]): Problem objects containing the test function to evaluate.
-            configs (Mapping[str, Union[str, list]]): Dictionary of configs to run.
+            problems (list[Problem]): Problem objects containing the test function to evaluate.
+            configs (Mapping[str, str | list]): Dictionary of configs to run.
                 Lists at leaves are used to construct a cartesian product of configurations.
             seed (int, optional): Random seed to use for reproducible benchmarks.
                 Defaults to randomized seeds.
@@ -56,7 +56,7 @@ class Benchmark:
         self.problems = problems
         self.n_reps = n_reps
         self.combinations = self.make_benchmark_list(**configs)
-        self._log: List[Dict[str, object]] = []
+        self._log: list[dict[str, object]] = []
         self.log_every = log_every
 
         # shuffle combinations so that intermediate results have a bit of everything
@@ -68,14 +68,14 @@ class Benchmark:
         else:
             self.seed = seed
 
-    def make_benchmark_list(self, **bench_config) -> List[Dict[str, float]]:
+    def make_benchmark_list(self, **bench_config) -> list[dict[str, float]]:
         """Generate a list of benchmarks to run from configuration.
 
             This constructs a cartesian product of config dicts using lists at
             the leaves of the base config
 
         Returns:
-            List[dict[str, float]]: List of dictionaries, each of which can be passed
+            list[dict[str, float]]: List of dictionaries, each of which can be passed
                 to aepsych.config.Config.
         """
 
@@ -116,7 +116,7 @@ class Benchmark:
 
     def make_strat_and_flatconfig(
         self, config_dict: Mapping[str, str]
-    ) -> Tuple[SequentialStrategy, Dict[str, str]]:
+    ) -> tuple[SequentialStrategy, dict[str, str]]:
         """From a config dict, generate a strategy (for running) and
             flattened config (for logging)
 
@@ -124,7 +124,7 @@ class Benchmark:
             config_dict (Mapping[str, str]): A run configuration dictionary.
 
         Returns:
-            Tuple[SequentialStrategy, Dict[str,str]]: A tuple containing a strategy
+            tuple[SequentialStrategy, dict[str,str]]: A tuple containing a strategy
                 object and a flat config.
         """
         config = Config()
@@ -136,19 +136,19 @@ class Benchmark:
     def run_experiment(
         self,
         problem: Problem,
-        config_dict: Dict[str, Any],
+        config_dict: dict[str, Any],
         seed: int,
         rep: int,
-    ) -> Tuple[List[Dict[str, Any]], Union[SequentialStrategy, None]]:
+    ) -> tuple[list[dict[str, Any]], SequentialStrategy | None]:
         """Run one simulated experiment.
 
         Args:
-            config_dict (Dict[str, str]): AEPsych configuration to use.
+            config_dict (dict[str, str]): AEPsych configuration to use.
             seed (int): Random seed for this run.
             rep (int): Index of this repetition.
 
         Returns:
-            Tuple[List[Dict[str, object]], SequentialStrategy]: A tuple containing a log of the results and the strategy as
+            tuple[list[dict[str, object]], SequentialStrategy | None]: A tuple containing a log of the results and the strategy as
                 of the end of the simulated experiment. This is ignored in large-scale benchmarks but useful for
                 one-off visualization.
         """
@@ -196,7 +196,7 @@ class Benchmark:
             total_fittime += fittime
             if (self.log_at(i) or strat.finished) and strat.has_model:
                 metrics = problem.evaluate(strat)
-                result: Dict[str, Union[float, str]] = {
+                result: dict[str, float | str] = {
                     "fit_time": fittime,
                     "cum_fit_time": total_fittime,
                     "gen_time": gentime,
@@ -226,14 +226,14 @@ class Benchmark:
             if results != [{}]:
                 self._log.extend(results)
 
-    def flatten_config(self, config: Config) -> Dict[str, str]:
+    def flatten_config(self, config: Config) -> dict[str, str]:
         """Flatten a config object for logging.
 
         Args:
             config (Config): AEPsych config object.
 
         Returns:
-            Dict[str,str]: A flat dictionary (that can be used to build a flat pandas data frame).
+            dict[str,str]: A flat dictionary (that can be used to build a flat pandas data frame).
         """
         flatconfig = {}
         for s in config.sections():
@@ -263,11 +263,11 @@ class DerivedValue(object):
     A class for dynamically generating config values from other config values during benchmarking.
     """
 
-    def __init__(self, args: List[Tuple[str, str]], func: Callable) -> None:
+    def __init__(self, args: list[tuple[str, str]], func: Callable) -> None:
         """Initialize DerivedValue.
 
         Args:
-            args (List[Tuple[str]]): Each tuple in this list is a pair of strings that refer to keys in a nested dictionary.
+            args (list[tuple[str]]): Each tuple in this list is a pair of strings that refer to keys in a nested dictionary.
             func (Callable): A function that accepts args as input.
 
         For example, consider the following:
@@ -301,7 +301,7 @@ class DerivedValue(object):
         self.args = args
         self.func = func
 
-    def _evaluate(self, benchmark_config: Dict) -> Any:
+    def _evaluate(self, benchmark_config: dict) -> Any:
         """Fetches values of self.args from benchmark_config and evaluates self.func on them."""
         _args = [benchmark_config[outer][inner] for outer, inner in self.args]
         return self.func(*_args)
