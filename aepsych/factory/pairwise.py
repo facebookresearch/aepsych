@@ -5,8 +5,6 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-from typing import List, Optional, Tuple, Union
-
 import gpytorch
 from aepsych.config import Config
 from aepsych.factory.default import (
@@ -19,9 +17,9 @@ from aepsych.kernels.pairwisekernel import PairwiseKernel
 
 def pairwise_mean_covar_factory(
     config: Config,
-    dim: Optional[int] = None,
+    dim: int | None = None,
     stimuli_per_trial: int = 1,
-) -> Tuple[gpytorch.means.ConstantMean, gpytorch.kernels.ScaleKernel]:
+) -> tuple[gpytorch.means.ConstantMean, gpytorch.kernels.ScaleKernel]:
     """Creates a mean and covariance function for pairwise GPs.
 
     Args:
@@ -29,7 +27,7 @@ def pairwise_mean_covar_factory(
         dim (int, optional): Dimensionality of the parameter space. Unused; here for API consistency with the default factory.
         stimuli_per_trial (int): Number of stimuli per trial. Because this factory is intended to be used with GPClassificationModel, this must actually be 1.
     Returns:
-        Tuple[gpytorch.means.ConstantMean, gpytorch.kernels.ScaleKernel]: A tuple containing
+        tuple[gpytorch.means.ConstantMean, gpytorch.kernels.ScaleKernel]: A tuple containing
         the mean function (ConstantMean) and the covariance function (ScaleKernel)."""
 
     assert (
@@ -41,7 +39,7 @@ def pairwise_mean_covar_factory(
     assert lb.shape[0] >= 2, "PairwiseKernel requires at least 2 dimensions!"
     config_dim = lb.shape[0]
 
-    shared_dims: Union[List[int], None] = config.getlist(
+    shared_dims: list[int] | None = config.getlist(
         "pairwise_mean_covar_factory", "shared_dims", fallback=None
     )
     if shared_dims is not None:
