@@ -6,19 +6,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import warnings
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    Iterable,
-    List,
-    Literal,
-    Optional,
-    Sized,
-    Tuple,
-    TypeAlias,
-    Union,
-)
+from typing import Any, Callable, Iterable, Literal, Sized, TypeAlias
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -40,10 +28,10 @@ ColorType: TypeAlias = str
 def plot_predict_1d(
     x: Iterable[float],
     prediction: Iterable[float],
-    ax: Optional[Axes] = None,
-    pred_lower: Optional[Iterable[float]] = None,
-    pred_upper: Optional[Iterable[float]] = None,
-    shaded_kwargs: Optional[Dict[Any, Any]] = None,
+    ax: Axes | None = None,
+    pred_lower: Iterable[float] | None = None,
+    pred_upper: Iterable[float] | None = None,
+    shaded_kwargs: dict[Any, Any] | None = None,
     **kwargs,
 ) -> Axes:
     """Return the ax with the model predictions plotted in place as a 1D line plot.
@@ -60,7 +48,7 @@ def plot_predict_1d(
             the prediction line, both post_lower/post_upper must be set to plot the band.
         post_upper (Iterable[float], optional): The upper part of the shaded region around
             the prediction line, both post_lower/post_upper must be set to plot the band.
-        shaded_kwargs (Dict[Any, Any], optional): Kwargs to pass to the
+        shaded_kwargs (dict[Any, Any], optional): Kwargs to pass to the
             `ax.fill_between()` call to modify the shaded regions, defaults to None.
         **kwargs: Extra kwargs passed to the ax.plot() call, not passed to the plotting
             functions in charge of shaded regions.
@@ -94,13 +82,13 @@ def plot_predict_1d(
 
 
 def plot_points_1d(
-    x: Iterable[Union[float, Iterable[float]]],
+    x: Iterable[float | Iterable[float]],
     y: Iterable[float],
-    ax: Optional[Axes] = None,
-    pred_x: Optional[Iterable[float]] = None,
-    pred_y: Optional[Iterable[float]] = None,
+    ax: Axes | None = None,
+    pred_x: Iterable[float] | None = None,
+    pred_y: Iterable[float] | None = None,
     point_size: float = 5.0,
-    cmap_colors: List[ColorType] = ["r", "b"],
+    cmap_colors: list[ColorType] = ["r", "b"],
     label_points: bool = True,
     legend_loc: str = "best",
     **kwargs,
@@ -111,7 +99,7 @@ def plot_points_1d(
     the prediction values (pred_x/pred_y). Usually use alongside `plot_predict_1d()`.
 
     Args:
-        x (Iterable[Union[float, Iterable[float]]]): The `(n, 1)` or `(n, d, 2)` points to plot. The 3D case will
+        x (Iterable[float | Iterable[float]]): The `(n, 1)` or `(n, d, 2)` points to plot. The 3D case will
             be considered a pairwise plot.
         y (Iterable[float]): The `(n, 1)` responses to plot.
         ax (Axes, optional): The Matplotlib axes to plot onto. If not set, an axes is
@@ -123,7 +111,7 @@ def plot_points_1d(
             position each point as close as possible to the line. If not set, the points
             are plotted as marks at the bottom of the plot.
         point_size (float): The size of each plotted point, defaults to 5.0.
-        cmap_colors (List[ColorType]): A list of colors to map the point colors to from
+        cmap_colors (list[ColorType]): A list of colors to map the point colors to from
             min to max of y. At least 2 colors are needed, but more colors will allow
             customizing intermediate colors. Defaults to ["r", "b"].
         label_points (bool): Add a way to identify the value of the points, whether as a
@@ -267,9 +255,9 @@ def plot_predict_2d(
     prediction: Iterable[Iterable[float]],
     lb: Iterable[float],
     ub: Iterable[float],
-    ax: Optional[Axes] = None,
-    vmin: Optional[float] = None,
-    vmax: Optional[float] = None,
+    ax: Axes | None = None,
+    vmin: float | None = None,
+    vmax: float | None = None,
     edge_multiplier: float = 0.0,
     colorbar: bool = True,
     **kwargs,
@@ -340,11 +328,11 @@ def plot_points_2d(
     x: Iterable[Iterable[float]],
     y: Iterable[float],
     point_size: float = 5.0,
-    ax: Optional[Axes] = None,
-    axis: Optional[List[int]] = None,
-    slice_vals: Optional[Iterable[float]] = None,
+    ax: Axes | None = None,
+    axis: list[int] | None = None,
+    slice_vals: Iterable[float] | None = None,
     slice_gradient: float = 1.0,
-    cmap_colors: List[ColorType] = ["r", "b"],
+    cmap_colors: list[ColorType] = ["r", "b"],
     label_points: bool = True,
     legend_loc: str = "best",
     **kwargs,
@@ -361,7 +349,7 @@ def plot_points_2d(
         ax (Axes, optional): The Matplotlib axes to plot onto. If not set, an axes is
             made and returned.
         point_size (float): The size of the points, defaults to 5.
-        axis (List[int], optional): If the dimensionality `d` is higher than 2, which
+        axis (list[int], optional): If the dimensionality `d` is higher than 2, which
             two dimensions should the points be positioned with.
         slice_vals (Iterable[float]): If the dimensionality `d` is higher than 2, where was
             the other dimensions sliced at. This is used to determine the size/alpha
@@ -372,7 +360,7 @@ def plot_points_2d(
             applied to the point_size and the alpha (transparency) of the points.
         slice_gradient (float): The rate at which the multiplier decreases as a function
             of the distance between a point and the slice. Defaults to 1.
-        cmap_colors (List[ColorType]): A list of colors to map the point colors to from
+        cmap_colors (list[ColorType]): A list of colors to map the point colors to from
             min to max of y. At least 2 colors are needed, but more colors will allow
             customizing intermediate colors. Defaults to ["r", "b"].
         label_points (bool): Add a way to identify the value of the points, whether as a
@@ -476,12 +464,12 @@ def plot_contours(
     prediction: Iterable[Iterable[float]],
     lb: Iterable[float],
     ub: Iterable[float],
-    ax: Optional[Axes] = None,
-    levels: Optional[Iterable[float]] = None,
+    ax: Axes | None = None,
+    levels: Iterable[float] | None = None,
     edge_multiplier: float = 0,
-    color: Optional[ColorType] = "white",
+    color: ColorType | None = "white",
     labels: bool = False,
-    linestyles: Optional[linestyle_str] = "solid",
+    linestyles: linestyle_str | None = "solid",
     **kwargs,
 ) -> Axes:
     """Plot contour lines at the levels onto the axes based on the model predictions
@@ -554,23 +542,23 @@ def plot_contours(
 
 
 def facet_slices(
-    prediction: Union[torch.Tensor, np.ndarray],
-    plotted_axes: List[int],
+    prediction: torch.Tensor | np.ndarray,
+    plotted_axes: list[int],
     lb: Iterable[float],
     ub: Iterable[float],
     nrows: int,
     ncols: int,
     plot_size: float,
     **kwargs,
-) -> Tuple[matplotlib.figure.Figure, np.ndarray, np.ndarray, np.ndarray]:
+) -> tuple[matplotlib.figure.Figure, np.ndarray, np.ndarray, np.ndarray]:
     """Sets up a set of subplots to plot either a 3D or a 4D space where two dimensions
     are plotted and the other dimensions are sliced over the subplots.
 
     Args:
-        prediction(Union[torch.Tensor, np.ndarray]): The model predictions cube to
+        prediction(torch.Tensor | np.ndarray): The model predictions cube to
             slice, in a 3D parameter space, it would be a 3D array, in a 4D parameter
             space it would be a 4D array.
-        plotted_axes (List[int]): The two parameter indices that will be plotted, the
+        plotted_axes (list[int]): The two parameter indices that will be plotted, the
             other parameters will be sliced over subplots.
         lb (Iterable[Float]): The lower bound of the parameter space.
         ub (Iterable[Float]): The upper bound of the parameter space.
@@ -677,9 +665,9 @@ def _point_labeler(
         ax.figure.colorbar(mappable, ax=ax)
 
 
-def _tensor_cast(*objs: Any) -> Tuple[torch.Tensor, ...]:
+def _tensor_cast(*objs: Any) -> tuple[torch.Tensor, ...]:
     # Turns objects into tensors if possible
-    casted_objs: List[Any] = []
+    casted_objs: list[Any] = []
     for obj in objs:
         try:
             if not isinstance(obj, torch.Tensor) and hasattr(
@@ -696,19 +684,19 @@ def _tensor_cast(*objs: Any) -> Tuple[torch.Tensor, ...]:
 
 def plot_strat(
     strat: Strategy,
-    ax: Optional[plt.Axes] = None,
-    true_testfun: Optional[Callable] = None,
+    ax: plt.Axes | None = None,
+    true_testfun: Callable | None = None,
     cred_level: float = 0.95,
-    target_level: Optional[float] = 0.75,
-    xlabel: Optional[str] = None,
-    ylabel: Optional[str] = None,
+    target_level: float | None = 0.75,
+    xlabel: str | None = None,
+    ylabel: str | None = None,
     yes_label: str = "Yes trial",
     no_label: str = "No trial",
     flipx: bool = False,
     logx: bool = False,
     gridsize: int = 30,
     title: str = "",
-    save_path: Optional[str] = None,
+    save_path: str | None = None,
     show: bool = True,
     include_legend: bool = True,
     include_colorbar: bool = True,
@@ -822,9 +810,9 @@ def plot_strat(
 def _plot_strat_1d(
     strat: Strategy,
     ax: plt.Axes,
-    true_testfun: Optional[Callable],
+    true_testfun: Callable | None,
     cred_level: float,
-    target_level: Optional[float],
+    target_level: float | None,
     xlabel: str,
     ylabel: str,
     yes_label: str,
@@ -936,9 +924,9 @@ def _plot_strat_1d(
 def _plot_strat_2d(
     strat: Strategy,
     ax: plt.Axes,
-    true_testfun: Optional[Callable],
+    true_testfun: Callable | None,
     cred_level: float,
-    target_level: Optional[float],
+    target_level: float | None,
     xlabel: str,
     ylabel: str,
     yes_label: str,
@@ -1066,28 +1054,28 @@ def _plot_strat_2d(
 
 def plot_strat_3d(
     strat: Strategy,
-    parnames: Optional[List[str]] = None,
+    parnames: list[str] | None = None,
     outcome_label: str = "Yes Trial",
     slice_dim: int = 0,
-    slice_vals: Union[List[float], int] = 5,
-    contour_levels: Optional[Union[Iterable[float], bool]] = None,
+    slice_vals: list[float] | int = 5,
+    contour_levels: Iterable[float] | bool | None = None,
     probability_space: bool = False,
     gridsize: int = 30,
-    extent_multiplier: Optional[List[float]] = None,
-    save_path: Optional[str] = None,
+    extent_multiplier: list[float] | None = None,
+    save_path: str | None = None,
     show: bool = True,
 ) -> None:
     """Creates a plot of a 2d slice of a 3D strategy, showing the estimated model or probability response and contours
     Args:
         strat (Strategy): Strategy object to be plotted. Must have a dimensionality of 3.
-        parnames (List[str], optional): list of the parameter names. If None, defaults to ["x1", "x2", "x3"].
+        parnames (list[str], optional): list of the parameter names. If None, defaults to ["x1", "x2", "x3"].
         outcome_label (str): The label of the outcome variable
         slice_dim (int): dimension to slice on. Default: 0.
-        slice_vals (Union[List[float], int]): values to take slices; OR number of values to take even slices from. Default: 5.
-        contour_levels (Union[Iterable[float], bool], optional): List contour values to plot. Default: None. If true, all integer levels.
+        slice_vals (list[float] | int): values to take slices; OR number of values to take even slices from. Default: 5.
+        contour_levels (Iterable[float] | bool, optional): List contour values to plot. Default: None. If true, all integer levels.
         probability_space (bool): Whether to plot probability. Default: False
         gridsize (int): The number of points to sample each dimension at. Default: 30.
-        extent_multiplier (List[float], optional): multipliers for each of the dimensions when plotting. If None, defaults to [1, 1, 1].
+        extent_multiplier (list[float], optional): multipliers for each of the dimensions when plotting. If None, defaults to [1, 1, 1].
         save_path (str, optional): File name to save the plot to. Default: None.
         show (bool): Whether the plot should be shown in an interactive window. Default: True.
     """
@@ -1097,7 +1085,7 @@ def plot_strat_3d(
     )
     assert strat.model is not None, "Cannot plot without a model!"
 
-    contour_levels_list: List[float] = []
+    contour_levels_list: list[float] = []
 
     if parnames is None:
         parnames = ["x1", "x2", "x3"]
@@ -1168,21 +1156,21 @@ def plot_strat_3d(
 def plot_slice(
     ax: Axes,
     strat: Strategy,
-    parnames: List[str],
+    parnames: list[str],
     slice_dim: int,
     slice_val: int,
     vmin: float,
     vmax: float,
     gridsize: int = 30,
-    contour_levels: Optional[Sized] = None,
+    contour_levels: Sized | None = None,
     lse: bool = False,
-    extent_multiplier: Optional[List] = None,
+    extent_multiplier: list | None = None,
 ) -> AxesImage:
     """Creates a plot of a 2d slice of a 3D strategy, showing the estimated model or probability response and contours
     Args:
         ax (plt.Axes): Matplotlib axis to plot on
         start (Strategy): Strategy object to be plotted. Must have a dimensionality of 3.
-        parnames (List[str]): list of the parameter names.
+        parnames (list[str]): list of the parameter names.
         slice_dim (int): dimension to slice on.
         slice_val (int): value to take the slice along that dimension.
         vmin (float): global model minimum to use for plotting.
@@ -1190,7 +1178,7 @@ def plot_slice(
         gridsize (int): The number of points to sample each dimension at. Default: 30.
         contour_levels (Sized, optional): Contours to plot. Default: None
         lse (bool): Whether to plot probability. Default: False
-        extent_multiplier (List, optional): multipliers for each of the dimensions when plotting. Default:None
+        extent_multiplier (list, optional): multipliers for each of the dimensions when plotting. Default:None
 
     Returns:
         AxesImage: The axis object with the plot.

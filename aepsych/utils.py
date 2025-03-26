@@ -7,7 +7,7 @@
 
 from collections.abc import Iterable
 from configparser import NoOptionError
-from typing import Any, Dict, List, Mapping, Optional, Tuple, Union
+from typing import Any, Mapping
 
 import numpy as np
 import torch
@@ -17,7 +17,7 @@ from torch.quasirandom import SobolEngine
 
 
 def make_scaled_sobol(
-    lb: torch.Tensor, ub: torch.Tensor, size: int, seed: Optional[int] = None
+    lb: torch.Tensor, ub: torch.Tensor, size: int, seed: int | None = None
 ) -> torch.Tensor:
     """Create a scaled Sobol grid
 
@@ -58,7 +58,7 @@ def dim_grid(
     lower: torch.Tensor,
     upper: torch.Tensor,
     gridsize: int = 30,
-    slice_dims: Optional[Mapping[int, float]] = None,
+    slice_dims: Mapping[int, float] | None = None,
 ) -> torch.Tensor:
     """Create a grid
     Create a grid based on lower, upper, and dim.
@@ -89,19 +89,19 @@ def dim_grid(
 
 
 def _process_bounds(
-    lb: Union[np.ndarray, torch.Tensor, List],
-    ub: Union[np.ndarray, torch.Tensor, List],
-    dim: Optional[int],
-) -> Tuple[torch.Tensor, torch.Tensor, int]:
+    lb: np.ndarray | torch.Tensor | list,
+    ub: np.ndarray | torch.Tensor | list,
+    dim: int | None,
+) -> tuple[torch.Tensor, torch.Tensor, int]:
     """Helper function for ensuring bounds are correct shape and type.
 
     Args:
-        lb (Union[np.ndarray, torch.Tensor, List]): Lower bounds.
-        ub (Union[np.ndarray, torch.Tensor, List]): Upper bounds.
+        lb (np.ndarray | torch.Tensor | list): Lower bounds.
+        ub (np.ndarray | torch.Tensor | list): Upper bounds.
         dim (int, optional): Dimension of the bounds.
 
     Returns:
-        Tuple[torch.Tensor, torch.Tensor, int]: Tuple of lower bounds, upper bounds, and dimension.
+        tuple[torch.Tensor, torch.Tensor, int]: Tuple of lower bounds, upper bounds, and dimension.
     """
     lb = promote_0d(lb)
     ub = promote_0d(ub)
@@ -134,20 +134,20 @@ def _process_bounds(
 
 
 def interpolate_monotonic(
-    x: Union[torch.Tensor, np.ndarray],
-    y: Union[torch.Tensor, np.ndarray],
-    z: Union[torch.Tensor, np.ndarray, float],
-    min_x: Union[torch.Tensor, np.ndarray, float] = -np.inf,
-    max_x: Union[torch.Tensor, np.ndarray, float] = np.inf,
+    x: torch.Tensor | np.ndarray,
+    y: torch.Tensor | np.ndarray,
+    z: torch.Tensor | np.ndarray | float,
+    min_x: torch.Tensor | np.ndarray | float = -np.inf,
+    max_x: torch.Tensor | np.ndarray | float = np.inf,
 ) -> Any:
     """Interpolate a monotonic function
 
     Args:
-        x (Union[torch.Tensor, np.ndarray]): x values.
-        y (Union[torch.Tensor, np.ndarray]): y values.
-        z (Union[torch.Tensor, np.ndarray, float]): z values.
-        min_x (Union[torch.Tensor, np.ndarray, float]): Minimum x value. Defaults to -np.inf.
-        max_x (Union[torch.Tensor, np.ndarray, float]): Maximum x value. Defaults to np.inf.
+        x (torch.Tensor | np.ndarray): x values.
+        y (torch.Tensor | np.ndarray): y values.
+        z (torch.Tensor | np.ndarray | float): z values.
+        min_x (torch.Tensor | np.ndarray | float): Minimum x value. Defaults to -np.inf.
+        max_x (torch.Tensor | np.ndarray | float): Maximum x value. Defaults to np.inf.
 
     Returns:
         Any: Interpolated value.
@@ -176,23 +176,23 @@ def interpolate_monotonic(
 
 def get_lse_interval(
     model: GPyTorchModel,
-    mono_grid: Union[torch.Tensor, np.ndarray],
+    mono_grid: torch.Tensor | np.ndarray,
     target_level: float,
     grid_lb: torch.Tensor,
     grid_ub: torch.Tensor,
-    cred_level: Optional[float] = None,
+    cred_level: float | None = None,
     mono_dim: int = -1,
     n_samps: int = 500,
     lb: float = -float("inf"),
     ub: float = float("inf"),
     gridsize: int = 30,
     **kwargs,
-) -> Union[Tuple[torch.Tensor, torch.Tensor, torch.Tensor], torch.Tensor]:
+) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor] | torch.Tensor:
     """Get the level set estimate interval
 
     Args:
         model (GPyTorchModel): Model to use for sampling.
-        mono_grid (Union[torch.Tensor, np.ndarray]): Monotonic grid.
+        mono_grid (torch.Tensor | np.ndarray): Monotonic grid.
         target_level (float): Target level.
         grid_lb (torch.Tensor): The lower bound of the grid to sample from to calculate
             LSE.
@@ -208,7 +208,7 @@ def get_lse_interval(
         gridsize (int): Grid size. Defaults to 30.
 
     Returns:
-        Union[Tuple[torch.Tensor, torch.Tensor, torch.Tensor], torch.Tensor]: Level set estimate interval.
+        tuple[torch.Tensor, torch.Tensor, torch.Tensor] | torch.Tensor: Level set estimate interval.
     """
     # Create a meshgrid using torch.linspace
     xgrid = torch.stack(
@@ -256,17 +256,17 @@ def get_lse_interval(
 
 def get_lse_contour(
     post_mean: torch.Tensor,
-    mono_grid: Union[torch.Tensor, np.ndarray],
+    mono_grid: torch.Tensor | np.ndarray,
     level: float,
     mono_dim: int = -1,
-    lb: Union[torch.Tensor, float] = -np.inf,
-    ub: Union[torch.Tensor, float] = np.inf,
+    lb: torch.Tensor | float = -np.inf,
+    ub: torch.Tensor | float = np.inf,
 ) -> torch.Tensor:
     """Get the level set estimate contour
 
     Args:
         post_mean (torch.Tensor): Posterior mean.
-        mono_grid (Union[torch.Tensor, np.ndarray]): Monotonic grid.
+        mono_grid (torch.Tensor | np.ndarray): Monotonic grid.
         level (float): Level.
         mono_dim (int): Monotonic dimension. Defaults to -1.
         lb (float): Lower bound. Defaults to -np.inf.
@@ -289,8 +289,8 @@ def get_jnd_1d(
     mono_grid: torch.Tensor,
     df: int = 1,
     mono_dim: int = -1,
-    lb: Union[torch.Tensor, float] = -float("inf"),
-    ub: Union[torch.Tensor, float] = float("inf"),
+    lb: torch.Tensor | float = -float("inf"),
+    ub: torch.Tensor | float = float("inf"),
 ) -> torch.Tensor:
     """Get the just noticeable difference for a 1D function
 
@@ -299,8 +299,8 @@ def get_jnd_1d(
         mono_grid (torch.Tensor): Monotonic grid.
         df (int): Degrees of freedom. Defaults to 1.
         mono_dim (int): Monotonic dimension. Defaults to -1.
-        lb (Union[torch.Tensor, float]): Lower bound. Defaults to -float("inf").
-        ub (Union[torch.Tensor, float]): Upper bound. Defaults to float("inf").
+        lb (torch.Tensor | float): Lower bound. Defaults to -float("inf").
+        ub (torch.Tensor | float): Upper bound. Defaults to float("inf").
 
     Returns:
         torch.Tensor: Just noticeable difference.
@@ -324,8 +324,8 @@ def get_jnd_multid(
     mono_grid: torch.Tensor,
     df: int = 1,
     mono_dim: int = -1,
-    lb: Union[torch.Tensor, float] = -float("inf"),
-    ub: Union[torch.Tensor, float] = float("inf"),
+    lb: torch.Tensor | float = -float("inf"),
+    ub: torch.Tensor | float = float("inf"),
 ) -> torch.Tensor:
     """Get the just noticeable difference for a multidimensional function
 
@@ -334,8 +334,8 @@ def get_jnd_multid(
         mono_grid (torch.Tensor): Monotonic grid.
         df (int): Degrees of freedom. Defaults to 1.
         mono_dim (int): Monotonic dimension. Defaults to -1.
-        lb (Union[torch.Tensor, float]): Lower bound. Defaults to -float("inf").
-        ub (Union[torch.Tensor, float]): Upper bound. Defaults to float("inf").
+        lb (torch.Tensor | float): Lower bound. Defaults to -float("inf").
+        ub (torch.Tensor | float): Upper bound. Defaults to float("inf").
 
     Returns:
         torch.Tensor: Just noticeable difference.
@@ -390,7 +390,7 @@ def get_bounds(config: Config) -> torch.Tensor:
     return bounds
 
 
-def get_optimizer_options(config: Config, name: str) -> Dict[str, Any]:
+def get_optimizer_options(config: Config, name: str) -> dict[str, Any]:
     """Return the optimizer options for the model to pass to the SciPy L-BFGS-B
     optimizer. Only the somewhat useful ones for AEPsych are searched for: maxcor,
     ftol, gtol, maxfun, maxiter, maxls. See docs for details:
@@ -401,10 +401,10 @@ def get_optimizer_options(config: Config, name: str) -> Dict[str, Any]:
         name (str): Model name to look for options for.
 
     Return:
-        Dict[str, Any]: Dictionary of options to pass to SciPy's minimize, assuming the
+        dict[str, Any]: Dictionary of options to pass to SciPy's minimize, assuming the
             method is L-BFGS-B.
     """
-    options: Dict[str, Optional[Union[float, int]]] = {}
+    options: dict[str, float | int | None] = {}
 
     options["maxcor"] = config.getint(name, "maxcor", fallback=None)
     options["ftol"] = config.getfloat(name, "ftol", fallback=None)
@@ -444,7 +444,7 @@ def get_dims(config: Config) -> int:
         return len(config.getlist("common", "lb", element_type=float))
 
 
-def generate_default_outcome_names(count: int) -> List[str]:
+def generate_default_outcome_names(count: int) -> list[str]:
     if count == 1:
         return ["outcome"]
 
