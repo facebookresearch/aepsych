@@ -12,8 +12,6 @@ import os
 import sys
 import threading
 import traceback
-import warnings
-from typing import Dict, Union
 
 import aepsych.database.db as db
 import aepsych.utils_logging as utils_logging
@@ -263,7 +261,7 @@ class AEPsychServer(object):
 
         return x
 
-    def _fixed_to_idx(self, fixed: Dict[str, Union[float, str]]):
+    def _fixed_to_idx(self, fixed: dict[str, float | str]):
         # Given a dictionary of fixed parameters, turn the parameters names into indices
         dummy = np.zeros(len(self.parnames)).astype("O")
         for key, value in fixed.items():
