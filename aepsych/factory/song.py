@@ -6,7 +6,6 @@
 # LICENSE file in the root directory of this source tree.
 
 from configparser import NoOptionError
-from typing import Tuple
 
 import gpytorch
 import torch
@@ -18,7 +17,7 @@ from .utils import __default_invgamma_concentration, __default_invgamma_rate
 
 def song_mean_covar_factory(
     config: Config,
-) -> Tuple[gpytorch.means.ConstantMean, gpytorch.kernels.AdditiveKernel]:
+) -> tuple[gpytorch.means.ConstantMean, gpytorch.kernels.AdditiveKernel]:
     """
     Factory that makes kernels like Song et al. 2018:
     Linear in intensity dimension (assumed to be the last
@@ -29,7 +28,7 @@ def song_mean_covar_factory(
             LSE target.
 
     Returns:
-        Tuple[gpytorch.means.ConstantMean, gpytorch.kernels.AdditiveKernel]: Instantiated
+        tuple[gpytorch.means.ConstantMean, gpytorch.kernels.AdditiveKernel]: Instantiated
             constant mean object and additive kernel object.
     """
 
