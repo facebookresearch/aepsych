@@ -6,7 +6,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import warnings
-from typing import Any, Dict, Optional
+from typing import Any
 
 import torch
 from aepsych.config import Config
@@ -26,9 +26,9 @@ class ManualGenerator(AEPsychGenerator):
         lb: torch.Tensor,
         ub: torch.Tensor,
         points: torch.Tensor,
-        dim: Optional[int] = None,
+        dim: int | None = None,
         shuffle: bool = True,
-        seed: Optional[int] = None,
+        seed: int | None = None,
     ) -> None:
         """Iniatialize ManualGenerator.
         Args:
@@ -53,15 +53,15 @@ class ManualGenerator(AEPsychGenerator):
     def gen(
         self,
         num_points: int = 1,
-        model: Optional[AEPsychModelMixin] = None,  # included for API compatibility
-        fixed_features: Optional[Dict[int, float]] = None,
+        model: AEPsychModelMixin | None = None,  # included for API compatibility
+        fixed_features: dict[int, float] | None = None,
         **kwargs,  # Ignored
     ) -> torch.Tensor:
         """Query next point(s) to run by quasi-randomly sampling the parameter space.
         Args:
             num_points (int): Number of points to query. Defaults to 1.
             model (AEPsychModelMixin, optional): Model to use for generating points. Not used in this generator. Defaults to None.
-            fixed_features (Dict[int, float], optional): Ignored, kept for consistent
+            fixed_features (dict[int, float], optional): Ignored, kept for consistent
                 API.
             **kwargs: Ignored, API compatibility
         Returns:
@@ -86,19 +86,19 @@ class ManualGenerator(AEPsychGenerator):
     def get_config_options(
         cls,
         config,
-        name: Optional[str] = None,
-        options: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        name: str | None = None,
+        options: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """Find the config options for the generator.
 
         Args:
             config (Config): Config to look for options in.
             name (str, optional): Unused, kept for API conformity.
-            options (Dict[str, Any], optional): Existing options, any key in options
+            options (dict[str, Any], optional): Existing options, any key in options
                 will be ignored from the config.
 
         Return:
-            Dict[str, Any]: A dictionary of options to initialize the generator.
+            dict[str, Any]: A dictionary of options to initialize the generator.
         """
         options = super().get_config_options(config, name, options)
 
@@ -123,9 +123,9 @@ class SampleAroundPointsGenerator(ManualGenerator):
         window: torch.Tensor,
         points: torch.Tensor,
         samples_per_point: int,
-        dim: Optional[int] = None,
+        dim: int | None = None,
         shuffle: bool = True,
-        seed: Optional[int] = None,
+        seed: int | None = None,
     ) -> None:
         """Iniatialize SampleAroundPointsGenerator.
         Args:
