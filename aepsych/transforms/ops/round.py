@@ -5,7 +5,7 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-from typing import List, Literal, Optional
+from typing import Literal
 
 import torch
 from aepsych.transforms.ops.base import Transform
@@ -15,7 +15,7 @@ from botorch.models.transforms.input import subset_transform
 class Round(Transform, torch.nn.Module):
     def __init__(
         self,
-        indices: List[int],
+        indices: list[int],
         transform_on_train: bool = True,
         transform_on_eval: bool = True,
         transform_on_fantasize: bool = True,
@@ -26,7 +26,7 @@ class Round(Transform, torch.nn.Module):
         in both direction.
 
         Args:
-            indices (List[int]): The indices of the inputs to round.
+            indices (list[int]): The indices of the inputs to round.
             transform_on_train (bool): A boolean indicating whether to apply the
                 transforms in train() mode. Default: True.
             transform_on_eval (bool): A boolean indicating whether to apply the
@@ -72,7 +72,7 @@ class Round(Transform, torch.nn.Module):
         return X.round()
 
     def transform_bounds(
-        self, X: torch.Tensor, bound: Optional[Literal["lb", "ub"]] = None, **kwargs
+        self, X: torch.Tensor, bound: Literal["lb", "ub"] | None = None, **kwargs
     ) -> torch.Tensor:
         r"""Return the bounds X transformed.
 
@@ -94,7 +94,7 @@ class Round(Transform, torch.nn.Module):
     def _transform_bounds(
         self,
         X: torch.Tensor,
-        bound: Optional[Literal["lb", "ub"]] = None,
+        bound: Literal["lb", "ub"] | None = None,
         epsilon: float = 1e-6,
     ) -> torch.Tensor:
         r"""Return the bounds X transformed.

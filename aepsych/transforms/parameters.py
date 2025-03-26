@@ -9,7 +9,7 @@ import ast
 import warnings
 from abc import ABC
 from copy import deepcopy
-from typing import Any, Callable, Dict, Literal, Optional, Tuple, Type, Union
+from typing import Any, Callable, Literal, Type
 
 import numpy as np
 import torch
@@ -78,8 +78,8 @@ class ParameterTransforms(ChainedInputTransform, ConfigurableMixin):
         # Decorator to reshape tensors to the expected 2D shape, even if the input was
         # 1D or 3D and after the transform reshape it back to the original.
         def wrapper(
-            self, X: Union[torch.Tensor, np.ndarray], **kwargs
-        ) -> Union[torch.Tensor, np.ndarray]:
+            self, X: torch.Tensor | np.ndarray, **kwargs
+        ) -> torch.Tensor | np.ndarray:
             squeeze = False
             if len(X.shape) == 1:  # For 1D inputs, primarily for transforming arguments
                 if isinstance(X, torch.Tensor):
@@ -141,7 +141,7 @@ class ParameterTransforms(ChainedInputTransform, ConfigurableMixin):
 
     @_temporary_reshape
     def transform_bounds(
-        self, X: torch.Tensor, bound: Optional[Literal["lb", "ub"]] = None
+        self, X: torch.Tensor, bound: Literal["lb", "ub"] | None = None
     ) -> torch.Tensor:
         r"""Transform bounds of a parameter.
 
@@ -205,9 +205,9 @@ class ParameterTransforms(ChainedInputTransform, ConfigurableMixin):
     def get_config_options(
         cls,
         config: Config,
-        name: Optional[str] = None,
-        options: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        name: str | None = None,
+        options: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """Return a dictionary of transforms in the order that they should be in, this
         dictionary can be used to initialize a ParameterTransforms.
 
@@ -215,13 +215,13 @@ class ParameterTransforms(ChainedInputTransform, ConfigurableMixin):
             config (Config): Config to look for options in.
             name (str, optional): Name is ignored as transforms for all parameters will
                 be made. Maintained for API conformity.
-            options (Dict[str, Any], optional): options is ignored as all transforms
+            options (dict[str, Any], optional): options is ignored as all transforms
                 will be reinitialized to ensure it is in the right order. To create
                 transforms in an arbitrary order, initialize from the __init__.
 
 
         Return:
-            Dict[str, Any]: A dictionary of transforms to initialize this class.
+            dict[str, Any]: A dictionary of transforms to initialize this class.
         """
         if options is not None:
             warnings.warn(
@@ -234,7 +234,7 @@ class ParameterTransforms(ChainedInputTransform, ConfigurableMixin):
         parnames = config.getlist("common", "parnames", element_type=str)
 
         # This is the "options" dictionary, transform options is only for maintaining the right transforms
-        transform_dict: Dict[str, ChainedInputTransform] = {}
+        transform_dict: dict[str, ChainedInputTransform] = {}
         for par in parnames:
             # This is the order that transforms are potentially applied, order matters
 
@@ -317,7 +317,7 @@ class ParameterTransformedGenerator(ParameterTransformWrapper, ConfigurableMixin
 
     def __init__(
         self,
-        generator: Union[Type, AEPsychGenerator],
+        generator: Type | AEPsychGenerator,
         transforms: ChainedInputTransform = ChainedInputTransform(**{}),
         **kwargs: Any,
     ) -> None:
@@ -379,8 +379,8 @@ class ParameterTransformedGenerator(ParameterTransformWrapper, ConfigurableMixin
     def gen(
         self,
         num_points: int = 1,
-        model: Optional[AEPsychModelMixin] = None,
-        fixed_features: Optional[Dict[int, float]] = None,
+        model: AEPsychModelMixin | None = None,
+        fixed_features: dict[int, float] | None = None,
         **kwargs,
     ) -> torch.Tensor:
         r"""Query next point(s) to run from the generator and return them untransformed.
@@ -389,7 +389,7 @@ class ParameterTransformedGenerator(ParameterTransformWrapper, ConfigurableMixin
             num_points (int): Number of points to query, defaults to 1.
             model (AEPsychModelMixin, optional): The model to use to generate points, can be
                 None if no model is needed.
-            fixed_features: (Dict[int, float], optional): Parameters that are fixed to specific values.
+            fixed_features: (dict[int, float], optional): Parameters that are fixed to specific values.
             **kwargs: Kwargs to pass to the generator's generator.
         Returns:
             torch.Tensor: Next set of point(s) to evaluate, `[num_points x dim]` or
@@ -487,19 +487,19 @@ class ParameterTransformedGenerator(ParameterTransformWrapper, ConfigurableMixin
     def get_config_options(
         cls,
         config: Config,
-        name: Optional[str] = None,
-        options: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        name: str | None = None,
+        options: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """Return a dictionary of the relevant options to initialize a generator wrapped
         with a parameter transform.
 
         Args:
             config (Config): Config to look for options in.
             name (str, optional): Generator to look for and find options for.
-            options (Dict[str, Any], optional): Options to override from the config.
+            options (dict[str, Any], optional): Options to override from the config.
 
         Returns:
-            Dict[str, Any]: A diciontary of options to initialize this class with.
+            dict[str, Any]: A diciontary of options to initialize this class with.
         """
         if options is None:
             options = {}
@@ -534,7 +534,7 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
 
     def __init__(
         self,
-        model: Union[Type, AEPsychModelMixin],
+        model: Type | AEPsychModelMixin,
         transforms: ChainedInputTransform = ChainedInputTransform(**{}),
         **kwargs: Any,
     ) -> None:
@@ -553,7 +553,7 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
         The object's name will be ParameterTransformed<Model.__name__>.
 
         Args:
-            model (Union[Type, AEPsychModelMixin]): Model to wrap, this could either be a
+            model (Type | AEPsychModelMixin): Model to wrap, this could either be a
                 completely initialized model or just the model class. An initialized
                 model is expected to have been initialized in the transformed
                 parameter space (i.e., bounds are transformed). If a model class is
@@ -613,7 +613,7 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
         return wrapper
 
     @_promote_1d
-    def predict(self, x: torch.Tensor, **kwargs) -> Tuple[torch.Tensor, torch.Tensor]:
+    def predict(self, x: torch.Tensor, **kwargs) -> tuple[torch.Tensor, torch.Tensor]:
         """Query the model on its posterior given transformed x.
 
         Args:
@@ -622,7 +622,7 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
             **kwargs: Keyword arguments to pass to the model.predict() call.
 
         Returns:
-            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at query points.
+            tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at query points.
         """
         x = self.transforms.transform(x)
         return self._base_obj.predict(x, **kwargs)
@@ -630,7 +630,7 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
     @_promote_1d
     def predict_probability(
         self, x: torch.Tensor, **kwargs
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         """Query the model on its posterior given transformed x and return units in
         response probability space.
 
@@ -640,7 +640,7 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
             **kwargs: Keyword arguments to pass to the model.predict() call.
 
         Returns:
-            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at query points.
+            tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at query points.
         """
         x = self.transforms.transform(x)
         return self._base_obj.predict_probability(x, **kwargs)
@@ -649,9 +649,9 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
     def predict_transform(
         self,
         x: torch.Tensor,
-        transformed_posterior_cls: Optional[type[TransformedPosterior]] = None,
+        transformed_posterior_cls: type[TransformedPosterior] | None = None,
         **kwargs,
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         """Query the model for posterior mean and variance under some tranformation.
 
         Args:
@@ -662,7 +662,7 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
             **kwargs: Keyword args for specific models.
 
         Returns:
-            Tuple[torch.Tensor, torch.Tensor]: Transformed posterior mean and variance at queries points.
+            tuple[torch.Tensor, torch.Tensor]: Transformed posterior mean and variance at queries points.
         """
         x = self.transforms.transform(x)
 
@@ -774,9 +774,9 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
     def get_config_options(
         cls,
         config: Config,
-        name: Optional[str] = None,
-        options: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        name: str | None = None,
+        options: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """
         Return a dictionary of the relevant options to initialize a model wrapped with
         a parameter transform
@@ -784,10 +784,10 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
         Args:
             config (Config): Config to look for options in.
             name (str, optional): Model to find options for.
-            options (Dict[str, Any], optional): Options to override from the config.
+            options (dict[str, Any], optional): Options to override from the config.
 
         Returns:
-            Dict[str, Any]: A diciontary of options to initialize this class with.
+            dict[str, Any]: A diciontary of options to initialize this class with.
         """
         if options is None:
             options = {}
@@ -812,7 +812,7 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
 
 
 def transform_options(
-    config: Config, transforms: Optional[ChainedInputTransform] = None
+    config: Config, transforms: ChainedInputTransform | None = None
 ) -> Config:
     """Return a copy of the config with the options transformed.
 
