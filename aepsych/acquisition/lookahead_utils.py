@@ -6,7 +6,7 @@
 # LICENSE file in the root directory of this source tree.
 
 
-from typing import Any, Dict, Optional, Tuple
+from typing import Any
 
 import torch
 from botorch.acquisition.objective import PosteriorTransform
@@ -21,8 +21,8 @@ def posterior_at_xstar_xq(
     model: GP,
     Xstar: torch.Tensor,
     Xq: torch.Tensor,
-    posterior_transform: Optional[PosteriorTransform] = None,
-) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+    posterior_transform: PosteriorTransform | None = None,
+) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
     """
     Evaluate the posteriors of f at single point Xstar and set of points Xq.
 
@@ -33,7 +33,7 @@ def posterior_at_xstar_xq(
         posterior_transform (PosteriorTransform, optional): Optional transformation to apply to the posterior. Default: None.
 
     Returns:
-        Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]: Tuple of the following:
+        tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]: Tuple of the following:
            - Mu_s: (b x 1) mean at Xstar.
            - Sigma2_s: (b x 1) variance at Xstar.
            - Mu_q: (b x m) mean at Xq.
@@ -70,10 +70,10 @@ def lookahead_levelset_at_xstar(
     model: GP,
     Xstar: torch.Tensor,
     Xq: torch.Tensor,
-    posterior_transform: Optional[PosteriorTransform] = None,
+    posterior_transform: PosteriorTransform | None = None,
     eps: float = 1e-8,
-    **kwargs: Dict[str, Any],
-) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+    **kwargs: dict[str, Any],
+) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
     """
     Evaluate the look-ahead level-set posterior at Xq given observation at xstar.
 
@@ -86,7 +86,7 @@ def lookahead_levelset_at_xstar(
 
 
     Returns:
-        Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]: Tuple of the following:
+        tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]: Tuple of the following:
             Px: (b x m) Level-set posterior at Xq, before observation at xstar.
             P1: (b x m) Level-set posterior at Xq, given observation of 1 at xstar.
             P0: (b x m) Level-set posterior at Xq, given observation of 0 at xstar.
@@ -123,9 +123,9 @@ def lookahead_p_at_xstar(
     model: GP,
     Xstar: torch.Tensor,
     Xq: torch.Tensor,
-    posterior_transform: Optional[PosteriorTransform] = None,
-    **kwargs: Dict[str, Any],
-) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+    posterior_transform: PosteriorTransform | None = None,
+    **kwargs: dict[str, Any],
+) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
     """
     Evaluate the look-ahead response probability posterior at Xq given observation at xstar.
 
@@ -179,8 +179,8 @@ def approximate_lookahead_levelset_at_xstar(
     Xstar: torch.Tensor,
     Xq: torch.Tensor,
     gamma: float,
-    posterior_transform: Optional[PosteriorTransform] = None,
-) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+    posterior_transform: PosteriorTransform | None = None,
+) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
     """
     The look-ahead posterior approximation of Lyu et al.
 

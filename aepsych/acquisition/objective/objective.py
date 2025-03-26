@@ -7,8 +7,6 @@
 
 from __future__ import annotations
 
-from typing import Optional
-
 import torch
 from aepsych.config import ConfigurableMixin
 from botorch.acquisition.objective import MCAcquisitionObjective
@@ -17,7 +15,7 @@ from torch.distributions.normal import Normal
 
 
 class AEPsychObjective(MCAcquisitionObjective, ConfigurableMixin):
-    def inverse(self, samples: Tensor, X: Optional[Tensor] = None) -> Tensor:
+    def inverse(self, samples: Tensor, X: Tensor | None = None) -> Tensor:
         raise NotImplementedError
 
 
@@ -27,7 +25,7 @@ class ProbitObjective(AEPsychObjective):
     Transforms the input through the normal CDF (probit).
     """
 
-    def forward(self, samples: Tensor, X: Optional[Tensor] = None) -> Tensor:
+    def forward(self, samples: Tensor, X: Tensor | None = None) -> Tensor:
         """Evaluates the objective (normal CDF).
 
         Args:
@@ -40,7 +38,7 @@ class ProbitObjective(AEPsychObjective):
         """
         return Normal(loc=0, scale=1).cdf(samples.squeeze(-1))
 
-    def inverse(self, samples: Tensor, X: Optional[Tensor] = None) -> Tensor:
+    def inverse(self, samples: Tensor, X: Tensor | None = None) -> Tensor:
         """Evaluates the inverse of the objective (normal PPF).
 
         Args:
@@ -69,7 +67,7 @@ class FloorLinkObjective(AEPsychObjective):
         self.floor = floor
         super().__init__()
 
-    def forward(self, samples: Tensor, X: Optional[Tensor] = None) -> Tensor:
+    def forward(self, samples: Tensor, X: Tensor | None = None) -> Tensor:
         """Evaluates the objective for input x and floor f
 
         Args:
@@ -82,7 +80,7 @@ class FloorLinkObjective(AEPsychObjective):
         """
         return self.link(samples.squeeze(-1)) * (1 - self.floor) + self.floor
 
-    def inverse(self, samples: Tensor, X: Optional[Tensor] = None) -> Tensor:
+    def inverse(self, samples: Tensor, X: Tensor | None = None) -> Tensor:
         """Evaluates the inverse of the objective.
 
         Args:
