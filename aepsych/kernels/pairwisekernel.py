@@ -5,8 +5,6 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-from typing import Optional, Union
-
 import torch
 from gpytorch.kernels import Kernel
 from linear_operator import to_linear_operator
@@ -37,7 +35,7 @@ class PairwiseKernel(Kernel):
 
     def forward(
         self, x1: torch.Tensor, x2: torch.Tensor, diag: bool = False, **params
-    ) -> Optional[torch.Tensor]:
+    ) -> torch.Tensor | None:
         r"""
         TODO: make last_batch_dim work properly
 
@@ -58,7 +56,7 @@ class PairwiseKernel(Kernel):
 
         """
         if self.is_partial_obs:
-            d: Union[torch.Tensor, int] = x1.shape[-1] - 1
+            d: torch.Tensor | int = x1.shape[-1] - 1
             assert d == x2.shape[-1] - 1, "tensors not the same dimension"
             assert d % 2 == 0, "dimension must be even"
 
