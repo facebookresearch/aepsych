@@ -14,7 +14,7 @@ import re
 import typing
 import warnings
 from copy import deepcopy
-from types import ModuleType, NoneType
+from types import ModuleType, NoneType, UnionType
 from typing import (
     Any,
     Callable,
@@ -536,9 +536,10 @@ class ConfigurableMixin(abc.ABC):
             # Used as fallback
             value = signature.default
 
-            if (
-                typing.get_origin(signature.annotation) is typing.Union
-            ):  # Includes Optional
+            if typing.get_origin(signature.annotation) in [
+                typing.Union,
+                UnionType,
+            ]:  # Includes Optional
                 annotations = typing.get_args(signature.annotation)
                 annotations = _sort_types(annotations)
 
