@@ -6,7 +6,6 @@
 from __future__ import annotations
 
 import time
-from typing import Dict, Optional
 
 import numpy as np
 import torch
@@ -25,7 +24,7 @@ class AcqfGridSearchGenerator(GridEvalAcqfGenerator):
         self,
         num_points: int,
         model: AEPsychModelMixin,
-        fixed_features: Optional[Dict[int, float]] = None,
+        fixed_features: dict[int, float] | None = None,
         **gen_options,
     ) -> torch.Tensor:
         """
@@ -34,7 +33,7 @@ class AcqfGridSearchGenerator(GridEvalAcqfGenerator):
         Args:
             num_points (int): The number of points to query.
             model (AEPsychModelMixin): The fitted model used to evaluate the acquisition function.
-            fixed_features: (Dict[int, float], optional): Parameters that are fixed to specific values.
+            fixed_features: (dict[int, float], optional): Parameters that are fixed to specific values.
             gen_options (dict): Additional options for generating points, including:
                 - "seed": Random seed for reproducibility.
 

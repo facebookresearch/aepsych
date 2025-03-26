@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import time
 import warnings
-from typing import Any, Dict, Optional
+from typing import Any
 
 import torch
 from aepsych.acquisition import MCLevelSetEstimation
@@ -30,10 +30,10 @@ class OptimizeAcqfGenerator(AcqfGenerator):
         lb: torch.Tensor,
         ub: torch.Tensor,
         acqf: AcquisitionFunction,
-        acqf_kwargs: Optional[Dict[str, Any]] = None,
+        acqf_kwargs: dict[str, Any] | None = None,
         restarts: int = 10,
         samps: int = 1024,
-        max_gen_time: Optional[float] = None,
+        max_gen_time: float | None = None,
         stimuli_per_trial: int = 1,
     ) -> None:
         """Initialize OptimizeAcqfGenerator.
@@ -41,7 +41,7 @@ class OptimizeAcqfGenerator(AcqfGenerator):
             lb (torch.Tensor): Lower bounds for the optimization.
             ub (torch.Tensor): Upper bounds for the optimization.
             acqf (AcquisitionFunction): Acquisition function to use.
-            acqf_kwargs (Dict[str, object], optional): Extra arguments to
+            acqf_kwargs (dict[str, object], optional): Extra arguments to
                 pass to acquisition function. Defaults to no arguments.
             restarts (int): Number of restarts for acquisition function optimization. Defaults to 10.
             samps (int): Number of samples for quasi-random initialization of the acquisition function optimizer. Defaults to 1000.
@@ -61,15 +61,15 @@ class OptimizeAcqfGenerator(AcqfGenerator):
         self,
         num_points: int,
         model: AEPsychModelMixin,
-        fixed_features: Optional[Dict[int, float]] = None,
-        X_pending: Optional[torch.Tensor] = None,
+        fixed_features: dict[int, float] | None = None,
+        X_pending: torch.Tensor | None = None,
         **gen_options,
     ) -> torch.Tensor:
         """Query next point(s) to run by optimizing the acquisition function.
         Args:
             num_points (int): Number of points to query.
             model (AEPsychModelMixin): Fitted model of the data.
-            fixed_features (Dict[int, float], optional): The values where the specified
+            fixed_features (dict[int, float], optional): The values where the specified
                 parameters should be at when generating. Should be a dictionary where
                 the keys are the indices of the parameters to fix and the values are the
                 values to fix them at.
@@ -124,8 +124,8 @@ class OptimizeAcqfGenerator(AcqfGenerator):
         num_points: int,
         model: AEPsychModelMixin,
         acqf: AcquisitionFunction,
-        fixed_features: Optional[Dict[int, float]] = None,
-        **gen_options: Dict[str, Any],
+        fixed_features: dict[int, float] | None = None,
+        **gen_options: dict[str, Any],
     ) -> torch.Tensor:
         """
         Generates the next query points by optimizing the acquisition function.
@@ -134,11 +134,11 @@ class OptimizeAcqfGenerator(AcqfGenerator):
             num_points (int): Number of points to query.
             model (AEPsychModelMixin): Fitted model of the data.
             acqf (AcquisitionFunction): Acquisition function.
-            fixed_features (Dict[int, float], optional): The values where the specified
+            fixed_features (dict[int, float], optional): The values where the specified
                 parameters should be at when generating. Should be a dictionary where
                 the keys are the indices of the parameters to fix and the values are the
                 values to fix them at.
-            gen_options (Dict[str, Any]): Additional options for generating points, such as custom configurations.
+            gen_options (dict[str, Any]): Additional options for generating points, such as custom configurations.
 
         Returns:
             torch.Tensor: Next set of points to evaluate, with shape [num_points x dim].

@@ -5,7 +5,7 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-from typing import Dict, Optional, Type
+from typing import Type
 
 import torch
 from aepsych.acquisition.objective.semi_p import SemiPThresholdObjective
@@ -34,7 +34,7 @@ class IntensityAwareSemiPGenerator(OptimizeAcqfGenerator):
         num_points: int,
         model: SemiParametricGPModel,  # type: ignore[override]
         context_objective: Type = SemiPThresholdObjective,
-        fixed_features: Optional[Dict[int, float]] = None,
+        fixed_features: dict[int, float] | None = None,
         **kwargs,
     ) -> torch.Tensor:
         """Query next point(s) to run by optimizing the acquisition function for both context and intensity.
@@ -43,7 +43,7 @@ class IntensityAwareSemiPGenerator(OptimizeAcqfGenerator):
             num_points (int): Number of points to query.
             model (SemiParametricGPModel): Fitted semi-parametric model of the data.
             context_objective (Type): The objective function used for context. Defaults to SemiPThresholdObjective.
-            fixed_features (Dict[int, float], optional): Not implemented for this generator.
+            fixed_features (dict[int, float], optional): Not implemented for this generator.
             **kwargs: Passed to generator
 
         Returns:

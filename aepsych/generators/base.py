@@ -7,7 +7,7 @@ import abc
 import re
 import warnings
 from inspect import _empty, signature
-from typing import Any, Dict, Generic, Optional, Protocol, runtime_checkable, TypeVar
+from typing import Any, Generic, Protocol, runtime_checkable, TypeVar
 
 import torch
 from aepsych.config import Config, ConfigurableMixin
@@ -36,7 +36,7 @@ class AEPsychGenerator(ConfigurableMixin, abc.ABC, Generic[AEPsychModelType]):
 
     _requires_model = True
     stimuli_per_trial = 1
-    max_asks: Optional[int] = None
+    max_asks: int | None = None
     dim: int
 
     def __init__(
@@ -49,7 +49,7 @@ class AEPsychGenerator(ConfigurableMixin, abc.ABC, Generic[AEPsychModelType]):
         self,
         num_points: int,
         model: AEPsychModelType,
-        fixed_features: Optional[Dict[int, float]] = None,
+        fixed_features: dict[int, float] | None = None,
         **kwargs,
     ) -> torch.Tensor:
         pass
@@ -66,12 +66,12 @@ class AcqfGenerator(AEPsychGenerator):
         LogNoisyExpectedImprovement,
     ]
     acqf: AcquisitionFunction
-    acqf_kwargs: Dict[str, Any]
+    acqf_kwargs: dict[str, Any]
 
     def __init__(
         self,
         acqf: AcquisitionFunction,
-        acqf_kwargs: Optional[Dict[str, Any]] = None,
+        acqf_kwargs: dict[str, Any] | None = None,
     ) -> None:
         super().__init__()
         self.acqf = acqf
@@ -82,7 +82,7 @@ class AcqfGenerator(AEPsychGenerator):
     @classmethod
     def _get_acqf_options(
         cls, acqf: AcquisitionFunction, config: Config
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Get the extra arguments for the acquisition function from the config.
 
         Args:
@@ -90,7 +90,7 @@ class AcqfGenerator(AEPsychGenerator):
             config (Config): The configuration object.
 
         Returns:
-            Dict[str, Any]: The extra arguments for the acquisition function.
+            dict[str, Any]: The extra arguments for the acquisition function.
         """
 
         if acqf is not None:
@@ -203,18 +203,18 @@ class AcqfGenerator(AEPsychGenerator):
     def get_config_options(
         cls,
         config: Config,
-        name: Optional[str] = None,
-        options: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        name: str | None = None,
+        options: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """Get configuration options for the generator.
 
         Args:
             config (Config): Configuration object.
             name (str, optional): Name of the generator, defaults to None. Ignored.
-            options (Dict[str, Any], optional): Additional options, defaults to None.
+            options (dict[str, Any], optional): Additional options, defaults to None.
 
         Returns:
-            Dict[str, Any]: Configuration options for the generator.
+            dict[str, Any]: Configuration options for the generator.
         """
         name = name or cls.__name__
         options = super().get_config_options(config=config, name=name, options=options)

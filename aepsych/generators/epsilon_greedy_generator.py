@@ -5,7 +5,7 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 import numpy as np
 import torch
@@ -41,19 +41,19 @@ class EpsilonGreedyGenerator(AEPsychGenerator):
     def get_config_options(
         cls,
         config,
-        name: Optional[str] = None,
-        options: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        name: str | None = None,
+        options: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """Find the config options for the generator.
 
         Args:
             config (Config): Config to look for options in.
             name (str, optional): Unused, kept for API conformity.
-            options (Dict[str, Any], optional): Existing options, any key in options
+            options (dict[str, Any], optional): Existing options, any key in options
                 will be ignored from the config.
 
         Return:
-            Dict[str, Any]: A dictionary of options to initialize the generator.
+            dict[str, Any]: A dictionary of options to initialize the generator.
         """
         options = super().get_config_options(config, name, options)
 
@@ -66,7 +66,7 @@ class EpsilonGreedyGenerator(AEPsychGenerator):
         self,
         num_points: int,
         model: AEPsychModelMixin,
-        fixed_features: Optional[Dict[int, float]] = None,
+        fixed_features: dict[int, float] | None = None,
         **kwargs,
     ) -> torch.Tensor:
         """Query next point(s) to run by sampling from the subgenerator with probability 1-epsilon, and randomly otherwise.
@@ -74,7 +74,7 @@ class EpsilonGreedyGenerator(AEPsychGenerator):
         Args:
             num_points (int): Number of points to query.
             model (AEPsychModelMixin): Model to use for generating points.
-            fixed_features: (Dict[int, float], optional): Parameters that are fixed to specific values.
+            fixed_features: (dict[int, float], optional): Parameters that are fixed to specific values.
             **kwargs: Passed to subgenerator if not exploring
         """
         if num_points > 1:
