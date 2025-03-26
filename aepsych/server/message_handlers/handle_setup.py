@@ -6,7 +6,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import logging
-from typing import Any, Dict, Optional, TypedDict
+from typing import Any, TypedDict
 
 import aepsych.utils_logging as utils_logging
 from aepsych.config import Config
@@ -67,7 +67,7 @@ def _configure(server, config: Config) -> SetupResponse:
     return {"strat_id": server.strat_id}
 
 
-def configure(server, config: Optional[Config] = None, **config_args) -> SetupResponse:
+def configure(server, config: Config | None = None, **config_args) -> SetupResponse:
     """Setup an experiment. This function is primarily to preserve backwards
     compatibility. config_args is still usable for unittests and old functions, but if
     config is specified, the server will use that rather than create a new config
@@ -93,12 +93,12 @@ def configure(server, config: Optional[Config] = None, **config_args) -> SetupRe
     return response
 
 
-def handle_setup(server, request: Dict[str, Any]) -> SetupResponse:
+def handle_setup(server, request: dict[str, Any]) -> SetupResponse:
     """Setup an experiment.
 
     Args:
         server (AEPsychServer): AEPsych server responding to the message.
-        request (Dict[str, Any]): A dictionary from the request message, must include
+        request (dict[str, Any]): A dictionary from the request message, must include
             configuration info in some form.
 
     Returns:

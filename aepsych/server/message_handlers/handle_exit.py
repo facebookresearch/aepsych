@@ -6,7 +6,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import logging
-from typing import Any, Dict, TypedDict
+from typing import Any, TypedDict
 
 import aepsych.utils_logging as utils_logging
 
@@ -15,12 +15,12 @@ logger = utils_logging.getLogger(logging.INFO)
 ExitResponse = TypedDict("ExitResponse", {"termination_type": str, "success": bool})
 
 
-def handle_exit(server, request: Dict[str, Any]) -> ExitResponse:
+def handle_exit(server, request: dict[str, Any]) -> ExitResponse:
     """Make local server write strats into DB and close the connection.
 
     Args:
         server (AEPsychServer): AEPsych server responding to the message.
-        request (Dict[str, Any]): A dictionary from the request message. Currently
+        request (dict[str, Any]): A dictionary from the request message. Currently
             ignored.
 
     Returns:

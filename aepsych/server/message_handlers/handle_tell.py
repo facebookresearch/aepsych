@@ -7,7 +7,7 @@
 
 import io
 import logging
-from typing import Any, Dict, Optional, Sequence, TypeAlias, TypedDict, Union
+from typing import Any, Sequence, TypeAlias, TypedDict
 
 import aepsych.utils_logging as utils_logging
 import dill
@@ -25,35 +25,30 @@ TellResponse = TypedDict(
 )
 
 # This form is deprecated in 3.12 in favor of a "type statement", but we support 3.10+
-OutcomeType: TypeAlias = Union[
-    Dict[
+OutcomeType: TypeAlias = (
+    dict[
         str,
-        Union[str, float, Sequence[Union[str, float]], np.ndarray],
-    ],
-    Sequence,
-    float,
+        str | float | Sequence[str | float] | np.ndarray,
+    ]
+    | Sequence
+    | float
+    | str
+)
+ParameterConfigType: TypeAlias = dict[
     str,
-]
-ParameterConfigType: TypeAlias = Dict[
-    str,
-    Union[
-        str,
-        float,
-        Sequence[Union[str, float, Sequence[Union[str, float]]]],
-        np.ndarray,
-    ],
+    str | float | Sequence[str | float | Sequence[str | float]] | np.ndarray,
 ]
 
 # Annoyingly, arrays are like sequences but they aren't sequences
 ARRAY_LIKE = (Sequence, np.ndarray)
 
 
-def handle_tell(server, request: Dict[str, Any]) -> TellResponse:
+def handle_tell(server, request: dict[str, Any]) -> TellResponse:
     """Tell the model which input was run and what the outcome was.
 
     Args:
         server (AEPsychServer): The AEPsych server object.
-        request (Dict[str, Any]): A dictionary from the request message, must include
+        request (dict[str, Any]): A dictionary from the request message, must include
             tell data.
 
     Returns:
@@ -86,7 +81,7 @@ def handle_tell(server, request: Dict[str, Any]) -> TellResponse:
     return tell_response
 
 
-def flatten_tell_record(server, rec: DbReplayTable) -> Dict[str, Any]:
+def flatten_tell_record(server, rec: DbReplayTable) -> dict[str, Any]:
     """Flatten a tell replay record into a dictionary including the trial parameter
     configuration and the response.
 
@@ -95,7 +90,7 @@ def flatten_tell_record(server, rec: DbReplayTable) -> Dict[str, Any]:
         rec (DbReplayTable): The replay table record. This must be a tell record.
 
     Returns:
-        Dict[str, Any]: A dictionary including the information from the tell replay
+        dict[str, Any]: A dictionary including the information from the tell replay
             record.
     """
     out = {}
@@ -116,7 +111,7 @@ def flatten_tell_record(server, rec: DbReplayTable) -> Dict[str, Any]:
 def tell(
     server,
     outcome: OutcomeType,
-    config: Optional[ParameterConfigType] = None,
+    config: ParameterConfigType | None = None,
     model_data: bool = True,
     **extra_data,
 ) -> TellResponse:
@@ -124,7 +119,7 @@ def tell(
 
     Args:
         server (AEPsychServer): The AEPsych server object.
-        outcome (OutcomeType: The outcome of the trial. If it's a float, it's a single
+        outcome (OutcomeType): The outcome of the trial. If it's a float, it's a single
             trial single outcome. If it's a sequence, it is multiple trials single
             outcome. If it is a dictionary, it is a multi outcome with the same rules
             for float vs sequence of floats for single and multi trials respeectively.
@@ -211,7 +206,7 @@ def _record_tell(
     n_trials = len(list(config_dict.values())[0])
 
     # Fix outcome to be a dictionary of array-likes
-    outcome_tmp = {"outcome": outcome} if not isinstance(outcome, Dict) else outcome
+    outcome_tmp = {"outcome": outcome} if not isinstance(outcome, dict) else outcome
     outcome_dict = {
         key: value if isinstance(value, ARRAY_LIKE) else [value]
         for key, value in outcome_tmp.items()
