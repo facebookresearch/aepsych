@@ -5,7 +5,7 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-from typing import Any, Callable, Dict, Optional
+from typing import Any, Callable
 
 import gpytorch
 import torch
@@ -23,7 +23,7 @@ class OrdinalLikelihood(Likelihood, ConfigurableMixin):
     and :math:`d_k` is a learned cutpoint parameter for each level.
     """
 
-    def __init__(self, n_levels: int, link: Optional[Callable] = None) -> None:
+    def __init__(self, n_levels: int, link: Callable | None = None) -> None:
         """Initialize OrdinalLikelihood.
 
         Args:
