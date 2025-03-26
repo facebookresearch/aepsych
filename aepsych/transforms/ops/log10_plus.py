@@ -5,7 +5,7 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import numpy as np
 import torch
@@ -20,7 +20,7 @@ class Log10Plus(Log10, Transform):
 
     def __init__(
         self,
-        indices: List[int],
+        indices: list[int],
         constant: float = 0.0,
         transform_on_train: bool = True,
         transform_on_eval: bool = True,
@@ -31,7 +31,7 @@ class Log10Plus(Log10, Transform):
         """Initalize transform
 
         Args:
-            indices (List[int]): The indices of the parameters to log transform.
+            indices (list[int]): The indices of the parameters to log transform.
             constant (float): The constant to add to inputs before log transforming.
                 Defaults to 0.0.
             transform_on_train (bool): A boolean indicating whether to apply the
@@ -83,19 +83,19 @@ class Log10Plus(Log10, Transform):
     def get_config_options(
         cls,
         config: Config,
-        name: Optional[str] = None,
-        options: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        name: str | None = None,
+        options: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """Return a dictionary of the relevant options to initialize a Log10Plus
         transform for the named parameter within the config.
 
         Args:
             config (Config): Config to look for options in.
             name (str, optional): Parameter to find options for.
-            options (Dict[str, Any], optional): Options to override from the config.
+            options (dict[str, Any], optional): Options to override from the config.
 
         Returns:
-            Dict[str, Any]: A dictionary of options to initialize this class with,
+            dict[str, Any]: A dictionary of options to initialize this class with,
                 including the transformed bounds.
         """
         options = super().get_config_options(config=config, name=name, options=options)
