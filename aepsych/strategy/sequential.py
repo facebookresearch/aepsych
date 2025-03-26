@@ -8,7 +8,7 @@
 from __future__ import annotations
 
 import warnings
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import numpy as np
 import torch
@@ -29,17 +29,17 @@ class SequentialStrategy(ConfigurableMixin):
         strat_list (list[Strategy]): TODO make this nicely typed / doc'd
     """
 
-    def __init__(self, strat_list: List[Strategy]) -> None:
+    def __init__(self, strat_list: list[Strategy]) -> None:
         """Initialize the SequentialStrategy object.
 
         Args:
-            strat_list (List[Strategy]): The list of strategies.
+            strat_list (list[Strategy]): The list of strategies.
         """
         self.strat_list = strat_list
         self._strat_idx = 0
         self._suggest_count = 0
-        self.x: Optional[torch.Tensor]
-        self.y: Optional[torch.Tensor]
+        self.x: torch.Tensor | None
+        self.y: torch.Tensor | None
 
     @property
     def _strat(self) -> Strategy:
@@ -110,13 +110,13 @@ class SequentialStrategy(ConfigurableMixin):
         return self._strat_idx == (len(self.strat_list) - 1) and self._strat.finished
 
     def add_data(
-        self, x: Union[np.ndarray, torch.Tensor], y: Union[np.ndarray, torch.Tensor]
+        self, x: np.ndarray | torch.Tensor, y: np.ndarray | torch.Tensor
     ) -> None:
         """Add new data points to the strategy.
 
         Args:
-            x (Union[np.ndarray, torch.Tensor]): The input data points.
-            y (Union[np.ndarray, torch.Tensor]): The output data points.
+            x (np.ndarray | torch.Tensor): The input data points.
+            y (np.ndarray | torch.Tensor): The output data points.
         """
         self._strat.add_data(x, y)
 
@@ -124,9 +124,9 @@ class SequentialStrategy(ConfigurableMixin):
     def get_config_options(
         cls,
         config: Config,
-        name: Optional[str] = None,
-        options: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        name: str | None = None,
+        options: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """
         Return a dictionary of the relevant options to initialize this class from the
         config, even if it is outside of the named section. By default, this will look
@@ -136,12 +136,12 @@ class SequentialStrategy(ConfigurableMixin):
             config (Config): Config to look for options in.
             name (str, optional): Primary section to look for options for this class and
                 the name to infer options from other sections in the config.
-            options (Dict[str, Any], optional): Options to override from the config,
+            options (dict[str, Any], optional): Options to override from the config,
                 defaults to None.
 
 
         Return:
-            Dict[str, Any]: A dictionary of options to initialize this class.
+            dict[str, Any]: A dictionary of options to initialize this class.
         """
         if options is None:
             options = {}

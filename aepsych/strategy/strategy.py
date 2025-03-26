@@ -8,7 +8,7 @@
 from __future__ import annotations
 
 import warnings
-from typing import Any, Dict, List, Mapping, Optional, Tuple, Union
+from typing import Any, Mapping
 
 import numpy as np
 import torch
@@ -37,22 +37,22 @@ class Strategy(ConfigurableMixin):
 
     def __init__(
         self,
-        generator: Union[AEPsychGenerator, ParameterTransformedGenerator],
-        lb: Union[np.ndarray, torch.Tensor],
-        ub: Union[np.ndarray, torch.Tensor],
-        outcome_types: List[str],
+        generator: AEPsychGenerator | ParameterTransformedGenerator,
+        lb: np.ndarray | torch.Tensor,
+        ub: np.ndarray | torch.Tensor,
+        outcome_types: list[str],
         stimuli_per_trial: int = 1,
-        dim: Optional[int] = None,
+        dim: int | None = None,
         min_total_tells: int = 0,
         min_asks: int = 0,
-        model: Optional[AEPsychModelMixin] = None,
+        model: AEPsychModelMixin | None = None,
         use_gpu_modeling: bool = False,
         use_gpu_generating: bool = False,
         refit_every: int = 1,
         min_total_outcome_occurrences: int = 1,
-        max_asks: Optional[int] = None,
-        keep_most_recent: Optional[int] = None,
-        min_post_range: Optional[float] = None,
+        max_asks: int | None = None,
+        keep_most_recent: int | None = None,
+        min_post_range: float | None = None,
         name: str = "",
         run_indefinitely: bool = False,
         transforms: ChainedInputTransform = ChainedInputTransform(**{}),
@@ -171,8 +171,8 @@ class Strategy(ConfigurableMixin):
             )
 
         # similar to ub/lb/grid, x is in raw parameter space
-        self.x: Optional[torch.Tensor] = None
-        self.y: Optional[torch.Tensor] = None
+        self.x: torch.Tensor | None = None
+        self.y: torch.Tensor | None = None
         self.n: int = 0
         self.min_asks = min_asks
         self._count = 0
@@ -181,7 +181,7 @@ class Strategy(ConfigurableMixin):
         self.outcome_types = outcome_types
 
         if self.stimuli_per_trial == 1:
-            self.event_shape: Tuple[int, ...] = (self.dim,)
+            self.event_shape: tuple[int, ...] = (self.dim,)
 
         if self.stimuli_per_trial > 1:
             self.event_shape = (self.dim, self.stimuli_per_trial)
@@ -205,7 +205,7 @@ class Strategy(ConfigurableMixin):
 
     def normalize_inputs(
         self, x: torch.Tensor, y: torch.Tensor
-    ) -> Tuple[torch.Tensor, torch.Tensor, int]:
+    ) -> tuple[torch.Tensor, torch.Tensor, int]:
         """converts inputs into normalized format for this strategy
 
         Args:
@@ -269,10 +269,10 @@ class Strategy(ConfigurableMixin):
     @ensure_model_is_fresh
     def get_max(
         self,
-        constraints: Optional[Mapping[int, float]] = None,
+        constraints: Mapping[int, float] | None = None,
         probability_space: bool = False,
-        max_time: Optional[float] = None,
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        max_time: float | None = None,
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         """Return the maximum of the modeled function, subject to constraints
 
         Args:
@@ -281,7 +281,7 @@ class Strategy(ConfigurableMixin):
             max_time (float, optional): Maximum time to run the optimization. Defaults to None.
 
         Returns:
-            Tuple[torch.Tensor, torch.Tensor]: Tuple containing the max and its location (argmax).
+            tuple[torch.Tensor, torch.Tensor]: Tuple containing the max and its location (argmax).
         """
         assert (
             self.model is not None
@@ -301,10 +301,10 @@ class Strategy(ConfigurableMixin):
     @ensure_model_is_fresh
     def get_min(
         self,
-        constraints: Optional[Mapping[int, float]] = None,
+        constraints: Mapping[int, float] | None = None,
         probability_space: bool = False,
-        max_time: Optional[float] = None,
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        max_time: float | None = None,
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         """Return the minimum of the modeled function, subject to constraints
 
         Args:
@@ -313,7 +313,7 @@ class Strategy(ConfigurableMixin):
             max_time (float, optional): Maximum time to run the optimization. Defaults to None.
 
         Returns:
-            Tuple[torch.Tensor, torch.Tensor]: Tuple containing the min and its location (argmin).
+            tuple[torch.Tensor, torch.Tensor]: Tuple containing the min and its location (argmin).
         """
         assert (
             self.model is not None
@@ -334,20 +334,20 @@ class Strategy(ConfigurableMixin):
     def inv_query(
         self,
         y: int,
-        constraints: Optional[Mapping[int, float]] = None,
+        constraints: Mapping[int, float] | None = None,
         probability_space: bool = False,
-        max_time: Optional[float] = None,
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        max_time: float | None = None,
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         """Get the input that corresponds to a given output value.
 
         Args:
             y (int): The output value.
-            constraints (Mapping[int, List[float]], optional): Which parameters to fix at specific points. Defaults to None.
+            constraints (Mapping[int, list[float]], optional): Which parameters to fix at specific points. Defaults to None.
             probability_space (bool): Whether to return the input in probability space. Defaults to False.
             max_time (float, optional): Maximum time to run the optimization. Defaults to None.
 
         Returns:
-            Tuple[torch.Tensor, torch.Tensor]: The input that corresponds to the given output value and the corresponding output.
+            tuple[torch.Tensor, torch.Tensor]: The input that corresponds to the given output value and the corresponding output.
         """
         assert (
             self.model is not None
@@ -368,7 +368,7 @@ class Strategy(ConfigurableMixin):
     @ensure_model_is_fresh
     def predict(
         self, x: torch.Tensor, probability_space: bool = False
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         """Predict the output value(s) for the given input(s).
 
         Args:
@@ -376,7 +376,7 @@ class Strategy(ConfigurableMixin):
             probability_space (bool): Whether to return the output in probability space. Defaults to False.
 
         Returns:
-            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at query points.
+            tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at query points.
         """
         assert self.model is not None, "model is None! Cannot predict without a model!"
         self.model.to(self.model_device)
@@ -476,14 +476,14 @@ class Strategy(ConfigurableMixin):
         self._model_is_fresh = False
 
     def add_data(
-        self, x: Union[np.ndarray, torch.Tensor], y: Union[np.ndarray, torch.Tensor]
+        self, x: np.ndarray | torch.Tensor, y: np.ndarray | torch.Tensor
     ) -> None:
         """
         Adds new data points to the strategy, and normalizes the inputs.
 
         Args:
-            x (Union[np.ndarray, torch.Tensor]): The input data points. Can be a PyTorch tensor or NumPy array.
-            y (Union[np.ndarray, torch.Tensor]): The output data points. Can be a PyTorch tensor or NumPy array.
+            x (np.ndarray | torch.Tensor): The input data points. Can be a PyTorch tensor or NumPy array.
+            y (np.ndarray | torch.Tensor): The output data points. Can be a PyTorch tensor or NumPy array.
 
         """
         # Necessary as sometimes the data is passed in as numpy arrays or torch tensors.
@@ -547,9 +547,9 @@ class Strategy(ConfigurableMixin):
     def get_config_options(
         cls,
         config: Config,
-        name: Optional[str] = None,
-        options: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        name: str | None = None,
+        options: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """
         Return a dictionary of the relevant options to initialize this class from the
         config, even if it is outside of the named section. By default, this will look
@@ -559,12 +559,12 @@ class Strategy(ConfigurableMixin):
             config (Config): Config to look for options in.
             name (str, optional): Primary section to look for options for this class and
                 the name to infer options from other sections in the config.
-            options (Dict[str, Any], optional): Options to override from the config,
+            options (dict[str, Any], optional): Options to override from the config,
                 defaults to None.
 
 
         Return:
-            Dict[str, Any]: A dictionary of options to initialize this class.
+            dict[str, Any]: A dictionary of options to initialize this class.
         """
         if name is None:
             raise ValueError(
