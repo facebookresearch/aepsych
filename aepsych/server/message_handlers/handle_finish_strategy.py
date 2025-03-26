@@ -5,20 +5,20 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-from typing import Any, Dict, TypedDict
+from typing import Any, TypedDict
 
 FinishStrategyResponse = TypedDict(
     "FinishStrategyResponse", {"finished_strategy": str, "finished_strat_idx": int}
 )
 
 
-def handle_finish_strategy(server, request: Dict[str, Any]) -> FinishStrategyResponse:
+def handle_finish_strategy(server, request: dict[str, Any]) -> FinishStrategyResponse:
     """Finish the current strategy and return a dictionary describing the finished
     strategy.
 
     Args:
         server (AEPsychServer): AEPsych server responding to the message.
-        request (Dict[str, Any]): A dictionary from the request message. Currently
+        request (dict[str, Any]): A dictionary from the request message. Currently
             ignored.
 
     Returns:

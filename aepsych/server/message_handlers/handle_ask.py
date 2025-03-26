@@ -7,7 +7,7 @@
 
 import logging
 from collections.abc import Mapping
-from typing import Any, Dict, Optional, TypedDict
+from typing import Any, TypedDict
 
 import aepsych.utils_logging as utils_logging
 
@@ -15,18 +15,18 @@ logger = utils_logging.getLogger(logging.INFO)
 
 AskResponse = TypedDict(
     "AskResponse",
-    {"config": Optional[Dict[str, Any]], "is_finished": bool, "num_points": int},
+    {"config": dict[str, Any] | None, "is_finished": bool, "num_points": int},
 )
 
 
-def handle_ask(server, request: Dict[str, Any]) -> AskResponse:
+def handle_ask(server, request: dict[str, Any]) -> AskResponse:
     """Requests a point to be generated and return a dictionary with two entries
     representing the parameter configuration and whether or not the strategy is
     finished.
 
     Args:
         server (AEPsychServer): AEPsych server responding to the message.
-        request (Dict[str, Any]): A dictionary from the request message.
+        request (dict[str, Any]): A dictionary from the request message.
 
     Returns:
         AskResponse: A dictionary with three entries
@@ -63,11 +63,11 @@ def handle_ask(server, request: Dict[str, Any]) -> AskResponse:
     return new_config
 
 
-def ask(server, num_points: int = 1, **kwargs) -> Optional[Dict[str, Any]]:
+def ask(server, num_points: int = 1, **kwargs) -> dict[str, Any] | None:
     """Returns points from a generator.
 
     Returns:
-        Dict[str, Any], optional: New parameter config dict (keys are strings, values
+        dict[str, Any], optional: New parameter config dict (keys are strings, values
             are floats). If the server is skipping computations, just return None.
     """
     if server.skip_computations:
