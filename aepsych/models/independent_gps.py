@@ -6,7 +6,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import warnings
-from typing import Any, Dict, List, Mapping, Optional, Tuple
+from typing import Any, Mapping
 
 import torch
 from aepsych.config import Config
@@ -43,11 +43,11 @@ class IndependentGPsModel(AEPsychModelMixin):
         return sum(self.models[model_name].num_outputs for model_name in self.models)
 
     @property
-    def outcome_type(self) -> List[str]:
+    def outcome_type(self) -> list[str]:
         return self.outcome_types
 
     @property
-    def outcome_types(self) -> List[str]:
+    def outcome_types(self) -> list[str]:
         return [model.outcome_type for model in self.models.values()]
 
     @outcome_types.setter
@@ -104,14 +104,14 @@ class IndependentGPsModel(AEPsychModelMixin):
                 train_x=train_x, train_y=train_y[:, i], **kwargs
             )
 
-    def predict(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+    def predict(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
         """Query the individual models for posterior means and variances, and concatenate the results.
 
         Args:
             x (torch.Tensor): Points (n x dim) at which to predict from the model.
 
         Returns:
-            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at queries points, as (n x m) tensors, where m is the number of GPs held by this model. GPs are ordered according to the order they were inserted upon initialization
+            tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at queries points, as (n x m) tensors, where m is the number of GPs held by this model. GPs are ordered according to the order they were inserted upon initialization
         """
         means = []
         vars = []
@@ -124,22 +124,22 @@ class IndependentGPsModel(AEPsychModelMixin):
     def predict_transform(
         self,
         x: torch.Tensor,
-        transformed_posterior_cls: Optional[type[TransformedPosterior]] = None,
-        transform_map: Optional[Dict[str, type[TransformedPosterior]]] = None,
+        transformed_posterior_cls: type[TransformedPosterior] | None = None,
+        transform_map: dict[str, type[TransformedPosterior]] | None = None,
         **kwargs,
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         """Query the individual models for posterior means and variances, transform them, and concatenate the results.
 
         Args:
             x (torch.Tensor): Points (n x dim) at which to predict from the model.
             transformed_posterior_cls (TransformedPosterior type, optional): Ignored,
                 just kept for API uniformity.
-            transform_map (Dict[str, TransformedPosterior type], optional): A mapping of
+            transform_map (dict[str, TransformedPosterior type], optional): A mapping of
                 model names and transformed posteriors. For a given model, if it has a
                 TransformedPosterior, it will be applied to its outputs.
             **kwargs: Kwargs for transforms, must be the same for all transforms
         Returns:
-            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at queries points, as (n x m) tensors, where m is the number of GPs held by this model. GPs are ordered according to the order they were inserted upon initialization.
+            tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at queries points, as (n x m) tensors, where m is the number of GPs held by this model. GPs are ordered according to the order they were inserted upon initialization.
         """
         if transformed_posterior_cls is not None:
             warnings.warn(
@@ -181,9 +181,9 @@ class IndependentGPsModel(AEPsychModelMixin):
     def get_config_options(
         cls,
         config: Config,
-        name: Optional[str] = None,
-        options: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        name: str | None = None,
+        options: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         options = options or {}
         name = name or cls.__name__
 

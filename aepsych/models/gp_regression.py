@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from typing import Any, Dict, Optional, Tuple
+from typing import Any
 
 import gpytorch
 import torch
@@ -32,11 +32,11 @@ class GPRegressionModel(AEPsychModelMixin, ExactGP):
     def __init__(
         self,
         dim: int,
-        mean_module: Optional[gpytorch.means.Mean] = None,
-        covar_module: Optional[gpytorch.kernels.Kernel] = None,
-        likelihood: Optional[Likelihood] = None,
-        max_fit_time: Optional[float] = None,
-        optimizer_options: Optional[Dict[str, Any]] = None,
+        mean_module: gpytorch.means.Mean | None = None,
+        covar_module: gpytorch.kernels.Kernel | None = None,
+        likelihood: Likelihood | None = None,
+        max_fit_time: float | None = None,
+        optimizer_options: dict[str, Any] | None = None,
     ) -> None:
         """Initialize the GP regression model
 
@@ -45,11 +45,11 @@ class GPRegressionModel(AEPsychModelMixin, ExactGP):
             mean_module (gpytorch.means.Mean, optional): GP mean class. Defaults to a constant with a normal prior.
             covar_module (gpytorch.kernels.Kernel, optional): GP covariance kernel class. Defaults to scaled RBF with a
                 gamma prior.
-            likelihood (gpytorch.likelihood.Likelihood, optional): The likelihood function to use. If None defaults to
+            likelihood (Likelihood, optional): The likelihood function to use. If None defaults to
                 Gaussian likelihood.
             max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,
                 there is no limit to the fitting time.
-            optimizer_options (Dict[str, Any], optional): Optimizer options to pass to the SciPy optimizer during
+            optimizer_options (dict[str, Any], optional): Optimizer options to pass to the SciPy optimizer during
                 fitting. Assumes we are using L-BFGS-B.
         """
         self.dim = dim

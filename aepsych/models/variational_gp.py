@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from typing import Any, Dict, Optional
+from typing import Any
 
 import gpytorch
 import torch
@@ -30,14 +30,14 @@ class VariationalGPModel(AEPsychModelMixin, ApproximateGP):
     def __init__(
         self,
         dim: int,
-        mean_module: Optional[gpytorch.means.Mean] = None,
-        covar_module: Optional[gpytorch.kernels.Kernel] = None,
-        likelihood: Optional[Likelihood] = None,
-        mll_class: Optional[gpytorch.mlls.MarginalLogLikelihood] = None,
-        inducing_point_method: Optional[InducingPointAllocator] = None,
+        mean_module: gpytorch.means.Mean | None = None,
+        covar_module: gpytorch.kernels.Kernel | None = None,
+        likelihood: Likelihood | None = None,
+        mll_class: gpytorch.mlls.MarginalLogLikelihood | None = None,
+        inducing_point_method: InducingPointAllocator | None = None,
         inducing_size: int = 100,
-        max_fit_time: Optional[float] = None,
-        optimizer_options: Optional[Dict[str, Any]] = None,
+        max_fit_time: float | None = None,
+        optimizer_options: dict[str, Any] | None = None,
     ) -> None:
         """Initialize the GP Classification model
 
@@ -55,7 +55,7 @@ class VariationalGPModel(AEPsychModelMixin, ApproximateGP):
             inducing_size (int): Number of inducing points. Defaults to 100.
             max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,
                 there is no limit to the fitting time.
-            optimizer_options (Dict[str, Any], optional): Optimizer options to pass to the SciPy optimizer during
+            optimizer_options (dict[str, Any], optional): Optimizer options to pass to the SciPy optimizer during
                 fitting. Assumes we are using L-BFGS-B.
         """
         self.dim = dim
