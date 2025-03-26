@@ -7,7 +7,7 @@
 
 from abc import ABC
 from copy import deepcopy
-from typing import Any, Dict, List, Literal, Optional
+from typing import Any, Literal
 
 import numpy as np
 import torch
@@ -21,7 +21,7 @@ class Transform(ReversibleInputTransform, ConfigurableMixin, ABC):
     """
 
     def transform_bounds(
-        self, X: torch.Tensor, bound: Optional[Literal["lb", "ub"]] = None, **kwargs
+        self, X: torch.Tensor, bound: Literal["lb", "ub"] | None = None, **kwargs
     ) -> torch.Tensor:
         r"""Return the bounds X transformed.
 
@@ -42,9 +42,9 @@ class Transform(ReversibleInputTransform, ConfigurableMixin, ABC):
     def get_config_options(
         cls,
         config: Config,
-        name: Optional[str] = None,
-        options: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        name: str | None = None,
+        options: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """Return a dictionary of the relevant options to initialize a Log10Plus
         transform for the named parameter within the config.
 
@@ -76,7 +76,7 @@ class Transform(ReversibleInputTransform, ConfigurableMixin, ABC):
 
 
 class StringParameterMixin:
-    string_map: Optional[Dict[int, List[str]]]
+    string_map: dict[int, list[str]] | None
 
     def indices_to_str(self, X: np.ndarray) -> np.ndarray:
         r"""Return a NumPy array of objects where the parameter values that can be

@@ -5,7 +5,7 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import torch
 from aepsych.config import Config
@@ -15,9 +15,9 @@ from aepsych.transforms.ops.base import StringParameterMixin, Transform
 class Fixed(Transform, StringParameterMixin, torch.nn.Module):
     def __init__(
         self,
-        indices: List[int],
-        values: List[Union[float, int]],
-        string_map: Optional[Dict[int, List[str]]] = None,
+        indices: list[int],
+        values: list[float | int],
+        string_map: dict[int, list[str]] | None = None,
         transform_on_train: bool = True,
         transform_on_eval: bool = True,
         transform_on_fantasize: bool = True,
@@ -105,9 +105,9 @@ class Fixed(Transform, StringParameterMixin, torch.nn.Module):
     def get_config_options(
         cls,
         config: Config,
-        name: Optional[str] = None,
-        options: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        name: str | None = None,
+        options: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """Return a dictionary of the relevant options to initialize a Fixed parameter
         transform for the named parameter within the config.
 

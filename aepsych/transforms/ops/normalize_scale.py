@@ -5,7 +5,7 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import torch
 from aepsych.config import Config
@@ -18,15 +18,15 @@ class NormalizeScale(Normalize, Transform):
     def __init__(
         self,
         d: int,
-        indices: Optional[Union[List[int], torch.Tensor]] = None,
-        bounds: Optional[torch.Tensor] = None,
+        indices: list[int] | torch.Tensor | None = None,
+        bounds: torch.Tensor | None = None,
         batch_shape: torch.Size = torch.Size(),
         transform_on_train: bool = True,
         transform_on_eval: bool = True,
         transform_on_fantasize: bool = True,
         reverse: bool = False,
         min_range: float = 1e-8,
-        learn_bounds: Optional[bool] = None,
+        learn_bounds: bool | None = None,
         almost_zero: float = 1e-12,
         **kwargs,
     ) -> None:
@@ -34,7 +34,7 @@ class NormalizeScale(Normalize, Transform):
 
         Args:
             d (int): Total number of parameters (dimensions).
-            indices (Union[List[int], torch.Tensor], optional
+            indices (list[int] | torch.Tensor, optional
                 inputs to normalize. If omitted, take all dimensions of the inputs into
                 account.
             bounds (torch.Tensor, optional): If provided, use these bounds to normalize
@@ -79,9 +79,9 @@ class NormalizeScale(Normalize, Transform):
     def get_config_options(
         cls,
         config: Config,
-        name: Optional[str] = None,
-        options: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        name: str | None = None,
+        options: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """
         Return a dictionary of the relevant options to initialize a NormalizeScale
         transform for the named parameter within the config.
@@ -89,10 +89,10 @@ class NormalizeScale(Normalize, Transform):
         Args:
             config (Config): Config to look for options in.
             name (str, optional): Parameter to find options for.
-            options (Dict[str, Any], optional): Options to override from the config.
+            options (dict[str, Any], optional): Options to override from the config.
 
         Return:
-            Dict[str, Any]: A dictionary of options to initialize this class with,
+            dict[str, Any]: A dictionary of options to initialize this class with,
                 including the transformed bounds.
         """
         options = super().get_config_options(config=config, name=name, options=options)
