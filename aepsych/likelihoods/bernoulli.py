@@ -4,7 +4,7 @@
 
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
-from typing import Any, Callable, Dict, Optional
+from typing import Any, Callable
 
 import torch
 from aepsych.config import ConfigurableMixin
@@ -44,19 +44,19 @@ class BernoulliObjectiveLikelihood(_OneDimensionalLikelihood, ConfigurableMixin)
     def get_config_options(
         cls,
         config,
-        name: Optional[str] = None,
-        options: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        name: str | None = None,
+        options: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """Find the config options for the likelihood.
 
         Args:
             config (Config): Config to look for options in.
             name (str, optional): Unused, kept for API conformity.
-            options (Dict[str, Any], optional): Existing options, any key in options
+            options (dict[str, Any], optional): Existing options, any key in options
                 will be ignored from the config.
 
         Return:
-            Dict[str, Any]: A dictionary of options to initialize the likelihood.
+            dict[str, Any]: A dictionary of options to initialize the likelihood.
         """
         options = super().get_config_options(config, name, options)
         options["objective"] = options["objective"].from_config(config)
