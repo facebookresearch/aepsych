@@ -6,7 +6,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import logging
-from typing import Any, Dict, Literal, Optional, TypedDict, Union
+from typing import Any, Literal, TypedDict
 
 import aepsych.utils_logging as utils_logging
 import numpy as np
@@ -19,19 +19,19 @@ QueryResponse = TypedDict(
     {
         "query_type": str,
         "probability_space": bool,
-        "constraints": Dict[int, float],
-        "x": Dict[str, np.ndarray],
+        "constraints": dict[int, float],
+        "x": dict[str, np.ndarray],
         "y": np.ndarray,
     },
 )
 
 
-def handle_query(server, request: Dict[str, Any]) -> Optional[QueryResponse]:
+def handle_query(server, request: dict[str, Any]) -> QueryResponse | None:
     """Queries the underlying model given a specific query request.
 
     Args:
         server (AEPsychServer): AEPsych server responding to the message.
-        request (Dict[str, Any]): A dictionary from the request message.
+        request (dict[str, Any]): A dictionary from the request message.
 
     Returns:
         QueryResponse, optional: None if server is skipping computations for a replay.
@@ -58,11 +58,11 @@ def query(
     server,
     query_type: Literal["max", "min", "prediction", "inverse"] = "max",
     probability_space: bool = False,
-    x: Optional[Dict[str, Any]] = None,
-    y: Optional[Union[float, torch.Tensor]] = None,
-    constraints: Optional[Dict[int, float]] = None,
+    x: dict[str, Any] | None = None,
+    y: float | torch.Tensor | None = None,
+    constraints: dict[int, float] | None = None,
     **kwargs,
-) -> Optional[QueryResponse]:
+) -> QueryResponse | None:
     """Queries the underlying model for a specific query.
 
     Args:
@@ -70,10 +70,10 @@ def query(
             to make. Defaults to "max".
         probability_space (bool): Whether the y in the query is in probability space.
             Defaults to False.
-        x (Dict[str, Any], optional): A parameter configuration dictionary representing
+        x (dict[str, Any], optional): A parameter configuration dictionary representing
             one or more point for a prediction query.
-        y (Union[float, torch.Tensor], optional): The expected y for a inverse query.
-        constraints (Dict[int, float], optional): The constraints to impose on the
+        y (float | torch.Tensor, optional): The expected y for a inverse query.
+        constraints (dict[int, float], optional): The constraints to impose on the
             query where each key is the parameter index and the value is the parameter
             value to apply the equality constraint at.
         **kwargs: Additional kwargs to pass to the query function.
