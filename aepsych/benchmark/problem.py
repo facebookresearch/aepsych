@@ -5,7 +5,7 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 from functools import cached_property
-from typing import Any, Dict, List, Union
+from typing import Any
 
 import numpy as np
 import torch
@@ -47,7 +47,7 @@ class Problem:
         raise NotImplementedError
 
     @property
-    def metadata(self) -> Dict[str, Any]:
+    def metadata(self) -> dict[str, Any]:
         """A dictionary of metadata passed to the Benchmark to be logged. Each key will become a column in the
         Benchmark's output dataframe, with its associated value stored in each row."""
         return {"name": self.name}
@@ -124,7 +124,7 @@ class Problem:
     def evaluate(
         self,
         strat: SequentialStrategy,
-    ) -> Dict[str, float]:
+    ) -> dict[str, float]:
         """Evaluate the strategy with respect to this problem.
 
         Extend this in subclasses to add additional metrics.
@@ -140,7 +140,7 @@ class Problem:
             strat (Strategy): Strategy to evaluate.
 
         Returns:
-            Dict[str, float]: A dictionary containing metrics and their values.
+            dict[str, float]: A dictionary containing metrics and their values.
         """
         # we just use model here but eval gets called on strat in case we need it in downstream evals
         # for example to separate out sobol vs opt trials
@@ -219,13 +219,13 @@ class LSEProblem(Problem):
     in addition to the function estimate.
     """
 
-    def __init__(self, thresholds: Union[float, List, torch.Tensor]) -> None:
+    def __init__(self, thresholds: float | list | torch.Tensor) -> None:
         super().__init__()
         thresholds = [thresholds] if isinstance(thresholds, float) else thresholds
         self.thresholds = torch.tensor(thresholds)
 
     @property
-    def metadata(self) -> Dict[str, Any]:
+    def metadata(self) -> dict[str, Any]:
         """A dictionary of metadata passed to the Benchmark to be logged. Each key will become a column in the
         Benchmark's output dataframe, with its associated value stored in each row."""
         md = super().metadata
@@ -261,7 +261,7 @@ class LSEProblem(Problem):
             self.p(self.eval_grid).reshape(1, -1) <= self.thresholds.reshape(-1, 1)
         ).to(torch.float32)
 
-    def evaluate(self, strat: SequentialStrategy) -> Dict[str, float]:
+    def evaluate(self, strat: SequentialStrategy) -> dict[str, float]:
         """Evaluate the model with respect to this problem.
 
         For level set estimation, we add metrics w.r.t. the true threshold:
@@ -274,7 +274,7 @@ class LSEProblem(Problem):
 
 
         Returns:
-            Dict[str, float]: A dictionary containing metrics and their values,
+            dict[str, float]: A dictionary containing metrics and their values,
             including parent class metrics.
         """
         metrics = super().evaluate(strat)
@@ -322,10 +322,10 @@ The LSEProblemWithEdgeLogging class is copied from bernoulli_lse github reposito
 class LSEProblemWithEdgeLogging(LSEProblem):
     eps = 0.05
 
-    def __init__(self, thresholds: Union[float, List, torch.Tensor]) -> None:
+    def __init__(self, thresholds: float | list | torch.Tensor) -> None:
         super().__init__(thresholds)
 
-    def evaluate(self, strat: SequentialStrategy) -> Dict[str, float]:
+    def evaluate(self, strat: SequentialStrategy) -> dict[str, float]:
         metrics = super().evaluate(strat)
 
         # add number of edge samples to the log

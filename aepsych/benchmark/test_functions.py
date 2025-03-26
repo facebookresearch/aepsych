@@ -6,7 +6,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import io
-from typing import Callable, Tuple
+from typing import Callable
 
 import numpy as np
 import pandas as pd
@@ -252,7 +252,7 @@ def f_2d(x: torch.Tensor) -> torch.Tensor:
 
 def new_novel_det_params(
     freq: torch.Tensor, scale_factor: float = 1.0
-) -> Tuple[torch.Tensor, torch.Tensor]:
+) -> tuple[torch.Tensor, torch.Tensor]:
     """Get the loc and scale params for 2D synthetic novel_det(frequency) function
         Keyword arguments:
     freq -- 1D tensor of frequencies whose thresholds to return
@@ -307,7 +307,7 @@ def new_novel_det_channels_params(
     scale_factor: float = 1.0,
     wave_freq: float = 1,
     target: float = 0.75,
-) -> Tuple[torch.Tensor, torch.Tensor]:
+) -> tuple[torch.Tensor, torch.Tensor]:
     """Get the target parameters for 2D synthetic novel_det(channel) function
         Keyword arguments:
     channel -- 1D tensor of channel locations whose thresholds to return
@@ -385,7 +385,7 @@ def cdf_new_novel_det_channels(
 
 def new_novel_det_3D_params(
     x: torch.Tensor, scale_factor: float = 1.0
-) -> Tuple[torch.Tensor, torch.Tensor]:
+) -> tuple[torch.Tensor, torch.Tensor]:
     freq = x[..., 0]
     chan = x[..., 1]
     locs_freq = -0.32 + 2 * (0.66 * torch.pow(0.8 * freq * (0.2 * freq - 1), 2) + 0.05)
