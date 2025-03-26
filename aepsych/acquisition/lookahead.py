@@ -5,7 +5,7 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-from typing import Any, Callable, cast, Dict, Literal, Optional, Tuple
+from typing import Any, Callable, cast, Literal
 
 import numpy as np
 import torch
@@ -121,7 +121,7 @@ class LookaheadAcquisitionFunction(AcquisitionFunction):
     def __init__(
         self,
         model: GPyTorchModel,
-        target: Optional[float],
+        target: float | None,
         lookahead_type: Literal["levelset", "posterior"] = "levelset",
     ) -> None:
         """
@@ -152,8 +152,8 @@ class LocalLookaheadAcquisitionFunction(LookaheadAcquisitionFunction):
         self,
         model: GPyTorchModel,
         lookahead_type: Literal["levelset", "posterior"] = "levelset",
-        target: Optional[float] = None,
-        posterior_transform: Optional[PosteriorTransform] = None,
+        target: float | None = None,
+        posterior_transform: PosteriorTransform | None = None,
     ) -> None:
         """
         A localized look-ahead acquisition function.
@@ -216,10 +216,10 @@ def construct_inputs_local_lookahead(
     model: GPyTorchModel,
     training_data: None,
     lookahead_type: Literal["levelset", "posterior"] = "levelset",
-    target: Optional[float] = None,
-    posterior_transform: Optional[PosteriorTransform] = None,
+    target: float | None = None,
+    posterior_transform: PosteriorTransform | None = None,
     **kwargs,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Constructs the input dictionary for initializing local lookahead acquisition functions.
 
     Args:
@@ -232,7 +232,7 @@ def construct_inputs_local_lookahead(
         posterior_transform (PosteriorTransform, optional): Optional transformation to apply to the posterior. Default is None.
 
     Returns:
-        Dict[str, Any]: Dictionary of constructed inputs for local lookahead acquisition functions.
+        dict[str, Any]: Dictionary of constructed inputs for local lookahead acquisition functions.
     """
     return {
         "model": model,
@@ -250,10 +250,10 @@ class GlobalLookaheadAcquisitionFunction(LookaheadAcquisitionFunction):
         ub: Tensor,
         model: GPyTorchModel,
         lookahead_type: Literal["levelset", "posterior"] = "levelset",
-        target: Optional[float] = None,
-        posterior_transform: Optional[PosteriorTransform] = None,
-        query_set_size: Optional[int] = 256,
-        Xq: Optional[torch.Tensor] = None,
+        target: float | None = None,
+        posterior_transform: PosteriorTransform | None = None,
+        query_set_size: int | None = 256,
+        Xq: torch.Tensor | None = None,
     ) -> None:
         """
         A global look-ahead acquisition function.
@@ -306,7 +306,7 @@ class GlobalLookaheadAcquisitionFunction(LookaheadAcquisitionFunction):
 
     def _get_lookahead_posterior(
         self, X: torch.Tensor
-    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
         Xq_batch = self.Xq.expand(X.shape[0], *self.Xq.shape)
 
         return self.lookahead_fn(
@@ -344,9 +344,9 @@ class ApproxGlobalSUR(GlobalSUR):
         ub: Tensor,
         model: GPyTorchModel,
         lookahead_type: Literal["levelset", "poserior"] = "levelset",
-        target: Optional[float] = None,
-        query_set_size: Optional[int] = 256,
-        Xq: Optional[torch.Tensor] = None,
+        target: float | None = None,
+        query_set_size: int | None = 256,
+        Xq: torch.Tensor | None = None,
     ) -> None:
         """
         An approximate global look-ahead acquisition function.
@@ -375,7 +375,7 @@ class ApproxGlobalSUR(GlobalSUR):
 
     def _get_lookahead_posterior(
         self, X: torch.Tensor
-    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
         """
         Computes the look-ahead posterior distribution for given points.
         Args:
@@ -446,9 +446,9 @@ class SMOCU(GlobalLookaheadAcquisitionFunction):
         ub: Tensor,
         model: GPyTorchModel,
         lookahead_type: Literal["levelset", "posterior"] = "posterior",
-        target: Optional[float] = None,
-        query_set_size: Optional[int] = 256,
-        Xq: Optional[torch.Tensor] = None,
+        target: float | None = None,
+        query_set_size: int | None = 256,
+        Xq: torch.Tensor | None = None,
         k: float = 20.0,
     ) -> None:
         """
@@ -548,12 +548,12 @@ def construct_inputs_global_lookahead(
     model: GPyTorchModel,
     training_data: None,
     lookahead_type: Literal["levelset", "posterior"] = "levelset",
-    target: Optional[float] = None,
-    posterior_transform: Optional[PosteriorTransform] = None,
-    query_set_size: Optional[int] = 256,
-    Xq: Optional[torch.Tensor] = None,
+    target: float | None = None,
+    posterior_transform: PosteriorTransform | None = None,
+    query_set_size: int | None = 256,
+    Xq: torch.Tensor | None = None,
     **kwargs,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Constructs the input dictionary for initializing global lookahead acquisition functions.
 
@@ -569,7 +569,7 @@ def construct_inputs_global_lookahead(
         Xq (torch.Tensor, optional): (m x d) global reference set. If not provided, a Sobol sequence is generated. Default is None.
 
     Returns:
-        Dict[str, Any]: Dictionary of constructed inputs for global lookahead acquisition functions.
+        dict[str, Any]: Dictionary of constructed inputs for global lookahead acquisition functions.
     """
 
     lb = torch.tensor([bounds[0] for bounds in kwargs["bounds"]])

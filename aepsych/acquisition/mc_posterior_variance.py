@@ -5,7 +5,7 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 import torch
 from aepsych.acquisition.objective import ProbitObjective
@@ -41,8 +41,8 @@ class MCPosteriorVariance(MCAcquisitionFunction):
     def __init__(
         self,
         model: Model,
-        objective: Optional[MCAcquisitionObjective] = None,
-        sampler: Optional[MCSampler] = None,
+        objective: MCAcquisitionObjective | None = None,
+        sampler: MCSampler | None = None,
     ) -> None:
         r"""Posterior Variance of Link Function
 
@@ -94,10 +94,10 @@ class MCPosteriorVariance(MCAcquisitionFunction):
 def construct_inputs(
     model: Model,
     training_data: None,
-    objective: Optional[MCAcquisitionObjective] = None,
-    sampler: Optional[MCSampler] = None,
+    objective: MCAcquisitionObjective | None = None,
+    sampler: MCSampler | None = None,
     **kwargs,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Constructs the input dictionary for initializing the MCPosteriorVariance acquisition function.
 
@@ -108,7 +108,7 @@ def construct_inputs(
         sampler (MCSampler, optional): Sampler for Monte Carlo sampling; defaults to SobolQMCNormalSampler if not provided.
 
     Returns:
-        Dict[str, Any]: Dictionary of constructed inputs for the MCPosteriorVariance acquisition function.
+        dict[str, Any]: Dictionary of constructed inputs for the MCPosteriorVariance acquisition function.
     """
     return {
         "model": model,
