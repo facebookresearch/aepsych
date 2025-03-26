@@ -11,7 +11,7 @@ import json
 import logging
 import pickle
 from collections.abc import Iterable
-from typing import Any, Dict
+from typing import Any
 
 from aepsych.config import Config
 from aepsych.version import __version__
@@ -55,11 +55,11 @@ class DBMasterTable(Base):
     children_raw = relationship("DbRawTable", back_populates="parent")
 
     @classmethod
-    def from_sqlite(cls, row: Dict[str, Any]) -> "DBMasterTable":
+    def from_sqlite(cls, row: dict[str, Any]) -> "DBMasterTable":
         """Create a DBMasterTable object from a row in the sqlite database.
 
         Args:
-            row (Dict[str, Any]): A row from the sqlite database.
+            row (dict[str, Any]): A row from the sqlite database.
 
         Returns:
             DBMasterTable: A DBMasterTable object.
@@ -190,11 +190,11 @@ class DbReplayTable(Base):
     __mapper_args__ = {}
 
     @classmethod
-    def from_sqlite(cls, row: Dict[str, Any]) -> "DbReplayTable":
+    def from_sqlite(cls, row: dict[str, Any]) -> "DbReplayTable":
         """Create a DbReplayTable object from a row in the sqlite database.
 
         Args:
-            row (Dict[str, Any]): A row from the sqlite database.
+            row (dict[str, Any]): A row from the sqlite database.
 
         Returns:
             DbReplayTable: A DbReplayTable object.
@@ -300,11 +300,11 @@ class DbStratTable(Base):
     parent = relationship("DBMasterTable", back_populates="children_strat")
 
     @classmethod
-    def from_sqlite(cls, row: Dict[str, Any]) -> "DbStratTable":
+    def from_sqlite(cls, row: dict[str, Any]) -> "DbStratTable":
         """Create a DbStratTable object from a row in the sqlite database.
 
         Args:
-            row (Dict[str, Any]): A row from the sqlite database.
+            row (dict[str, Any]): A row from the sqlite database.
 
         Returns:
             DbStratTable: A DbStratTable object.
@@ -359,11 +359,11 @@ class DbConfigTable(Base):
     parent = relationship("DBMasterTable", back_populates="children_config")
 
     @classmethod
-    def from_sqlite(cls, row: Dict[str, Any]) -> "DbConfigTable":
+    def from_sqlite(cls, row: dict[str, Any]) -> "DbConfigTable":
         """Create a DbConfigTable object from a row in the sqlite database.
 
         Args:
-            row (Dict[str, Any]): A row from the sqlite database.
+            row (dict[str, Any]): A row from the sqlite database.
 
         Returns:
             DbConfigTable: A DbConfigTable object.
@@ -425,11 +425,11 @@ class DbRawTable(Base):
     children_outcome = relationship("DbOutcomeTable", back_populates="parent")
 
     @classmethod
-    def from_sqlite(cls, row: Dict[str, Any]) -> "DbRawTable":
+    def from_sqlite(cls, row: dict[str, Any]) -> "DbRawTable":
         """Create a DbRawTable object from a row in the sqlite database.
 
         Args:
-            row (Dict[str, Any]): A row from the sqlite database.
+            row (dict[str, Any]): A row from the sqlite database.
 
         Returns:
             DbRawTable: A DbRawTable object.
@@ -657,11 +657,11 @@ class DbParamTable(Base):
     parent = relationship("DbRawTable", back_populates="children_param")
 
     @classmethod
-    def from_sqlite(cls, row: Dict[str, Any]) -> "DbParamTable":
+    def from_sqlite(cls, row: dict[str, Any]) -> "DbParamTable":
         """Create a DbParamTable object from a row in the sqlite database.
 
         Args:
-            row (Dict[str, Any]): A row from the sqlite database.
+            row (dict[str, Any]): A row from the sqlite database.
 
         Returns:
             DbParamTable: A DbParamTable object.
@@ -723,11 +723,11 @@ class DbOutcomeTable(Base):
     parent = relationship("DbRawTable", back_populates="children_outcome")
 
     @classmethod
-    def from_sqlite(cls, row: Dict[str, Any]) -> "DbOutcomeTable":
+    def from_sqlite(cls, row: dict[str, Any]) -> "DbOutcomeTable":
         """Create a DbOutcomeTable object from a row in the sqlite database.
 
         Args:
-            row (Dict[str, Any]): A row from the sqlite database.
+            row (dict[str, Any]): A row from the sqlite database.
 
         Returns:
             DbOutcomeTable: A DbOutcomeTable object.
