@@ -7,7 +7,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import gpytorch
 import numpy as np
@@ -98,16 +98,16 @@ class MonotonicProjectionGP(GPClassificationModel):
         lb: torch.Tensor,
         ub: torch.Tensor,
         dim: int,
-        monotonic_dims: Optional[List[int]] = None,
+        monotonic_dims: list[int] | None = None,
         monotonic_grid_size: int = 20,
-        min_f_val: Optional[float] = None,
-        mean_module: Optional[gpytorch.means.Mean] = None,
-        covar_module: Optional[gpytorch.kernels.Kernel] = None,
-        likelihood: Optional[Likelihood] = None,
-        inducing_point_method: Optional[InducingPointAllocator] = None,
+        min_f_val: float | None = None,
+        mean_module: gpytorch.means.Mean | None = None,
+        covar_module: gpytorch.kernels.Kernel | None = None,
+        likelihood: Likelihood | None = None,
+        inducing_point_method: InducingPointAllocator | None = None,
         inducing_size: int = 100,
-        max_fit_time: Optional[float] = None,
-        optimizer_options: Optional[Dict[str, Any]] = None,
+        max_fit_time: float | None = None,
+        optimizer_options: dict[str, Any] | None = None,
     ) -> None:
         """Initialize the MonotonicProjectionGP model. Unlike other models, this model needs bounds.
 
@@ -115,7 +115,7 @@ class MonotonicProjectionGP(GPClassificationModel):
             lb (torch.Tensor): Lower bounds of the parameters.
             ub (torch.Tensor): Upper bounds of the parameters.
             dim (int, optional): The number of dimensions in the parameter space.
-            monotonic_dims (List[int], optional): A list of the dimensions on which monotonicity should
+            monotonic_dims (list[int], optional): A list of the dimensions on which monotonicity should
                 be enforced. If not set, it will default to [-1].
             monotonic_grid_size (int): The size of the grid, s, in 1. above. Defaults to 20.
             min_f_val (float, optional): If provided, maintains this minimum in the projection in 5. Defaults to None.
@@ -154,14 +154,14 @@ class MonotonicProjectionGP(GPClassificationModel):
     def posterior(
         self,
         X: torch.Tensor,
-        observation_noise: Union[bool, torch.Tensor] = False,
+        observation_noise: bool | torch.Tensor = False,
         **kwargs: Any,
     ) -> GPyTorchPosterior:
         """Compute the posterior at X, projecting to enforce monotonicity.
 
         Args:
             X (torch.Tensor): The input points at which to compute the posterior.
-            observation_noise (Union[bool, torch.Tensor]): Whether or not to include the observation noise in the
+            observation_noise (bool | torch.Tensor): Whether or not to include the observation noise in the
                 posterior. Defaults to False.
 
         Returns:
@@ -175,7 +175,7 @@ class MonotonicProjectionGP(GPClassificationModel):
         for i, dim in enumerate(self.monotonic_dims):
             # using numpy because torch doesn't support vectorized linspace,
             # pytorch/issues/61292
-            grid: Union[np.ndarray, torch.Tensor] = np.linspace(
+            grid: np.ndarray | torch.Tensor = np.linspace(
                 self.lb[dim].cpu().numpy(),
                 X[:, dim].cpu().numpy(),
                 s + 1,

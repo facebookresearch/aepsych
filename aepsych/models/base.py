@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import time
 import warnings
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable
 
 import gpytorch
 import torch
@@ -28,9 +28,9 @@ class AEPsychModelMixin(GPyTorchModel, ConfigurableMixin):
     """Mixin class that provides AEPsych-specific utility methods."""
 
     extremum_solver = "Nelder-Mead"
-    outcome_types: List[str] = []
-    _train_inputs: Optional[Tuple[torch.Tensor, ...]]
-    _train_targets: Optional[torch.Tensor]
+    outcome_types: list[str] = []
+    _train_inputs: tuple[torch.Tensor, ...] | None
+    _train_targets: torch.Tensor | None
     _num_outputs: int
     dim: int
     stimuli_per_trial: int = 1
@@ -47,11 +47,11 @@ class AEPsychModelMixin(GPyTorchModel, ConfigurableMixin):
         return next(self.parameters()).device
 
     @property
-    def train_inputs(self) -> Optional[Tuple[torch.Tensor, ...]]:
+    def train_inputs(self) -> tuple[torch.Tensor, ...] | None:
         """Get the training inputs.
 
         Returns:
-            Optional[Tuple[torch.Tensor]]: Training inputs.
+            tuple[torch.Tensor, ...], optional: Training inputs.
         """
         if self._train_inputs is None:
             return None
@@ -60,11 +60,11 @@ class AEPsychModelMixin(GPyTorchModel, ConfigurableMixin):
         return tuple([input.to(self.device) for input in self._train_inputs])
 
     @train_inputs.setter
-    def train_inputs(self, train_inputs: Optional[Tuple[torch.Tensor, ...]]) -> None:
+    def train_inputs(self, train_inputs: tuple[torch.Tensor, ...] | None) -> None:
         """Set the training inputs.
 
         Args:
-            train_inputs (Tuple[torch.Tensor]): Training inputs.
+            train_inputs (tuple[torch.Tensor, ...], optional): Training inputs.
         """
         if train_inputs is None:
             self._train_inputs = None
@@ -74,11 +74,11 @@ class AEPsychModelMixin(GPyTorchModel, ConfigurableMixin):
             self._train_inputs = inputs
 
     @property
-    def train_targets(self) -> Optional[torch.Tensor]:
+    def train_targets(self) -> torch.Tensor | None:
         """Get the training targets.
 
         Returns:
-            Optional[torch.Tensor]: Training targets.
+            torch.Tensor, optional: Training targets.
         """
         if self._train_targets is None:
             return None
@@ -89,7 +89,7 @@ class AEPsychModelMixin(GPyTorchModel, ConfigurableMixin):
         return self._train_targets
 
     @train_targets.setter
-    def train_targets(self, train_targets: Optional[torch.Tensor]) -> None:
+    def train_targets(self, train_targets: torch.Tensor | None) -> None:
         """Set the training targets.
 
         Args:
@@ -131,7 +131,7 @@ class AEPsychModelMixin(GPyTorchModel, ConfigurableMixin):
     def _fit_mll(
         self,
         mll: MarginalLogLikelihood,
-        optimizer_kwargs: Optional[Dict[str, Any]] = None,
+        optimizer_kwargs: dict[str, Any] | None = None,
         optimizer: Callable = fit_gpytorch_mll_scipy,
         **kwargs,
     ) -> None:
@@ -139,7 +139,7 @@ class AEPsychModelMixin(GPyTorchModel, ConfigurableMixin):
 
         Args:
             mll (MarginalLogLikelihood): Marginal log likelihood object.
-            optimizer_kwargs (Dict[str, Any], optional): Keyword arguments for the optimizer.
+            optimizer_kwargs (dict[str, Any], optional): Keyword arguments for the optimizer.
             optimizer (Callable): Optimizer to use. Defaults to fit_gpytorch_mll_scipy.
         """
         self.train()
@@ -169,8 +169,8 @@ class AEPsychModelMixin(GPyTorchModel, ConfigurableMixin):
 
     def set_train_data(
         self,
-        inputs: Optional[torch.Tensor] = None,
-        targets: Optional[torch.Tensor] = None,
+        inputs: torch.Tensor | None = None,
+        targets: torch.Tensor | None = None,
         strict: bool = True,
     ) -> None:
         """Set the training data for the model.
@@ -196,7 +196,7 @@ class AEPsychModelMixin(GPyTorchModel, ConfigurableMixin):
         x: torch.Tensor,
         *args,
         **kwargs,
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         """Query the model for posterior mean and variance.
 
         Args:
@@ -205,7 +205,7 @@ class AEPsychModelMixin(GPyTorchModel, ConfigurableMixin):
             **kwargs: Keyword arguments for model-specific predict kwargs.
 
         Returns:
-            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at queries points.
+            tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at queries points.
         """
         with torch.no_grad():
             x = x.to(self.device)
@@ -218,9 +218,9 @@ class AEPsychModelMixin(GPyTorchModel, ConfigurableMixin):
     def predict_transform(
         self,
         x: torch.Tensor,
-        transformed_posterior_cls: Optional[type[TransformedPosterior]] = None,
+        transformed_posterior_cls: type[TransformedPosterior] | None = None,
         **transform_kwargs,
-    ):
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         """Query the model for posterior mean and variance under some tranformation.
 
         Args:
@@ -230,7 +230,7 @@ class AEPsychModelMixin(GPyTorchModel, ConfigurableMixin):
                 transformation is applied.
 
         Returns:
-            Tuple[torch.Tensor, torch.Tensor]: Transformed posterior mean and variance at queries points.
+            tuple[torch.Tensor, torch.Tensor]: Transformed posterior mean and variance at queries points.
         """
         if transformed_posterior_cls is None:
             return self.predict(x)
@@ -271,22 +271,22 @@ class AEPsychModelMixin(GPyTorchModel, ConfigurableMixin):
     def get_config_options(
         cls,
         config: Config,
-        name: Optional[str] = None,
-        options: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        name: str | None = None,
+        options: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """.
 
         Args:
             config (Config): Config to look for options in.
             name (str, optional): The name of the strategy to warm start (Not actually optional here.)
-            options (Dict[str, Any], optional): options are ignored.
+            options (dict[str, Any], optional): options are ignored.
 
         Raises:
             ValueError: the name of the strategy is necessary to identify warm start search criteria.
             KeyError: the config specified this strategy should be warm started but the associated config section wasn't defined.
 
         Returns:
-            Dict[str, Any]: a dictionary of the search criteria described in the experiment's config
+            dict[str, Any]: a dictionary of the search criteria described in the experiment's config
         """
         name = name or cls.__name__
         options = super().get_config_options(config, name, options)

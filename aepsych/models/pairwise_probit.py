@@ -5,7 +5,7 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 import time
-from typing import Any, Dict, Optional, Tuple
+from typing import Any
 
 import gpytorch
 import torch
@@ -29,7 +29,7 @@ class PairwiseProbitModel(PairwiseGP, AEPsychModelMixin):
 
     def _pairs_to_comparisons(
         self, x: torch.Tensor, y: torch.Tensor
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         """Convert pairs of points and their judgements to comparisons.
 
         Args:
@@ -39,7 +39,7 @@ class PairwiseProbitModel(PairwiseGP, AEPsychModelMixin):
                 in the pair is preferred, and 1 if the second point is preferred.
 
         Returns:
-            Tuple[torch.Tensor, torch.Tensor]: A tuple of tensors. The first tensor is of shape (n, d) and contains the
+            tuple[torch.Tensor, torch.Tensor]: A tuple of tensors. The first tensor is of shape (n, d) and contains the
                 unique points in the pairs. The second tensor is of shape (n, 2) and contains the indices of the unique
                 points in the first tensor that correspond to the points in the pairs.
         """
@@ -72,10 +72,10 @@ class PairwiseProbitModel(PairwiseGP, AEPsychModelMixin):
         self,
         lb: torch.Tensor,
         ub: torch.Tensor,
-        dim: Optional[int] = None,
-        covar_module: Optional[gpytorch.kernels.Kernel] = None,
-        max_fit_time: Optional[float] = None,
-        optimizer_options: Optional[Dict[str, Any]] = None,
+        dim: int | None = None,
+        covar_module: gpytorch.kernels.Kernel | None = None,
+        max_fit_time: float | None = None,
+        optimizer_options: dict[str, Any] | None = None,
     ) -> None:
         """Initialize the PairwiseProbitModel
 
@@ -124,7 +124,7 @@ class PairwiseProbitModel(PairwiseGP, AEPsychModelMixin):
         self,
         train_x: torch.Tensor,
         train_y: torch.Tensor,
-        optimizer_kwargs: Optional[Dict[str, Any]] = None,
+        optimizer_kwargs: dict[str, Any] | None = None,
         **kwargs,
     ) -> None:
         """Fit the model to the training data.
@@ -132,7 +132,7 @@ class PairwiseProbitModel(PairwiseGP, AEPsychModelMixin):
         Args:
             train_x (torch.Tensor): Trainin x points.
             train_y (torch.Tensor): Training y points.
-            optimizer_kwargs (Dict[str, Any], optional): Keyword arguments to pass to the optimizer. Defaults to None.
+            optimizer_kwargs (dict[str, Any], optional): Keyword arguments to pass to the optimizer. Defaults to None.
         """
         if optimizer_kwargs is not None:
             if not "optimizer_kwargs" in optimizer_kwargs:
@@ -174,7 +174,7 @@ class PairwiseProbitModel(PairwiseGP, AEPsychModelMixin):
         probability_space: bool = False,
         num_samples: int = 1000,
         rereference: str = "x_min",
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         """Query the model for posterior mean and variance.
 
         Args:
@@ -184,7 +184,7 @@ class PairwiseProbitModel(PairwiseGP, AEPsychModelMixin):
             rereference (str): How to sample. Options are "x_min", "x_max", "f_min", "f_max". Defaults to "x_min".
 
         Returns:
-            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at query points.
+            tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at query points.
         """
         if rereference is not None:
             samps = self.sample(x, num_samples, rereference)
@@ -207,7 +207,7 @@ class PairwiseProbitModel(PairwiseGP, AEPsychModelMixin):
         probability_space: bool = False,
         num_samples: int = 1000,
         rereference: str = "x_min",
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         """Query the model for posterior mean and variance in probability space.
 
         Args:
@@ -217,7 +217,7 @@ class PairwiseProbitModel(PairwiseGP, AEPsychModelMixin):
             rereference (str): How to sample. Options are "x_min", "x_max", "f_min", "f_max". Defaults to "x_min".
 
         Returns:
-            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at query points.
+            tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at query points.
         """
         return self.predict(
             x, probability_space=True, num_samples=num_samples, rereference=rereference
@@ -268,9 +268,9 @@ class PairwiseProbitModel(PairwiseGP, AEPsychModelMixin):
     def get_config_options(
         cls,
         config: Config,
-        name: Optional[str] = None,
-        options: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        name: str | None = None,
+        options: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """Alternate constructor for GPClassification model from a configuration.
 
         This is used when we recursively build a full sampling strategy

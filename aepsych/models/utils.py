@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 import warnings
-from typing import Mapping, Optional, Tuple, Union
+from typing import Mapping
 
 import numpy as np
 import torch
@@ -31,7 +31,7 @@ from torch.distributions import Normal
 
 
 def compute_p_quantile(
-    f_mean: torch.Tensor, f_std: torch.Tensor, alpha: Union[torch.Tensor, float]
+    f_mean: torch.Tensor, f_std: torch.Tensor, alpha: torch.Tensor | float
 ) -> torch.Tensor:
     """Compute quantile of p in probit model
 
@@ -49,7 +49,7 @@ def compute_p_quantile(
     Args:
         f_mean (torch.Tensor): The mean of the latent function.
         f_std (torch.Tensor): The standard deviation of the latent function.
-        alpha (Union[torch.Tensor, float]): The quantile to compute.
+        alpha (torch.Tensor | float): The quantile to compute.
 
     Returns:
         torch.Tensor: The quantile of p.
@@ -61,7 +61,7 @@ def compute_p_quantile(
 
 def get_probability_space(
     likelihood: Likelihood, posterior: GPyTorchPosterior
-) -> Tuple[torch.Tensor, torch.Tensor]:
+) -> tuple[torch.Tensor, torch.Tensor]:
     """Get the mean and variance of the probability space for a given posterior
 
     Args:
@@ -69,7 +69,7 @@ def get_probability_space(
         posterior (GPyTorchPosterior): The posterior to transform.
 
     Returns:
-        Tuple[torch.Tensor, torch.Tensor]: The mean and variance of the probability space.
+        tuple[torch.Tensor, torch.Tensor]: The mean and variance of the probability space.
     """
     fmean = posterior.mean.squeeze()
     fvar = posterior.variance.squeeze()
@@ -100,12 +100,12 @@ def get_extremum(
     model: Model,
     extremum_type: str,
     bounds: torch.Tensor,
-    locked_dims: Optional[Mapping[int, float]],
+    locked_dims: Mapping[int, float] | None,
     n_samples: int,
-    posterior_transform: Optional[PosteriorTransform] = None,
-    max_time: Optional[float] = None,
-    weights: Optional[torch.Tensor] = None,
-) -> Tuple[float, torch.Tensor]:
+    posterior_transform: PosteriorTransform | None = None,
+    max_time: float | None = None,
+    weights: torch.Tensor | None = None,
+) -> tuple[float, torch.Tensor]:
     """Return the extremum (min or max) of the modeled function
     Args:
         extremum_type (str): Type of extremum (currently 'min' or 'max'.
@@ -117,7 +117,7 @@ def get_extremum(
         max_time (float, optional): Maximum amount of time in seconds to spend optimizing.
         weights (torch.Tensor, optional): Weights to apply to the target value. Defaults to None.
     Returns:
-        Tuple[float, torch.Tensor]: Tuple containing the min and its location (argmin).
+        tuple[float, torch.Tensor]: Tuple containing the min and its location (argmin).
     """
     locked_dims = locked_dims or {}
 
@@ -166,11 +166,11 @@ def get_extremum(
 def get_min(
     model: AEPsychModelMixin,
     bounds: torch.Tensor,
-    locked_dims: Optional[Mapping[int, float]] = None,
+    locked_dims: Mapping[int, float] | None = None,
     probability_space: bool = False,
     n_samples: int = 1000,
-    max_time: Optional[float] = None,
-) -> Tuple[torch.Tensor, torch.Tensor]:
+    max_time: float | None = None,
+) -> tuple[torch.Tensor, torch.Tensor]:
     """Return the minimum of the modeled function, subject to constraints
     Args:
         model (AEPsychModelMixin): AEPsychModel to get the minimum of.
@@ -183,7 +183,7 @@ def get_min(
         max_time (float, optional): Maximum time to spend optimizing. Defaults to None.
 
     Returns:
-        Tuple[torch.Tensor, torch.Tensor]: Tuple containing the min and its location (argmin).
+        tuple[torch.Tensor, torch.Tensor]: Tuple containing the min and its location (argmin).
     """
     _, _arg = get_extremum(
         model, "min", bounds, locked_dims, n_samples, max_time=max_time
@@ -200,11 +200,11 @@ def get_min(
 def get_max(
     model: AEPsychModelMixin,
     bounds: torch.Tensor,
-    locked_dims: Optional[Mapping[int, float]] = None,
+    locked_dims: Mapping[int, float] | None = None,
     probability_space: bool = False,
     n_samples: int = 1000,
-    max_time: Optional[float] = None,
-) -> Tuple[torch.Tensor, torch.Tensor]:
+    max_time: float | None = None,
+) -> tuple[torch.Tensor, torch.Tensor]:
     """Return the maximum of the modeled function, subject to constraints
 
     Args:
@@ -218,7 +218,7 @@ def get_max(
         max_time (float, optional): Maximum time to spend optimizing. Defaults to None.
 
     Returns:
-        Tuple[torch.Tensor, torch.Tensor]: Tuple containing the max and its location (argmax).
+        tuple[torch.Tensor, torch.Tensor]: Tuple containing the max and its location (argmax).
     """
     _, _arg = get_extremum(
         model, "max", bounds, locked_dims, n_samples, max_time=max_time
@@ -234,20 +234,20 @@ def get_max(
 
 def inv_query(
     model: AEPsychModelMixin,
-    y: Union[float, torch.Tensor],
+    y: float | torch.Tensor,
     bounds: torch.Tensor,
-    locked_dims: Optional[Mapping[int, float]] = None,
+    locked_dims: Mapping[int, float] | None = None,
     probability_space: bool = False,
     n_samples: int = 1000,
-    max_time: Optional[float] = None,
-    weights: Optional[torch.Tensor] = None,
-) -> Tuple[torch.Tensor, torch.Tensor]:
+    max_time: float | None = None,
+    weights: torch.Tensor | None = None,
+) -> tuple[torch.Tensor, torch.Tensor]:
     """Query the model inverse.
     Return nearest x such that f(x) = queried y, and also return the
         value of f at that point.
     Args:
         model (AEPsychModelMixin): AEPsychModel to get the find the inverse from y.
-        y (Union[float, torch.Tensor]): Points at which to find the inverse.
+        y (float | torch.Tensor): Points at which to find the inverse.
         bounds (torch.Tensor): Lower and upper bounds of the search space.
         locked_dims (Mapping[int, float], optional): Dimensions to fix, so that the
             inverse is along a slice of the full surface. Defaults to None.
@@ -258,7 +258,7 @@ def inv_query(
         max_time (float, optional): Maximum amount of time in seconds to spend optimizing. Defaults to None.
         weights (torch.Tensor, optional): Weights to apply to the target value. Defaults to None.
     Returns:
-        Tuple[torch.Tensor, torch.Tensor]: Tuple containing the value of f
+        tuple[torch.Tensor, torch.Tensor]: Tuple containing the value of f
             nearest to queried y and the x position of this value.
     """
     locked_dims = locked_dims or {}
@@ -297,12 +297,12 @@ def get_jnd(
     lb: torch.Tensor,
     ub: torch.Tensor,
     dim: int,
-    grid: Optional[Union[np.ndarray, torch.Tensor]] = None,
-    cred_level: Optional[float] = None,
+    grid: np.ndarray | torch.Tensor | None = None,
+    cred_level: float | None = None,
     intensity_dim: int = -1,
     confsamps: int = 500,
     method: str = "step",
-) -> Union[torch.Tensor, Tuple[torch.Tensor, torch.Tensor, torch.Tensor]]:
+) -> torch.Tensor | tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
     """Calculate the JND.
 
     Note that JND can have multiple plausible definitions
@@ -320,7 +320,7 @@ def get_jnd(
         lb (torch.Tensor): Lower bounds of the input space.
         ub (torch.Tensor): Upper bounds of the input space.
         dim (int): Dimensionality of the input space.
-        grid (Optional[np.ndarray], optional): Mesh grid over which to find the JND.
+        grid (np.ndarray | torch.Tensor, optional): Mesh grid over which to find the JND.
             Defaults to a square grid of size as determined by aepsych.utils.dim_grid
         cred_level (float, optional): Credible level for computing an interval.
             Defaults to None, computing no interval.
@@ -335,7 +335,7 @@ def get_jnd(
         RuntimeError: for passing an unknown method.
 
     Returns:
-        Union[torch.Tensor, Tuple[torch.Tensor, torch.Tensor, torch.Tensor]]: either the
+        torch.Tensor | tuple[torch.Tensor, torch.Tensor, torch.Tensor]: either the
             mean JND, or a median, lower, upper tuple of the JND posterior.
     """
     if grid is None:
@@ -422,7 +422,7 @@ def bernoulli_probit_prob_transform(mean: torch.Tensor, var: torch.Tensor):
         mean (torch.Tensor): The latent variance of a Bernoulli-probit model evaluated at a set of query points.
 
     Returns:
-        Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at query points in probability space.
+        tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at query points in probability space.
     """
     fmean = mean.squeeze()
     fvar = var.squeeze()
@@ -439,13 +439,13 @@ def bernoulli_probit_prob_transform(mean: torch.Tensor, var: torch.Tensor):
 class TargetDistancePosteriorTransform(PosteriorTransform):
     def __init__(
         self,
-        target_value: Union[float, torch.Tensor],
-        weights: Optional[torch.Tensor] = None,
+        target_value: float | torch.Tensor,
+        weights: torch.Tensor | None = None,
     ) -> None:
         """Initialize the TargetDistancePosteriorTransform
 
         Args:
-            target_value (Union[float, torch.Tensor]): The target value to transform the posterior to.
+            target_value (float | torch.Tensor): The target value to transform the posterior to.
             weights (torch.Tensor, optional): Weights to apply to the target value. Defaults to None.
         """
         super().__init__()
