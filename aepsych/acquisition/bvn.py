@@ -6,7 +6,6 @@
 # LICENSE file in the root directory of this source tree.
 
 from math import pi as _pi
-from typing import Tuple
 
 import torch
 
@@ -14,14 +13,14 @@ inv_2pi = 1 / (2 * _pi)
 _neg_inv_sqrt2 = -1 / (2**0.5)
 
 
-def _gauss_legendre20(dtype: torch.dtype) -> Tuple[torch.Tensor, torch.Tensor]:
+def _gauss_legendre20(dtype: torch.dtype) -> tuple[torch.Tensor, torch.Tensor]:
     """Computes the abscissae and weights for the Gauss-Legendre quadrature of order 20.
 
     Args:
         dtype (torch.dtype): The desired data type of the output tensors.
 
     Returns:
-        Tuple[torch.Tensor, torch.Tensor]:
+        tuple[torch.Tensor, torch.Tensor]:
             - abscissae: The quadrature points.
             - weights: The corresponding weights for each quadrature point.
     """
