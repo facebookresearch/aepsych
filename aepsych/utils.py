@@ -73,19 +73,35 @@ def dim_grid(
     Returns:
         torch.Tensor: Tensor of grid points.
     """
+    # Initialize empty slice_dims if None
     slice_dims = slice_dims or {}
 
+    # Process bounds to ensure correct format and get dimension
     lower, upper, dim = _process_bounds(lower, upper, None)
 
-    mesh_vals = []
+    # Get dtype from lower tensor for consistency
+    dtype = lower.dtype
 
+    # Create tensors for each dimension
+    grid_tensors = []
     for i in range(dim):
-        if i in slice_dims.keys():
-            mesh_vals.append(slice(slice_dims[i] - 1e-10, slice_dims[i] + 1e-10, 1))
+        if i in slice_dims:
+            # For sliced dimensions, use a single value
+            grid_tensors.append(torch.tensor([slice_dims[i]], dtype=dtype))
         else:
-            mesh_vals.append(slice(lower[i].item(), upper[i].item(), gridsize * 1j))  # type: ignore
+            # For regular dimensions, create evenly spaced points
+            grid_tensors.append(
+                torch.linspace(lower[i], upper[i], gridsize, dtype=dtype)
+            )
 
-    return torch.Tensor(np.mgrid[mesh_vals].reshape(dim, -1).T)
+    # Create meshgrid with explicit indexing mode
+    meshes = torch.meshgrid(*grid_tensors, indexing="ij")
+
+    # Combine all dimensions into a single grid
+    # Each row represents a point in the grid, each column a dimension
+    grid = torch.stack([mesh.flatten() for mesh in meshes], dim=1)
+
+    return grid
 
 
 def _process_bounds(
