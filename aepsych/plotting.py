@@ -11,7 +11,6 @@ from typing import Any, Callable, Iterable, Literal, Sized, TypeAlias
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
-import numpy.typing as npt
 import torch
 from aepsych.strategy import Strategy
 from aepsych.transforms import ParameterTransforms

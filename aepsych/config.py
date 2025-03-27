@@ -13,7 +13,6 @@ import logging
 import re
 import typing
 import warnings
-from copy import deepcopy
 from types import ModuleType, NoneType, UnionType
 from typing import Any, Callable, ClassVar, Mapping, Sequence, TypeVar
 
@@ -21,7 +20,6 @@ import botorch
 import gpytorch
 import numpy as np
 import torch
-from aepsych.version import __version__
 
 _T = TypeVar("_T")
 _ET = TypeVar("_ET")
