@@ -118,8 +118,9 @@ class AEPsychServer(object):
             try:
                 result = self.handle_request(request)
             except Exception as e:
+                # Some exceptions turned into string are meaningless, so we use repr
+                result = {"server_error": e.__repr__(), "message": request}
                 error_message = f"Request '{request}' raised error '{e}'!"
-                result = f"server_error, {error_message}"
                 logger.error(f"{error_message}! Full traceback follows:")
                 logger.error(traceback.format_exc())
             self.socket.send(result)
