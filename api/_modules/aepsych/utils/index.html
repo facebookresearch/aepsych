@@ -91,19 +91,35 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        torch.Tensor: Tensor of grid points.</span>
 <span class="sd">    """</span>
+    <span class="c1"># Initialize empty slice_dims if None</span>
     <span class="n">slice_dims</span> <span class="o">=</span> <span class="n">slice_dims</span> <span class="ow">or</span> <span class="p">{}</span>
 
+    <span class="c1"># Process bounds to ensure correct format and get dimension</span>
     <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">,</span> <span class="n">dim</span> <span class="o">=</span> <span class="n">_process_bounds</span><span class="p">(</span><span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
-    <span class="n">mesh_vals</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># Get dtype from lower tensor for consistency</span>
+    <span class="n">dtype</span> <span class="o">=</span> <span class="n">lower</span><span class="o">.</span><span class="n">dtype</span>
 
+    <span class="c1"># Create tensors for each dimension</span>
+    <span class="n">grid_tensors</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dim</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">slice_dims</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="n">mesh_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="n">slice_dims</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="mf">1e-10</span><span class="p">,</span> <span class="n">slice_dims</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="mf">1e-10</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">slice_dims</span><span class="p">:</span>
+            <span class="c1"># For sliced dimensions, use a single value</span>
+            <span class="n">grid_tensors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="n">slice_dims</span><span class="p">[</span><span class="n">i</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">mesh_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="n">lower</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span> <span class="n">upper</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span> <span class="n">gridsize</span> <span class="o">*</span> <span class="mi">1</span><span class="n">j</span><span class="p">))</span>  <span class="c1"># type: ignore</span>
+            <span class="c1"># For regular dimensions, create evenly spaced points</span>
+            <span class="n">grid_tensors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">torch</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">lower</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">upper</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">gridsize</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+            <span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mgrid</span><span class="p">[</span><span class="n">mesh_vals</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">)</span></div>
+    <span class="c1"># Create meshgrid with explicit indexing mode</span>
+    <span class="n">meshes</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="o">*</span><span class="n">grid_tensors</span><span class="p">,</span> <span class="n">indexing</span><span class="o">=</span><span class="s2">"ij"</span><span class="p">)</span>
+
+    <span class="c1"># Combine all dimensions into a single grid</span>
+    <span class="c1"># Each row represents a point in the grid, each column a dimension</span>
+    <span class="n">grid</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">mesh</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span> <span class="k">for</span> <span class="n">mesh</span> <span class="ow">in</span> <span class="n">meshes</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">grid</span></div>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_process_bounds</span><span class="p">(</span>
