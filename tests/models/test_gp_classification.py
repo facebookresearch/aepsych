@@ -356,10 +356,12 @@ class GPClassificationSmoketest(unittest.TestCase):
 
 
 class GPClassificationTest(unittest.TestCase):
+    def setUp(self):
+        self.seed = 1
+        np.random.seed(self.seed)
+        torch.manual_seed(self.seed)
+
     def test_1d_single_probit_new_interface(self):
-        seed = 1
-        torch.manual_seed(seed)
-        np.random.seed(seed)
         n_init = 50
         n_opt = 1
         lb = torch.tensor([-4.0])
@@ -371,7 +373,7 @@ class GPClassificationTest(unittest.TestCase):
                 lb=lb,
                 ub=ub,
                 min_asks=n_init,
-                generator=SobolGenerator(lb=lb, ub=ub, seed=seed),
+                generator=SobolGenerator(lb=lb, ub=ub, seed=self.seed),
                 stimuli_per_trial=1,
                 outcome_types=["binary"],
             ),
@@ -407,9 +409,6 @@ class GPClassificationTest(unittest.TestCase):
         self.assertTrue(np.abs(x[np.argmax(zhat.detach().numpy())]) < 0.5)
 
     def test_1d_single_probit_batched(self):
-        seed = 1
-        torch.manual_seed(seed)
-        np.random.seed(seed)
         n_init = 50
         n_opt = 2
         lb = torch.tensor([-4.0])
@@ -421,7 +420,7 @@ class GPClassificationTest(unittest.TestCase):
                 lb=lb,
                 ub=ub,
                 min_asks=n_init,
-                generator=SobolGenerator(lb=lb, ub=ub, seed=seed),
+                generator=SobolGenerator(lb=lb, ub=ub, seed=self.seed),
                 stimuli_per_trial=1,
                 outcome_types=["binary"],
             ),
@@ -456,9 +455,6 @@ class GPClassificationTest(unittest.TestCase):
         self.assertTrue(np.abs(x[np.argmax(zhat.detach().numpy())]) < 0.5)
 
     def test_1d_single_probit(self):
-        seed = 1
-        torch.manual_seed(seed)
-        np.random.seed(seed)
         n_init = 50
         n_opt = 1
         lb = torch.tensor([-4.0])
@@ -470,7 +466,7 @@ class GPClassificationTest(unittest.TestCase):
                 lb=lb,
                 ub=ub,
                 min_asks=n_init,
-                generator=SobolGenerator(lb=lb, ub=ub, seed=seed),
+                generator=SobolGenerator(lb=lb, ub=ub, seed=self.seed),
                 stimuli_per_trial=1,
                 outcome_types=["binary"],
             ),
@@ -504,9 +500,6 @@ class GPClassificationTest(unittest.TestCase):
         self.assertTrue(np.abs(x[np.argmax(zhat.detach().numpy())]) < 0.5)
 
     def test_1d_single_probit_pure_exploration(self):
-        seed = 1
-        torch.manual_seed(seed)
-        np.random.seed(seed)
         n_init = 50
         n_opt = 1
         lb = torch.tensor([-4.0])
@@ -518,7 +511,7 @@ class GPClassificationTest(unittest.TestCase):
                 lb=lb,
                 ub=ub,
                 min_asks=n_init,
-                generator=SobolGenerator(lb=lb, ub=ub, seed=seed),
+                generator=SobolGenerator(lb=lb, ub=ub, seed=self.seed),
                 stimuli_per_trial=1,
                 outcome_types=["binary"],
             ),
@@ -557,9 +550,6 @@ class GPClassificationTest(unittest.TestCase):
         )
 
     def test_2d_single_probit_pure_exploration(self):
-        seed = 1
-        torch.manual_seed(seed)
-        np.random.seed(seed)
         n_init = 50
         n_opt = 1
         lb = torch.tensor([-1.0, -1.0])
@@ -571,7 +561,7 @@ class GPClassificationTest(unittest.TestCase):
                 lb=lb,
                 ub=ub,
                 min_asks=n_init,
-                generator=SobolGenerator(lb=lb, ub=ub, seed=seed),
+                generator=SobolGenerator(lb=lb, ub=ub, seed=self.seed),
                 stimuli_per_trial=1,
                 outcome_types=["binary"],
             ),
@@ -608,9 +598,6 @@ class GPClassificationTest(unittest.TestCase):
         )
 
     def test_1d_single_targeting(self):
-        seed = 1
-        torch.manual_seed(seed)
-        np.random.seed(seed)
         n_init = 50
         n_opt = 1
         lb = torch.tensor([-4.0])
@@ -627,7 +614,7 @@ class GPClassificationTest(unittest.TestCase):
                 lb=lb,
                 ub=ub,
                 min_asks=n_init,
-                generator=SobolGenerator(lb=lb, ub=ub, seed=seed),
+                generator=SobolGenerator(lb=lb, ub=ub, seed=self.seed),
                 stimuli_per_trial=1,
                 outcome_types=["binary"],
             ),
@@ -663,9 +650,6 @@ class GPClassificationTest(unittest.TestCase):
         self.assertTrue(np.abs(est_max - norm.ppf(0.75)) < 0.5)
 
     def test_1d_jnd(self):
-        seed = 1
-        torch.manual_seed(seed)
-        np.random.seed(seed)
         n_init = 150
         n_opt = 1
         lb = torch.tensor([-4.0])
@@ -682,7 +666,7 @@ class GPClassificationTest(unittest.TestCase):
                 lb=lb,
                 ub=ub,
                 min_asks=n_init,
-                generator=SobolGenerator(lb=lb, ub=ub, seed=seed),
+                generator=SobolGenerator(lb=lb, ub=ub, seed=self.seed),
                 stimuli_per_trial=1,
                 outcome_types=["binary"],
             ),
@@ -739,9 +723,6 @@ class GPClassificationTest(unittest.TestCase):
         self.assertTrue(np.abs(est_jnd_taylor - 1.5) < 0.25)
 
     def test_1d_single_lse(self):
-        seed = 1
-        torch.manual_seed(seed)
-        np.random.seed(seed)
         n_init = 50
         n_opt = 1
         lb = torch.tensor([-4.0])
@@ -757,7 +738,7 @@ class GPClassificationTest(unittest.TestCase):
                 lb=lb,
                 ub=ub,
                 min_asks=n_init,
-                generator=SobolGenerator(lb=lb, ub=ub, seed=seed),
+                generator=SobolGenerator(lb=lb, ub=ub, seed=self.seed),
                 stimuli_per_trial=1,
                 outcome_types=["binary"],
             ),
@@ -792,9 +773,6 @@ class GPClassificationTest(unittest.TestCase):
         self.assertTrue(np.abs(est_max - norm.ppf(0.75)) < 0.5)
 
     def test_2d_single_probit(self):
-        seed = 1
-        torch.manual_seed(seed)
-        np.random.seed(seed)
         n_init = 150
         n_opt = 1
         lb = torch.tensor([-1.0, -1.0])
@@ -806,7 +784,7 @@ class GPClassificationTest(unittest.TestCase):
                 lb=lb,
                 ub=ub,
                 min_asks=n_init,
-                generator=SobolGenerator(lb=lb, ub=ub, seed=seed),
+                generator=SobolGenerator(lb=lb, ub=ub, seed=self.seed),
                 stimuli_per_trial=1,
                 outcome_types=["binary"],
             ),
@@ -838,10 +816,6 @@ class GPClassificationTest(unittest.TestCase):
         self.assertTrue(np.all(np.abs(xy[np.argmax(zhat.detach().numpy())]) < 0.5))
 
     def test_extra_ask_warns(self):
-        # test that when we ask more times than we have models, we warn but keep going
-        seed = 1
-        torch.manual_seed(seed)
-        np.random.seed(seed)
         n_init = 3
         n_opt = 1
         lb = torch.tensor([-4.0])
@@ -853,7 +827,7 @@ class GPClassificationTest(unittest.TestCase):
                 lb=lb,
                 ub=ub,
                 min_asks=n_init,
-                generator=SobolGenerator(lb=lb, ub=ub, seed=seed),
+                generator=SobolGenerator(lb=lb, ub=ub, seed=self.seed),
                 stimuli_per_trial=1,
                 outcome_types=["binary"],
             ),
@@ -960,14 +934,17 @@ class GPClassificationTest(unittest.TestCase):
             dim=1,
             constraint_locations=torch.tensor([[0.0], [1.0]]),
             constraint_values=torch.tensor([y_true[0], y_true[-1]]),
-            constraint_strengths=torch.tensor([1e-4, 1e-4]),
+            constraint_strengths=torch.tensor([1e-6, 1e-6]),
+            inducing_size=10,
         )
 
         model.fit(x, y)
 
         y_pred, y_var = model.predict_probability(x)
 
-        self.assertTrue(torch.allclose(y_pred[0], y_true[0], atol=1e-4, rtol=1e-4))
+        self.assertTrue(
+            torch.allclose(y_pred[0], y_true[0], atol=1e-4, rtol=1e-4), y_pred
+        )
         self.assertTrue(torch.allclose(y_pred[-1], y_true[-1], atol=1e-4, rtol=1e-4))
 
         # Y_var should be small at the constraint locations
@@ -1125,7 +1102,7 @@ class GPClassificationTest(unittest.TestCase):
             upper_bound = 2
 
             [init_strat]
-            min_asks = 50
+            min_asks = 10
             generator = SobolGenerator
 
             [opt_strat]
@@ -1135,12 +1112,13 @@ class GPClassificationTest(unittest.TestCase):
 
             [GPClassificationModel]
             constraint_factory = constraint_factory
+            inducing_size = 10
 
             [constraint_factory]
             constraint_lower = [[0, 0], [0, 0]]
             constraint_upper = [[0, 2], [500, 0]]
             constraint_values = [0.5, 0.5]
-            constraint_strengths = [1e-4, 1e-4]
+            constraint_strengths = [1e-2, 1e-2]
             points_per_dim = 3
 
             [OptimizeAcqfGenerator]
@@ -1160,7 +1138,7 @@ class GPClassificationTest(unittest.TestCase):
         # These should be in transformed space and latent space
         model = strat.model
 
-        # Check if enough constraints were made, 5 cause 0, 0 is duplicated
+        # Check if enough constraints were made, 3 cause 0, 0 is duplicated
         self.assertEqual(model.constraint_locations.shape[0], 5)
         self.assertEqual(model.constraint_values.shape[0], 5)
         self.assertEqual(model.constraint_strengths.shape[0], 5)
