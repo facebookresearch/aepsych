@@ -5,9 +5,11 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
+import asyncio
 import json
 import logging
 import select
+import threading
 import time
 import unittest
 import uuid
@@ -281,21 +283,6 @@ class ServerTestCase(BaseServerTestCase):
             else:
                 self.assertEqual(self.s.socket.receive(False), message3)
 
-    def test_error_handling(self):
-        # double brace escapes, single brace to substitute, so we end up with 3 braces
-        request = f"{{{BAD_REQUEST}}}"
-
-        expected_error = f"server_error, Request '{request}' raised error ''str' object has no attribute 'keys''!"
-
-        self.s.socket.accept_client = MagicMock()
-
-        self.s.socket.receive = MagicMock(return_value=request)
-        self.s.socket.send = MagicMock()
-        self.s.exit_server_loop = True
-        with self.assertRaises(SystemExit):
-            self.s.serve()
-        self.s.socket.send.assert_called_once_with(expected_error)
-
     def test_queue(self):
         """Test to see that the queue is being handled correctly"""
 
@@ -481,6 +468,82 @@ class ServerTestCase(BaseServerTestCase):
 
         self.assertTrue(one == 1)
         self.assertTrue(strat.generator._base_obj.__class__.__name__ == "OnesGenerator")
+
+
+class BackgroundServerTestCase(unittest.IsolatedAsyncioTestCase):
+    """Test case for testing server behavior with a running server in a background thread."""
+
+    async def asyncSetUp(self):
+        """Set up a server instance running in a background thread."""
+        # Create a server instance with port 5555
+        self.port = 5555
+        self.ip = "localhost"
+        self.server_socket = server.sockets.PySocket(ip=self.ip, port=self.port)
+        self.database_path = "./{}_test_server.db".format(str(uuid.uuid4().hex))
+        self.server_instance = server.AEPsychServer(
+            socket=self.server_socket, database_path=self.database_path
+        )
+
+        # Start the server in a separate thread
+        self.server_thread = threading.Thread(target=self.server_instance.serve)
+        self.server_thread.daemon = True
+        self.server_thread.start()
+
+        # Give the server time to start up
+        time.sleep(1)
+
+        # Create a client socket and connect to the server
+        # Explicitly create an IPv4 socket
+        self.reader, self.writer = await asyncio.open_connection(self.ip, self.port)
+
+    async def asyncTearDown(self):
+        """Clean up resources after the test."""
+        self.writer.close()
+        await self.writer.wait_closed()
+
+        # Set the exit flag to stop the server thread
+        self.server_instance.exit_server_loop = True
+
+        # Wait for the server thread to finish
+        self.server_thread.join(timeout=5)
+
+        # Clean up the server
+        self.server_instance.cleanup()
+
+        # Delete the database
+        try:
+            self.server_instance.db.delete_db()
+        except PermissionError as e:
+            print("Failed to delete database: ", e)
+
+    async def mock_client(self, request):
+        self.writer.write(json.dumps(request).encode())
+        await self.writer.drain()
+        response = await self.reader.read(1024 * 512)
+        return json.loads(response.decode())
+
+    async def test_exception_json_response(self):
+        """Test that the server returns a JSON response when an exception occurs."""
+        # First send a valid setup request
+        setup_request = {
+            "type": "setup",
+            "version": "0.01",
+            "message": {"config_str": dummy_config},
+        }
+        _ = await self.mock_client(setup_request)
+
+        # Now send a malformed tell request that will cause an exception
+        # Missing the required 'outcome' field in the message
+        malformed_tell_request = {
+            "type": "tell",
+            "message": {"config": {"x": [0.5]}},  # Missing 'outcome' field
+        }
+        response = await self.mock_client(malformed_tell_request)
+
+        # Verify that the response contains the server_error key
+        self.assertIn("server_error", response)
+        # Verify that the original message is included in the response
+        self.assertEqual(response["message"], malformed_tell_request)
 
 
 if __name__ == "__main__":
