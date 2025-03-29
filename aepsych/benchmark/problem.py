@@ -14,6 +14,11 @@ from aepsych.models.utils import p_below_threshold
 from aepsych.strategy import SequentialStrategy
 from aepsych.utils import make_scaled_sobol
 from scipy.stats import bernoulli
+from torcheval.metrics.functional import (
+    binary_f1_score,
+    binary_precision,
+    binary_recall,
+)
 
 
 class Problem:
@@ -310,6 +315,26 @@ class LSEProblem(Problem):
             metrics[f"misclass_on_thresh_{threshold}"] = (
                 misclass_on_thresh.detach().cpu().numpy()[i_threshold]
             )
+
+        # Calculate F1 score for each threshold
+        norm = torch.distributions.Normal(0, 1)
+        for i, threshold in enumerate(self.thresholds):
+            post = model(self.eval_grid)
+            mean = post.mean
+            var = post.variance
+
+            prob = norm.cdf((threshold - mean) / torch.sqrt(var).add(1e-8))
+
+            metrics[f"f1_{threshold}"] = binary_f1_score(
+                prob, self.true_below_threshold[i].long(), threshold=0.5
+            ).item()
+            metrics[f"precision_{threshold}"] = binary_precision(
+                prob, self.true_below_threshold[i].long(), threshold=0.5
+            ).item()
+            metrics[f"recall_{threshold}"] = binary_recall(
+                prob, self.true_below_threshold[i].long(), threshold=0.5
+            ).item()
+
         return metrics
 
 
