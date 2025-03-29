@@ -23,7 +23,7 @@ def get_next_filename(folder, fname, ext):
     return f"{folder}/{fname}_{n + 1}.{ext}"
 
 
-def parse_argument():
+def parse_argument(args):
     parser = argparse.ArgumentParser(description="AEPsych Database!")
 
     parser.add_argument(
@@ -46,8 +46,7 @@ def parse_argument():
         help="Export the data to a csv file with the provided path.",
     )
 
-    args = parser.parse_args()
-    return args
+    return parser.parse_args(args)
 
 
 def run_database(args):
@@ -96,7 +95,7 @@ def run_database(args):
 
 
 def main():
-    args = parse_argument()
+    args = parse_argument(sys.argv[1:])
     run_database(args)
 
 
