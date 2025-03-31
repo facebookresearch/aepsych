@@ -476,9 +476,10 @@ class BackgroundServerTestCase(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
         """Set up a server instance running in a background thread."""
         # Create a server instance with port 5555
-        self.port = 5555
         self.ip = "localhost"
-        self.server_socket = server.sockets.PySocket(ip=self.ip, port=self.port)
+        # 0 is a special port number that tells the OS to assign an available port
+        self.server_socket = server.sockets.PySocket(ip=self.ip, port=0)
+        self.port = self.server_socket.socket.getsockname()[1]
         self.database_path = "./{}_test_server.db".format(str(uuid.uuid4().hex))
         self.server_instance = server.AEPsychServer(
             socket=self.server_socket, database_path=self.database_path
