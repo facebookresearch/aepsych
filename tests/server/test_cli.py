@@ -8,6 +8,7 @@
 import io
 import os
 import unittest
+import uuid
 from pathlib import Path
 
 from aepsych.server.utils import parse_argument, run_database
@@ -30,7 +31,7 @@ class CLITestCase(unittest.TestCase):
     def test_to_csv_cli(self):
         current_path = Path(os.path.abspath(__file__)).parent.parent
         db_path = current_path.joinpath("test_databases/1000_outcome.db")
-        csv_path = current_path.joinpath("test_csv.csv")
+        csv_path = current_path.joinpath(f"test_csv_{str(uuid.uuid4().hex)}.csv")
         args = parse_argument(["--db", str(db_path), "--tocsv", str(csv_path)])
 
         with self.assertLogs(level="INFO") as log:
