@@ -3,11 +3,12 @@
 
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
+from __future__ import annotations
 
 import json
 import socket
 import warnings
-from typing import Any, Dict, List, Literal, Optional, TYPE_CHECKING, Union
+from typing import Any, Literal, TYPE_CHECKING
 
 if TYPE_CHECKING:
     import torch
@@ -21,10 +22,10 @@ class ServerError(RuntimeError):
 class AEPsychClient:
     def __init__(
         self,
-        ip: Optional[str] = None,
-        port: Optional[int] = None,
+        ip: str | None = None,
+        port: int | None = None,
         connect: bool = True,
-        server: Optional["AEPsychServer"] = None,
+        server: "AEPsychServer" | None = None,
     ) -> None:
         """Python client for AEPsych using built-in python sockets. By default it connects
         to a localhost server matching AEPsych defaults.
@@ -36,8 +37,8 @@ class AEPsychClient:
             server (AEPsychServer, optional): An in-memory AEPsychServer object to connect to.
                 If this is not None, the other arguments will be ignored.
         """
-        self.configs: List[int] = []
-        self.config_names: Dict[str, int] = {}
+        self.configs: list[int] = []
+        self.config_names: dict[str, int] = {}
         self.server = server
 
         if server is not None and (ip is not None or port is not None):
@@ -50,7 +51,7 @@ class AEPsychClient:
             ip = ip or "0.0.0.0"
             port = port or 5555
 
-            self.socket: Optional[socket.socket] = socket.socket()
+            self.socket: socket.socket | None = socket.socket()
             if connect:
                 self.connect(ip, port)
         else:
@@ -78,7 +79,7 @@ class AEPsychClient:
         addr = (ip, port)
         self.socket.connect(addr)
 
-    def finalize(self) -> Dict[str, Any]:
+    def finalize(self) -> dict[str, Any]:
         """Let the server know experiment is complete and stop the server.
 
         Returns:
@@ -91,7 +92,7 @@ class AEPsychClient:
         request = {"message": "", "type": "exit"}
         return self._send_recv(request)
 
-    def _send_recv(self, message) -> Dict[str, Any]:
+    def _send_recv(self, message) -> dict[str, Any]:
         # Sends a message to a server and decodes the response
         if self.server is not None:
             return self.server.handle_request(message)
@@ -112,7 +113,7 @@ class AEPsychClient:
 
     def ask(
         self, num_points: int = 1
-    ) -> Union[Dict[str, List[float]], Dict[int, Dict[str, Any]]]:
+    ) -> dict[str, list[float]] | dict[int, dict[str, Any]]:
         """Get next configuration from server.
 
         Args:
@@ -132,11 +133,11 @@ class AEPsychClient:
 
     def tell(
         self,
-        config: Dict[str, List[Any]],
-        outcome: Union[float, Dict[str, float]],
+        config: dict[str, list[Any]],
+        outcome: float | dict[str, float],
         model_data: bool = True,
-        **metadata: Dict[str, Any],
-    ) -> Dict[str, Any]:
+        **metadata: dict[str, Any],
+    ) -> dict[str, Any]:
         """Update the server on a configuration that was executed. Use this method when using the legacy backend or for
         manually-generated trials without an associated trial_index when uding the Ax backend.
 
@@ -168,10 +169,10 @@ class AEPsychClient:
 
     def configure(
         self,
-        config_path: Optional[str] = None,
-        config_str: Optional[str] = None,
-        config_name: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        config_path: str | None = None,
+        config_str: str | None = None,
+        config_name: str | None = None,
+    ) -> dict[str, Any]:
         """Configure the server and prepare for data collection.
         Note that either config_path or config_str must be passed.
 
@@ -205,8 +206,8 @@ class AEPsychClient:
         return response
 
     def resume(
-        self, config_id: Optional[int] = None, config_name: Optional[str] = None
-    ) -> Dict[str, Any]:
+        self, config_id: int | None = None, config_name: str | None = None
+    ) -> dict[str, Any]:
         """Resume a previous config from this session. To access available configs,
         use client.configs or client.config_names
 
@@ -240,11 +241,11 @@ class AEPsychClient:
         self,
         query_type: Literal["max", "min", "prediction", "inverse"] = "max",
         probability_space: bool = False,
-        x: Optional[Dict[str, Any]] = None,
-        y: Optional[Union[float, "torch.Tensor"]] = None,
-        constraints: Optional[Dict[int, float]] = None,
+        x: dict[str, Any] | None = None,
+        y: float | "torch.Tensor" | None = None,
+        constraints: dict[int, float] | None = None,
         **kwargs,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Queries the underlying model for a specific query.
 
         Args:
