@@ -31,11 +31,16 @@ class HandleExitTestCase(BaseServerTestCase):
             "property": "min_asks",
         }
         response = self.s.handle_request(get_config_request)
-        self.assertEqual(response, true_config_dict["init_strat"]["min_asks"])
+        self.assertEqual(
+            response["init_strat"]["min_asks"],
+            true_config_dict["init_strat"]["min_asks"],
+        )
 
         get_config_request["message"] = {"section": "init_strat", "property": "lb"}
         response = self.s.handle_request(get_config_request)
-        self.assertEqual(response, true_config_dict["init_strat"]["lb"])
+        self.assertEqual(
+            response["init_strat"]["lb"], true_config_dict["init_strat"]["lb"]
+        )
 
         get_config_request["message"] = {"property": "min_asks"}
         with self.assertRaises(RuntimeError):

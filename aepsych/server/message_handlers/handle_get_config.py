@@ -41,4 +41,4 @@ def handle_get_config(server, request: dict[str, Any]) -> dict[str, Any]:
         raise RuntimeError("Message contains a section but not a property!")
 
     # If both section and property are specified, return only the relevant value from the config
-    return server.config.to_dict(deduplicate=False)[section][prop]
+    return {section: {prop: server.config.to_dict(deduplicate=False)[section][prop]}}
