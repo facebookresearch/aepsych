@@ -9,7 +9,9 @@ import argparse
 import io
 import logging
 import os
+import shutil
 import sys
+import tempfile
 import threading
 import traceback
 
@@ -43,12 +45,13 @@ def get_next_filename(folder, fname, ext):
 
 
 class AEPsychServer(object):
-    def __init__(self, socket=None, database_path=None):
+    def __init__(self, socket=None, database_path=None, read_only=False):
         """Server for doing black box optimization using gaussian processes.
         Keyword Arguments:
             socket -- socket object that implements `send` and `receive` for json
             messages (default: DummySocket()).
-            TODO actually make an abstract interface to subclass from here
+            database_path -- path to the database file (default: None, which uses "./databases/default.db").
+            read_only -- if True, make a temporary copy of the database and load it in read-only mode
         """
         if socket is None:
             self.socket = DummySocket()
@@ -58,6 +61,25 @@ class AEPsychServer(object):
         self.is_performing_replay = False
         self.exit_server_loop = False
         self._db_raw_record = None
+
+        # Handle read-only mode
+        if database_path is not None and read_only:
+            if not os.path.exists(database_path):
+                raise FileNotFoundError(
+                    f"Database does not exist at {database_path} and read_only is set to True"
+                )
+            # Create a temporary copy of the database
+            _, db_name = os.path.split(database_path)
+            # Use TemporaryDirectory which will clean up automatically when the program exits
+            self._temp_dir = tempfile.TemporaryDirectory()
+            temp_db_path = os.path.join(self._temp_dir.name, db_name)
+            shutil.copy2(database_path, temp_db_path)
+            logger.info(
+                f"Created temporary copy of DB from {database_path} at {temp_db_path}"
+            )
+            # Use the temporary database path instead
+            database_path = temp_db_path
+
         self.db: db.Database = db.Database(database_path)
         self.skip_computations = False
         self.strat_names = None
@@ -83,12 +105,17 @@ class AEPsychServer(object):
         self.queue = []
 
     def cleanup(self):
-        """Close the socket and terminate connection to the server.
+        """Close the socket and terminate connection to the server. Cleans up
+        temporary directory if it exists.
 
         Returns:
             None
         """
         self.socket.close()
+        if hasattr(self, "_temp_dir"):
+            # Close db
+            self.db.delete_db()
+            self._temp_dir.cleanup()
 
     def _receive_send(self, is_exiting: bool) -> None:
         """Receive messages from the client.
@@ -332,9 +359,16 @@ class AEPsychServer(object):
 
 #! THIS IS WHAT START THE SERVER
 def startServerAndRun(
-    server_class, socket=None, database_path=None, config_path=None, id_of_replay=None
+    server_class,
+    socket=None,
+    database_path=None,
+    config_path=None,
+    id_of_replay=None,
+    read_only=False,
 ):
-    server = server_class(socket=socket, database_path=database_path)
+    server = server_class(
+        socket=socket, database_path=database_path, read_only=read_only
+    )
     try:
         if config_path is not None:
             with open(config_path) as f:
@@ -401,6 +435,12 @@ def parse_argument():
     )
 
     parser.add_argument(
+        "--read-only",
+        action="store_true",
+        help="Open the database in read-only mode (creates a temporary copy)",
+    )
+
+    parser.add_argument(
         "-r", "--replay", type=str, help="Unique id of the experiment to replay."
     )
 
@@ -431,6 +471,7 @@ def start_server(server_class, args):
                     database_path=database_path,
                     uuid_of_replay=args.replay,
                     config_path=args.stratconfig,
+                    read_only=args.read_only,
                 )
             else:
                 logger.info(f"Setting the database path {database_path}")
@@ -440,10 +481,16 @@ def start_server(server_class, args):
                     database_path=database_path,
                     socket=sock,
                     config_path=args.stratconfig,
+                    read_only=args.read_only,
                 )
         else:
             sock = PySocket(port=args.port)
-            startServerAndRun(server_class, socket=sock, config_path=args.stratconfig)
+            startServerAndRun(
+                server_class,
+                socket=sock,
+                config_path=args.stratconfig,
+                read_only=args.read_only,
+            )
 
     except (KeyboardInterrupt, SystemExit):
         logger.exception("Got Ctrl+C, exiting!")
