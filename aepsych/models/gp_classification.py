@@ -312,7 +312,7 @@ class GPClassificationModel(VariationalGPModel):
         name: str | None = None,
         options: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
-        """.
+        """Get configuration options for the model.
 
         Args:
             config (Config): Config to look for options in.
@@ -331,11 +331,59 @@ class GPClassificationModel(VariationalGPModel):
 
         constraint_factory = config.getobj(name, "constraint_factory", fallback=None)
         if constraint_factory is not None:
-            constraint_locations, constraint_values, constraint_strengths = (
-                constraint_factory(config)
+            factory_locations, factory_values, factory_strengths = constraint_factory(
+                config
             )
-            options["constraint_locations"] = constraint_locations
-            options["constraint_values"] = constraint_values
-            options["constraint_strengths"] = constraint_strengths
+
+            # If constraint values already exist, simply combine them with the factory values
+            if (
+                "constraint_locations" in options
+                and options["constraint_locations"] is not None
+            ):
+                # Ensure existing locations are 2D
+                if options["constraint_locations"].dim() != 2:
+                    options["constraint_locations"] = options[
+                        "constraint_locations"
+                    ].unsqueeze(0)
+
+                # Ensure values and strengths are 2D
+                if options["constraint_values"].dim() != 2:
+                    options["constraint_values"] = options[
+                        "constraint_values"
+                    ].unsqueeze(1)
+
+                if options["constraint_strengths"].dim() != 2:
+                    options["constraint_strengths"] = options[
+                        "constraint_strengths"
+                    ].unsqueeze(1)
+
+                # Combine existing and new constraint locations
+                options["constraint_locations"] = torch.cat(
+                    [options["constraint_locations"], factory_locations], dim=0
+                )
+                options["constraint_values"] = torch.cat(
+                    [options["constraint_values"], factory_values], dim=0
+                )
+
+                # Handle constraint strengths
+                if options["constraint_strengths"] is None:
+                    # Create constraint strengths for existing constraints using the default heuristic
+                    # We need to use the original constraint_values before concatenation
+                    original_values = options["constraint_values"][
+                        : -factory_values.shape[0]
+                    ]
+                    existing_strengths = (0.2 * original_values + 0.1) ** 2
+                    options["constraint_strengths"] = torch.cat(
+                        [existing_strengths, factory_strengths], dim=0
+                    )
+                else:
+                    options["constraint_strengths"] = torch.cat(
+                        [options["constraint_strengths"], factory_strengths], dim=0
+                    )
+            else:
+                # No existing constraints, just use the factory values
+                options["constraint_locations"] = factory_locations
+                options["constraint_values"] = factory_values
+                options["constraint_strengths"] = factory_strengths
 
         return options

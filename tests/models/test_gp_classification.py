@@ -1210,6 +1210,157 @@ class GPClassificationTest(unittest.TestCase):
         self.assertIsNone(model.constraint_values)
         self.assertIsNone(model.constraint_strengths)
 
+    def test_constraint_combine_one(self):
+        """Test that constraints from constraint_factory are combined with one explicit constraints in a strategy."""
+        config_str = """
+            [common]
+            parnames = [par1, par2]
+            strategy_names = [init_strat, opt_strat]
+            stimuli_per_trial = 1
+            outcome_types = [binary]
+
+            [par1]
+            par_type = continuous
+            lower_bound = 0
+            upper_bound = 500
+
+            [par2]
+            par_type = continuous
+            lower_bound = 0
+            upper_bound = 2
+
+            [init_strat]
+            min_asks = 1
+            generator = SobolGenerator
+
+            [opt_strat]
+            min_asks = 1
+            model = GPClassificationModel
+            generator = OptimizeAcqfGenerator
+
+            [GPClassificationModel]
+            constraint_locations = [100, 0.4]
+            constraint_values = [1]
+            constraint_strengths = [1e-3]
+            constraint_factory = constraint_factory
+
+            [constraint_factory]
+            constraint_lower = [[0, 0], [0, 0]]
+            constraint_upper = [[0, 2], [500, 0]]
+            constraint_values = [0.5, 0.5]
+            constraint_strengths = [1e-2, 1e-2]
+            points_per_dim = 2
+
+            [OptimizeAcqfGenerator]
+            acqf = qLogNoisyExpectedImprovement
+        """
+        config = Config(config_str=config_str)
+        strat = SequentialStrategy.from_config(config=config)
+
+        model = strat.strat_list[-1].model
+
+        # Check that the explicit constraints are present, should be first
+        self.assertTrue(
+            torch.all(model.constraint_locations[0] == torch.tensor([[0.2, 0.2]]))
+        )
+        self.assertTrue(  # Some big number since this is latent space
+            torch.all(model.constraint_values[0] > torch.tensor([4.0]))
+        )
+        self.assertTrue(model.constraint_values[0] != torch.inf)
+
+        self.assertTrue(
+            torch.all(model.constraint_strengths[0] == torch.tensor([1e-3]))
+        )
+
+        factory_locations = model.constraint_locations[1:]
+        factory_values = model.constraint_values[1:]
+        factory_strengths = model.constraint_strengths[1:]
+
+        self.assertTrue(torch.any(factory_locations == 0.0, dim=1).all())
+        self.assertEqual(factory_locations.shape[0], 3)
+        self.assertTrue(torch.all(factory_values == 0))
+        self.assertEqual(factory_values.shape[0], 3)
+        self.assertTrue(torch.all(factory_strengths == 1e-2))
+        self.assertEqual(factory_strengths.shape[0], 3)
+
+    def test_constraint_combine_multiple(self):
+        """Test that constraints from constraint_factory are combined with multiple explicit constraints in a strategy."""
+        config_str = """
+            [common]
+            parnames = [par1, par2]
+            strategy_names = [init_strat, opt_strat]
+            stimuli_per_trial = 1
+            outcome_types = [binary]
+
+            [par1]
+            par_type = continuous
+            lower_bound = 0
+            upper_bound = 500
+
+            [par2]
+            par_type = continuous
+            lower_bound = 0
+            upper_bound = 2
+
+            [init_strat]
+            min_asks = 1
+            generator = SobolGenerator
+
+            [opt_strat]
+            min_asks = 1
+            model = GPClassificationModel
+            generator = OptimizeAcqfGenerator
+
+            [GPClassificationModel]
+            constraint_locations = [[100, 0.4], [200, 1.0], [300, 1.5]]
+            constraint_values = [1, 0.7, 0.3]
+            constraint_strengths = [1e-3, 2e-3, 3e-3]
+            constraint_factory = constraint_factory
+
+            [constraint_factory]
+            constraint_lower = [[0, 0], [0, 0]]
+            constraint_upper = [[0, 2], [500, 0]]
+            constraint_values = [0.5, 0.5]
+            constraint_strengths = [1e-2, 1e-2]
+            points_per_dim = 2
+
+            [OptimizeAcqfGenerator]
+            acqf = qLogNoisyExpectedImprovement
+        """
+        config = Config(config_str=config_str)
+        strat = SequentialStrategy.from_config(config=config)
+
+        model = strat.strat_list[-1].model
+
+        # Check that the explicit constraints are present
+        expected_locations = torch.tensor([[0.2, 0.2], [0.4, 0.5], [0.6, 0.75]])
+        expected_strengths = torch.tensor([1e-3, 2e-3, 3e-3])
+
+        # Get actual values from model for the first 3 constraints
+        actual_locations = model.constraint_locations[:3]
+        actual_strengths = model.constraint_strengths[:3]
+        actual_values = model.constraint_values[:3]
+
+        self.assertTrue(torch.all(torch.eq(actual_locations, expected_locations)))
+        self.assertTrue(torch.all(torch.eq(actual_strengths, expected_strengths)))
+
+        # Check values with specific conditions
+        self.assertTrue(actual_values[0] > 4.0 and actual_values[0] != torch.inf)
+        self.assertTrue(actual_values[1] > 0.0)
+        self.assertTrue(actual_values[2] < 0.0)
+
+        # Check factory constraints
+        factory_locations = model.constraint_locations[3:]
+        factory_values = model.constraint_values[3:]
+        factory_strengths = model.constraint_strengths[3:]
+
+        self.assertTrue(torch.any(factory_locations == 0.0, dim=1).all())
+        self.assertEqual(factory_locations.shape[0], 3)
+        self.assertTrue(torch.all(factory_values == 0))
+        self.assertEqual(factory_values.shape[0], 3)
+        self.assertTrue(torch.all(factory_strengths == 1e-2))
+        self.assertEqual(factory_strengths.shape[0], 3)
+
 
 if __name__ == "__main__":
     unittest.main()
