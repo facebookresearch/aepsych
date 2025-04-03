@@ -33,7 +33,6 @@ You can also run the server in read-only mode, which creates a temporary copy of
 ```
 aepsych_server --port 5555 --ip 0.0.0.0 --db mydatabase.db --read-only
 ```
-```
 
 The server accepts messages over a unix socket, and
 all messages are formatted using [JSON](https://www.json.org/json-en.html). All messages
