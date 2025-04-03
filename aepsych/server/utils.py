@@ -10,7 +10,7 @@ import logging
 import os
 import shutil
 import sys
-import uuid
+import tempfile
 
 import aepsych.database.db as db
 import aepsych.utils_logging as utils_logging
@@ -55,10 +55,17 @@ def run_database(args):
         database_path = args.db
 
         if args.summarize or "tocsv" in args and args.tocsv is not None:
-            # Make a temporary database
-            tmp_db_path = "./{}.db".format(str(uuid.uuid4().hex))
-            shutil.copy2(database_path, tmp_db_path)
-            database_path = tmp_db_path
+            # Make a temporary database using TemporaryDirectory for automatic cleanup
+            _, db_name = os.path.split(database_path)
+            temp_dir = tempfile.TemporaryDirectory()
+            temp_db_path = os.path.join(temp_dir.name, db_name)
+            shutil.copy2(database_path, temp_db_path)
+            logger.info(
+                f"Created temporary copy of DB from {database_path} for {args.summarize and 'summarize' or 'tocsv'}"
+            )
+            # Store the temp_dir object to keep it alive until the database is no longer needed
+            args._temp_dir_summary = temp_dir
+            database_path = temp_db_path
 
         database = db.Database(database_path)
 

@@ -8,6 +8,7 @@
 import asyncio
 import json
 import logging
+import os
 import select
 import threading
 import time
@@ -468,6 +469,88 @@ class ServerTestCase(BaseServerTestCase):
 
         self.assertTrue(one == 1)
         self.assertTrue(strat.generator._base_obj.__class__.__name__ == "OnesGenerator")
+
+    def test_read_only_mode(self):
+        """Test that read-only mode creates a temporary copy of the database and doesn't modify the original."""
+        # Create a server with a database and add some data to it
+        setup_request = {
+            "type": "setup",
+            "version": "0.01",
+            "message": {"config_str": dummy_config},
+        }
+        ask_request = {"type": "ask", "message": ""}
+        tell_request = {
+            "type": "tell",
+            "message": {"config": {"x": [0.5]}, "outcome": 1},
+        }
+
+        self.s.handle_request(setup_request)
+        self.s.handle_request(ask_request)
+        self.s.handle_request(tell_request)
+
+        # Get the database state before read-only operations
+        original_records_count = len(self.s.db.get_master_records())
+
+        # Create a second server with the same database path but in read-only mode
+        socket = server.sockets.PySocket(port=0)
+        read_only_server = server.AEPsychServer(
+            socket=socket, database_path=self.db_path, read_only=True
+        )
+
+        # Verify that the read-only server has a _temp_dir attribute
+        self.assertTrue(hasattr(read_only_server, "_temp_dir"))
+
+        # Verify that the database path being used is different from the original
+        self.assertNotEqual(read_only_server.db._full_db_path.as_posix(), self.db_path)
+
+        # Verify that the temporary database contains the same data as the original
+        self.assertEqual(
+            len(read_only_server.db.get_master_records()), original_records_count
+        )
+
+        # Perform operations on the read-only server
+        read_only_server.handle_request(setup_request)
+        read_only_server.handle_request(ask_request)
+        read_only_server.handle_request(tell_request)
+
+        # Verify that the read-only server's database has been modified
+        self.assertEqual(
+            len(read_only_server.db.get_master_records()),
+            original_records_count + 1,
+        )
+
+        # Store the temp_dir path for later verification
+        temp_dir_path = read_only_server._temp_dir.name
+
+        # Clean up the read-only server
+        read_only_server.cleanup()
+
+        # Create a new server to check the original database
+        socket = server.sockets.PySocket(port=0)
+        check_server = server.AEPsychServer(socket=socket, database_path=self.db_path)
+
+        # Verify that the original database was not modified
+        self.assertEqual(
+            len(check_server.db.get_master_records()), original_records_count
+        )
+
+        # Verify that the temporary directory is gone
+        self.assertFalse(os.path.exists(temp_dir_path))
+
+    def test_read_only_mode_file_not_found(self):
+        """Test that read-only mode raises FileNotFoundError when the database file doesn't exist."""
+        # Create a path to a non-existent database file
+        non_existent_db_path = os.path.join(self.db_path + "_non_existent")
+
+        # Verify that the file doesn't exist
+        self.assertFalse(os.path.exists(non_existent_db_path))
+
+        # Try to create a server with the non-existent database path in read-only mode
+        socket = server.sockets.PySocket(port=0)
+        with self.assertRaises(FileNotFoundError):
+            server.AEPsychServer(
+                socket=socket, database_path=non_existent_db_path, read_only=True
+            )
 
 
 class BackgroundServerTestCase(unittest.IsolatedAsyncioTestCase):
