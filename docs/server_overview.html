@@ -1,0 +1,335 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Server API Overview · AEPsych</title><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="generator" content="Docusaurus"/><meta name="description" content="## Server Message API"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Server API Overview · AEPsych"/><meta property="og:type" content="website"/><meta property="og:url" content="https://aepsych.org/"/><meta property="og:description" content="## Server Message API"/><meta property="og:image" content="https://aepsych.org/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://aepsych.org/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/img/favicon.ico"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="/js/code_block_buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script><script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script><script>
+        document.addEventListener('DOMContentLoaded', function() {
+          addBackToTop(
+            {"zIndex":100}
+          )
+        });
+        </script><script src="/js/scrollSpy.js"></script><link rel="stylesheet" href="/css/main.css"/><script src="/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/"><img class="logo" src="/img/static-logo.png" alt="AEPsych"/><h2 class="headerTitleWithLogo">AEPsych</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/demos/" target="_self">Demos</a></li><li class="siteNavGroupActive"><a href="/docs/introduction" target="_self">Docs</a></li><li class=""><a href="/tutorials/" target="_self">Tutorials</a></li><li class=""><a href="/api/" target="_self">API Reference</a></li><li class=""><a href="https://github.com/facebookresearch/aepsych" target="_self">GitHub</a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><div class="hamburger-menu"><div class="line1"></div><div class="line2"></div><div class="line3"></div></div></div><h2><i>›</i><span>For developers</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle">About</h3><ul class=""><li class="navListItem"><a class="navItem" href="/docs/introduction">Introduction</a></li><li class="navListItem"><a class="navItem" href="/docs/papers">Papers related to AEPsych</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">General</h3><ul class=""><li class="navListItem"><a class="navItem" href="/docs/getting_started">Getting Started with AEPsych</a></li><li class="navListItem"><a class="navItem" href="/docs/configs">Writing Config Files</a></li><li class="navListItem"><a class="navItem" href="/docs/clients">AEPsych clients</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Background materials</h3><ul class=""><li class="navListItem"><a class="navItem" href="/docs/psychophysics_intro">A brief introduction to Psychophysics</a></li><li class="navListItem"><a class="navItem" href="/docs/gp_intro">A brief introduction to Gaussian Process active learning</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">For developers</h3><ul class=""><li class="navListItem"><a class="navItem" href="/docs/api_overview">API Overview</a></li><li class="navListItem"><a class="navItem" href="/docs/db_overview">Database Overview</a></li><li class="navListItem navListItemActive"><a class="navItem" href="/docs/server_overview">Server API Overview</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Advanced topics</h3><ul class=""><li class="navListItem"><a class="navItem" href="/docs/finish_criteria">Advanced Strategy Configuration</a></li><li class="navListItem"><a class="navItem" href="/docs/parameters">Advanced Parameter Configuration</a></li><li class="navListItem"><a class="navItem" href="/docs/speed">Active Learning Speedups</a></li><li class="navListItem"><a class="navItem" href="/docs/extensions">Extensions</a></li></ul></div></div></section></div><script>
+            var coll = document.getElementsByClassName('collapsible');
+            var checkActiveCategory = true;
+            for (var i = 0; i < coll.length; i++) {
+              var links = coll[i].nextElementSibling.getElementsByTagName('*');
+              if (checkActiveCategory){
+                for (var j = 0; j < links.length; j++) {
+                  if (links[j].classList.contains('navListItemActive')){
+                    coll[i].nextElementSibling.classList.toggle('hide');
+                    coll[i].childNodes[1].classList.toggle('rotate');
+                    checkActiveCategory = false;
+                    break;
+                  }
+                }
+              }
+
+              coll[i].addEventListener('click', function() {
+                var arrow = this.childNodes[1];
+                arrow.classList.toggle('rotate');
+                var content = this.nextElementSibling;
+                content.classList.toggle('hide');
+              });
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+              createToggler('#navToggler', '#docsNav', 'docsSliderActive');
+              createToggler('#tocToggler', 'body', 'tocActive');
+
+              var headings = document.querySelector('.toc-headings');
+              headings && headings.addEventListener('click', function(event) {
+                var el = event.target;
+                while(el !== headings){
+                  if (el.tagName === 'A') {
+                    document.body.classList.remove('tocActive');
+                    break;
+                  } else{
+                    el = el.parentNode;
+                  }
+                }
+              }, false);
+
+              function createToggler(togglerSelector, targetSelector, className) {
+                var toggler = document.querySelector(togglerSelector);
+                var target = document.querySelector(targetSelector);
+
+                if (!toggler) {
+                  return;
+                }
+
+                toggler.onclick = function(event) {
+                  event.preventDefault();
+
+                  target.classList.toggle(className);
+                };
+              }
+            });
+        </script></nav></div><div class="container mainContainer docsContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/facebookresearch/aepsych/blob/main/docs/server_api_overview.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 id="__docusaurus" class="postHeaderTitle">Server API Overview</h1></header><article><div><span><h2><a class="anchor" aria-hidden="true" id="server-message-api"></a><a href="#server-message-api" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Server Message API</h2>
+<p>The server can handle a variety of messages from the client. The messages are
+expected to be JSON objects with a <code>type</code> field that indicates the type of
+message alongisde a <code>message</code> field that contains the message-specific data.
+Below is an exhaustive list of the messages that the server can handle and the
+expected API for each.</p>
+<h3><a class="anchor" aria-hidden="true" id="setup"></a><a href="#setup" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>setup</h3>
+<p>Sets up an experiment with the provided configuration.</p>
+<p><strong>Request Format:</strong></p>
+<pre><code class="hljs css language-json">{
+  <span class="hljs-attr">"type"</span>: <span class="hljs-string">"setup"</span>,
+  <span class="hljs-attr">"message"</span>: {
+    <span class="hljs-attr">"config_str"</span>: <span class="hljs-string">"..."</span>,  <span class="hljs-comment">// Config as a string, or</span>
+    <span class="hljs-attr">"config_dict"</span>: {      <span class="hljs-comment">// Config as a dictionary</span>
+      <span class="hljs-attr">"common"</span>: {
+        <span class="hljs-attr">"parnames"</span>: [<span class="hljs-string">"param1"</span>, <span class="hljs-string">"param2"</span>],
+        <span class="hljs-attr">"outcome_types"</span>: [<span class="hljs-string">"continuous"</span>, <span class="hljs-string">"binary"</span>],
+        <span class="hljs-attr">"strategy_names"</span>: [<span class="hljs-string">"strategy1"</span>, <span class="hljs-string">"strategy2"</span>],
+      },
+      <span class="hljs-attr">"metadata"</span>: { <span class="hljs-comment">// Metadata section is optional</span>
+        <span class="hljs-attr">"experiment_name"</span>: <span class="hljs-string">"experiment_name"</span>,
+        <span class="hljs-attr">"experiment_description"</span>: <span class="hljs-string">"experiment_description"</span>,
+        <span class="hljs-attr">"participant_id"</span>: <span class="hljs-string">"participant_id"</span>
+      },
+      <span class="hljs-comment">// Additional sections for strategies, models, etc.</span>
+    }
+  }
+}
+</code></pre>
+<p>The configuration can be provided either as a string (<code>config_str</code>) or as a dictionary (<code>config_dict</code>). The configuration must include:</p>
+<ul>
+<li><p>A <code>common</code> section with:</p>
+<ul>
+<li><code>parnames</code>: List of parameter names used in the experiment</li>
+<li><code>outcome_types</code>: List of outcome types (e.g., &quot;continuous&quot;, &quot;binary&quot;)</li>
+<li><code>strategy_names</code>: List of stategy names.</li>
+</ul></li>
+<li><p>An optional <code>metadata</code> section with:</p>
+<ul>
+<li><code>experiment_name</code>: Name of the experiment</li>
+<li><code>experiment_description</code>: Description of the experiment</li>
+<li><code>participant_id</code>: ID of the participant</li>
+</ul></li>
+</ul>
+<p>Additional sections should be included for configuring strategies, models, acquisition functions, and other experiment components.</p>
+<p><strong>Response Format:</strong></p>
+<pre><code class="hljs css language-json">{
+  <span class="hljs-attr">"strat_id"</span>: <span class="hljs-number">0</span>
+}
+</code></pre>
+<p>The <code>strat_id</code> field contains the ID of the newly created strategy.</p>
+<h3><a class="anchor" aria-hidden="true" id="ask"></a><a href="#ask" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>ask</h3>
+<p>Requests a point to be generated and returns a configuration for the next experiment trial.</p>
+<p><strong>Request Format:</strong></p>
+<pre><code class="hljs css language-json">{
+  <span class="hljs-attr">"type"</span>: <span class="hljs-string">"ask"</span>,
+  <span class="hljs-attr">"message"</span>: {
+    <span class="hljs-attr">"num_points"</span>: <span class="hljs-number">1</span>  <span class="hljs-comment">// Optional, defaults to 1</span>
+  }
+}
+</code></pre>
+<p>The <code>num_points</code> parameter specifies how many parameter configurations to generate. If omitted, the server will generate a single configuration.</p>
+<p><strong>Response Format:</strong></p>
+<pre><code class="hljs css language-json">{
+  "config": {
+    "param1": [value1],
+    "param2": [value2],
+    ...
+  },
+  "is_finished": false,
+  "num_points": 1
+}
+</code></pre>
+<p>The <code>config</code> field contains parameter values for the next trial. <code>is_finished</code> indicates whether the current strategy is finished. <code>num_points</code> indicates the number of points returned.</p>
+<h3><a class="anchor" aria-hidden="true" id="tell"></a><a href="#tell" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>tell</h3>
+<p>Tells the model which input was run and what the outcome was.</p>
+<p><strong>Request Format:</strong></p>
+<pre><code class="hljs css language-json">{
+  "type": "tell",
+  "message": {
+    "config": {
+      "param1": value1,
+      "param2": value2,
+      ...
+    },
+    "outcome": value,  // or for multi-outcome: {"outcome1": value1, "outcome2": value2, ...}
+    "model_data": true,  // Optional, defaults to true
+    **kwargs, // Optional, any extra key-value pairs to add to the trial record
+  }
+}
+</code></pre>
+<p>The <code>config</code> field contains the parameter configuration used in the trial. The <code>outcome</code> field can be either a single value for single-outcome experiments or a dictionary mapping outcome names to values for multi-outcome experiments. The <code>model_data</code> parameter determines whether this data should be added to the model (true) or just recorded in the database without affecting the model (false). Any additional key-value pairs will be stored as extra data with the trial record. You can also tell the server about multiple trials at once. To do this, the parameter values and outcome values should be lists of the same length.</p>
+<p><strong>Response Format:</strong></p>
+<pre><code class="hljs css language-json">{
+  <span class="hljs-attr">"trials_recorded"</span>: <span class="hljs-number">1</span>,
+  <span class="hljs-attr">"model_data_added"</span>: <span class="hljs-number">1</span>
+}
+</code></pre>
+<p>The <code>trials_recorded</code> field indicates the number of trials recorded in the database. <code>model_data_added</code> indicates the number of datapoints added to the model.</p>
+<h3><a class="anchor" aria-hidden="true" id="exit"></a><a href="#exit" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>exit</h3>
+<p>Makes the server write strategies into the database and close the connection.</p>
+<p><strong>Request Format:</strong></p>
+<pre><code class="hljs css language-json">{
+  <span class="hljs-attr">"type"</span>: <span class="hljs-string">"exit"</span>,
+  <span class="hljs-attr">"message"</span>: {}
+}
+</code></pre>
+<p>This message doesn't require any parameters. It signals the server to gracefully terminate, ensuring all strategies and data are properly saved to the database before closing the connection.</p>
+<p><strong>Response Format:</strong></p>
+<pre><code class="hljs css language-json">{
+  <span class="hljs-attr">"termination_type"</span>: <span class="hljs-string">"Terminate"</span>,
+  <span class="hljs-attr">"success"</span>: <span class="hljs-literal">true</span>
+}
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="finish_strategy"></a><a href="#finish_strategy" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>finish_strategy</h3>
+<p>Finishes the current strategy and returns information about the finished strategy.</p>
+<p><strong>Request Format:</strong></p>
+<pre><code class="hljs css language-json">{
+  <span class="hljs-attr">"type"</span>: <span class="hljs-string">"finish_strategy"</span>,
+  <span class="hljs-attr">"message"</span>: {}
+}
+</code></pre>
+<p>This message doesn't require any parameters. It instructs the server to mark the current strategy as finished, which may trigger the server to move to the next strategy if one is available.</p>
+<p><strong>Response Format:</strong></p>
+<pre><code class="hljs css language-json">{
+  <span class="hljs-attr">"finished_strategy"</span>: <span class="hljs-string">"strategy_name"</span>,
+  <span class="hljs-attr">"finished_strat_idx"</span>: <span class="hljs-number">0</span>
+}
+</code></pre>
+<p>The <code>finished_strategy</code> field contains the name of the finished strategy. <code>finished_strat_idx</code> contains the index of the finished strategy.</p>
+<h3><a class="anchor" aria-hidden="true" id="get_config"></a><a href="#get_config" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>get_config</h3>
+<p>Returns the current experiment configuration.</p>
+<p><strong>Request Format:</strong></p>
+<pre><code class="hljs css language-json">{
+  <span class="hljs-attr">"type"</span>: <span class="hljs-string">"get_config"</span>,
+  <span class="hljs-attr">"message"</span>: {
+    <span class="hljs-attr">"section"</span>: <span class="hljs-string">"section_name"</span>,  <span class="hljs-comment">// Optional</span>
+    <span class="hljs-attr">"property"</span>: <span class="hljs-string">"property_name"</span>  <span class="hljs-comment">// Optional, requires section to be specified</span>
+  }
+}
+</code></pre>
+<p>The <code>section</code> parameter specifies which section of the configuration to retrieve. The <code>property</code> parameter specifies a specific property within that section to retrieve. If neither is provided, the entire configuration is returned. If <code>property</code> is specified, <code>section</code> must also be specified.</p>
+<p><strong>Response Format:</strong>
+If section and property are specified:</p>
+<pre><code class="hljs css language-json">{
+  <span class="hljs-attr">"section_name"</span>: {
+    <span class="hljs-attr">"property_name"</span>: value
+  }
+}
+</code></pre>
+<p>If neither section nor property are specified, the entire config is returned:</p>
+<pre><code class="hljs css language-json">{
+  "section1": {
+    "property1": value1,
+    "property2": value2,
+    ...
+  },
+  "section2": {
+    ...
+  },
+  ...
+}
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="info"></a><a href="#info" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>info</h3>
+<p>Returns information about the current running experiment.</p>
+<p><strong>Request Format:</strong></p>
+<pre><code class="hljs css language-json">{
+  <span class="hljs-attr">"type"</span>: <span class="hljs-string">"info"</span>,
+  <span class="hljs-attr">"message"</span>: {}
+}
+</code></pre>
+<p>This message doesn't require any parameters. It requests comprehensive information about the current state of the experiment, including database details, strategy information, and model status.</p>
+<p><strong>Response Format:</strong></p>
+<pre><code class="hljs css language-json">{
+  <span class="hljs-attr">"db_name"</span>: <span class="hljs-string">"database_name"</span>,
+  <span class="hljs-attr">"exp_id"</span>: <span class="hljs-number">123</span>,
+  <span class="hljs-attr">"strat_count"</span>: <span class="hljs-number">2</span>,
+  <span class="hljs-attr">"all_strat_names"</span>: [<span class="hljs-string">"strategy1"</span>, <span class="hljs-string">"strategy2"</span>],
+  <span class="hljs-attr">"current_strat_index"</span>: <span class="hljs-number">1</span>,
+  <span class="hljs-attr">"current_strat_name"</span>: <span class="hljs-string">"strategy2"</span>,
+  <span class="hljs-attr">"current_strat_data_pts"</span>: <span class="hljs-number">10</span>,
+  <span class="hljs-attr">"current_strat_model"</span>: <span class="hljs-string">"model_name"</span>,
+  <span class="hljs-attr">"current_strat_acqf"</span>: <span class="hljs-string">"acquisition_function_name"</span>,
+  <span class="hljs-attr">"current_strat_finished"</span>: <span class="hljs-literal">false</span>,
+  <span class="hljs-attr">"current_strat_can_fit"</span>: <span class="hljs-literal">true</span>
+}
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="params"></a><a href="#params" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>params</h3>
+<p>Returns information about each parameter in the current strategy.</p>
+<p><strong>Request Format:</strong></p>
+<pre><code class="hljs css language-json">{
+  <span class="hljs-attr">"type"</span>: <span class="hljs-string">"parameters"</span>,
+  <span class="hljs-attr">"message"</span>: {}
+}
+</code></pre>
+<p>This message doesn't require any parameters. It requests information about all parameters in the current strategy, including their names and bounds.</p>
+<p><strong>Response Format:</strong></p>
+<pre><code class="hljs css language-json">{
+  "param1": [lower_bound1, upper_bound1],
+  "param2": [lower_bound2, upper_bound2],
+  ...
+}
+</code></pre>
+<p>Each key is a parameter name, and the value is a list containing the lower and upper bounds for that parameter.</p>
+<h3><a class="anchor" aria-hidden="true" id="query"></a><a href="#query" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>query</h3>
+<p>Queries the underlying model for various types of information.</p>
+<p><strong>Request Format:</strong></p>
+<pre><code class="hljs css language-json">{
+  "type": "query",
+  "message": {
+    "query_type": "max",  // Options: "max", "min", "prediction", "inverse"
+    "probability_space": false,  // Optional, defaults to false
+    "x": {  // Required for "prediction" query type
+      "param1": value1,
+      "param2": value2,
+      ...
+    },
+    "y": value,  // Required for "inverse" query type
+    "constraints": {  // Optional
+      "0": value1,  // Parameter index: value
+      "1": value2,
+      ...
+    }
+  }
+}
+</code></pre>
+<p>The <code>query_type</code> parameter specifies the type of query to perform:</p>
+<ul>
+<li><code>max</code>: Find the parameter configuration that maximizes the model output</li>
+<li><code>min</code>: Find the parameter configuration that minimizes the model output</li>
+<li><code>prediction</code>: Get the model's prediction at a specific parameter configuration</li>
+<li><code>inverse</code>: Find the parameter configuration that produces a specific output value</li>
+</ul>
+<p>The <code>probability_space</code> parameter determines whether the query should be performed in probability space (true) or not (false).</p>
+<p>The <code>x</code> parameter is required for the &quot;prediction&quot; query type and specifies the parameter configuration to get a prediction for.</p>
+<p>The <code>y</code> parameter is required for the &quot;inverse&quot; query type and specifies the target output value to find a matching parameter configuration for.</p>
+<p>The <code>constraints</code> parameter allows specifying equality constraints on parameters, where each key is the parameter index (0-based) and the value is the fixed value for that parameter.</p>
+<p><strong>Response Format:</strong></p>
+<pre><code class="hljs css language-json">{
+  "query_type": "max",
+  "probability_space": false,
+  "constraints": {
+    "0": value1,
+    "1": value2,
+    ...
+  },
+  "x": {
+    "param1": [value1],
+    "param2": [value2],
+    ...
+  },
+  "y": [value]
+}
+</code></pre>
+<p>The response contains the query type, whether probability space was used, any constraints applied, the parameter configuration, and the resulting y value.</p>
+<h3><a class="anchor" aria-hidden="true" id="resume"></a><a href="#resume" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>resume</h3>
+<p>Resumes a specific strategy given its ID.</p>
+<p><strong>Request Format:</strong></p>
+<pre><code class="hljs css language-json">{
+  <span class="hljs-attr">"type"</span>: <span class="hljs-string">"resume"</span>,
+  <span class="hljs-attr">"message"</span>: {
+    <span class="hljs-attr">"strat_id"</span>: <span class="hljs-number">1</span>
+  }
+}
+</code></pre>
+<p>The <code>strat_id</code> parameter specifies the ID of the strategy to resume. Note that this is not used to switch between strategies within a single experiment. The &quot;strategy&quot; mentioned here refers to different experiments defined by different setup messages.</p>
+<p><strong>Response Format:</strong></p>
+<pre><code class="hljs css language-json">{
+  <span class="hljs-attr">"strat_id"</span>: <span class="hljs-number">1</span>
+}
+</code></pre>
+<p>The <code>strat_id</code> field contains the ID of the resumed strategy.</p>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/docs/db_overview"><span class="arrow-prev">← </span><span>Database Overview</span></a><a class="docs-next button" href="/docs/finish_criteria"><span>Advanced Strategy Configuration</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#server-message-api">Server Message API</a><ul class="toc-headings"><li><a href="#setup">setup</a></li><li><a href="#ask">ask</a></li><li><a href="#tell">tell</a></li><li><a href="#exit">exit</a></li><li><a href="#finish_strategy">finish_strategy</a></li><li><a href="#get_config">get_config</a></li><li><a href="#info">info</a></li><li><a href="#params">params</a></li><li><a href="#query">query</a></li><li><a href="#resume">resume</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/" class="nav-home"><img src="/img/favicon.ico" alt="AEPsych" width="66" height="58"/></a><div><h5>Docs</h5><a href="/docs/introduction">Introduction</a><a href="/docs/getting_started">Getting Started</a><a href="/tutorials/">Tutorials</a><a href="/api/">API Reference</a></div><div><h5>Legal</h5><a href="https://opensource.facebook.com/legal/privacy/" target="_blank" rel="noreferrer noopener">Privacy</a><a href="https://opensource.facebook.com/legal/terms/" target="_blank" rel="noreferrer noopener">Terms</a></div><div><div class="footerSection"><h5>Social</h5><div class="social"><a class="github-button" href="https://github.com/facebookresearch/aepsych" data-count-href="https://github.com/facebookresearch/aepsych/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star AEPsych on GitHub">aepsych</a></div></div></div></section><a href="https://opensource.facebook.com/" target="_blank" rel="noreferrer noopener" class="fbOpenSource"><img src="/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2025 Meta Platforms, Inc.  Built with Docusaurus.</section><div class="cookie-container"><p>We use cookies to enhance your experience, and to analyse the use of our website. By clicking or navigating, you agree to allow our usage of cookies.</p><button class="cookie-btn">accept</button></div></footer></div></body></html>
