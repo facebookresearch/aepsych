@@ -15,7 +15,8 @@
     ],
     "For developers": [
       "api_overview",
-      "db_overview"
+      "db_overview",
+      "server_overview"
     ],
     "Advanced topics": [
       "finish_criteria",
