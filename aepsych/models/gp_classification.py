@@ -94,8 +94,9 @@ class GPClassificationModel(VariationalGPModel):
             likelihood = BernoulliLikelihood()
 
             if self.constraint_values is not None:
-                self.constraint_values = torch.distributions.Normal(0, 1).icdf(
-                    self.constraint_values
+                # Values are clamped to -5 to 5 to handle 0 and 1 not becoming inf
+                self.constraint_values = torch.clamp(
+                    torch.distributions.Normal(0, 1).icdf(self.constraint_values), -5, 5
                 )
 
         if self.constraint_locations is not None and mll_class is not None:
