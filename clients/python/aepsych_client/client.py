@@ -285,5 +285,76 @@ class AEPsychClient:
 
         return self._send_recv(request)
 
+    def finish_strategy(self) -> dict[str, Any]:
+        """Finish the current strategy.
+
+        Returns:
+            Dict[str, Any]: A dictionary with these entries
+                - "finished_strategy": str, name of the finished strategy.
+                - "finished_strat_idx": int, the id of the strategy.
+        """
+        request = {"type": "finish_strategy", "message": {}}
+        return self._send_recv(request)
+
+    def get_config(
+        self, section: str | None = None, property: str | None = None
+    ) -> dict[str, Any]:
+        """Get the current experiment config.
+
+        Args:
+            section (str, optional): The section to get the property from. If provided,
+                property must also be provided.
+            property (str, optional): The property to get from the section. If provided,
+                section must also be provided.
+
+        Returns:
+            Dict[str, Any]: A dictionary representing the experiment config or a specific
+                property value if section and property are provided.
+        """
+        message = {}
+        if section is not None:
+            message["section"] = section
+        if property is not None:
+            message["property"] = property
+
+        request = {"type": "get_config", "message": message}
+        return self._send_recv(request)
+
+    def info(self) -> dict[str, Any]:
+        """Get information about the current running experiment.
+
+        Returns:
+            Dict[str, Any]: A dictionary with these entries
+                - "db_name": string, name of the database
+                - "exp_id": integer, experiment ID
+                - "strat_count": integer, number of strategies in the server.
+                - "all_strat_names": list of strings, list of the strategy names in the
+                    server.
+                - "current_strat_index": integer, the index of the current strategy.
+                - "current_strat_name": string, name of the current strategy.
+                - "current_strat_data_pts": integer, the number of data points in the
+                    current strategy.
+                - "current_strat_model": string, the name of the model in the current
+                    strategy.
+                - "current_strat_acqf": string, the acquisition function of the current
+                    stratgy.
+                - "current_strat_finished": boolean, whether the current strategy is
+                    finished.
+                - "current_strat_can_fit": boolean, whether the current strategy can fit a
+                    model.
+        """
+        request = {"type": "info", "message": {}}
+        return self._send_recv(request)
+
+    def parameters(self) -> dict[str, list[float]]:
+        """Get information about each parameter in the current strategy.
+
+        Returns:
+            Dict[str, list[float]]: A dictionary where every key is a parameter and the
+                value is a list of floats representing the lower bound and the upper bound.
+        """
+        request = {"type": "parameters", "message": {}}
+        return self._send_recv(request)
+
     def __del__(self):
         self.finalize()

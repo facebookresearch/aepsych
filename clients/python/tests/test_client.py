@@ -106,6 +106,41 @@ class RemoteServerTestCase(unittest.TestCase):
         self.client.resume(config_name="second_config")
         self.assertEqual(self.s.strat_id, 1)
 
+        # Test finish_strategy
+        response = self.client.finish_strategy()
+        self.assertIn("finished_strategy", response)
+        self.assertIn("finished_strat_idx", response)
+        self.assertEqual(response["finished_strategy"], self.s.strat.name)
+        self.assertEqual(response["finished_strat_idx"], self.s.strat._strat_idx)
+
+        # Test get_config
+        response = self.client.get_config()
+        self.assertIsInstance(response, dict)
+        self.assertIn("common", response)
+        self.assertIn("lb", response["common"])
+
+        # Test get_config with section and property
+        response = self.client.get_config(section="common", property="lb")
+        self.assertDictEqual(response, {"common": {"lb": "[0]"}})
+
+        # Test info
+        response = self.client.info()
+        self.assertIn("db_name", response)
+        self.assertIn("exp_id", response)
+        self.assertIn("strat_count", response)
+        self.assertIn("all_strat_names", response)
+        self.assertIn("current_strat_index", response)
+        self.assertIn("current_strat_name", response)
+        self.assertEqual(response["current_strat_name"], self.s.strat.name)
+
+        # Test parameters
+        response = self.client.parameters()
+        self.assertIsInstance(response, dict)
+        self.assertIn("x", response)
+        self.assertEqual(len(response["x"]), 2)  # Lower and upper bounds
+        self.assertEqual(response["x"][0], 0.0)  # Lower bound
+        self.assertEqual(response["x"][1], 1.0)  # Upper bound
+
         self.client.finalize()
 
 
