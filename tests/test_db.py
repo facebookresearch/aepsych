@@ -17,6 +17,7 @@ from pathlib import Path
 import aepsych.config as configuration
 import aepsych.database.db as db
 import aepsych.database.tables as tables
+import numpy as np
 import pandas as pd
 import sqlalchemy
 
@@ -630,6 +631,31 @@ class DBUtilityTestCase(unittest.TestCase):
         for rec in self.data.get_master_records():
             n += len(self.data.get_raw_for(rec.unique_id))
         self.assertEqual(n, len(df))
+
+    def test_get_dataframe_extra_data(self):
+        current_path = Path(os.path.abspath(__file__)).parent
+        db_path = current_path
+        db_path = db_path.joinpath("test_databases/extra_info.db")
+
+        # Make a copy of the database
+        dst_db_path = Path("./{}.db".format(str(uuid.uuid4().hex)))
+        shutil.copy(db_path, dst_db_path)
+
+        time.sleep(0.1)
+        self.assertTrue(dst_db_path.is_file())
+
+        self.data = db.Database(dst_db_path)
+
+        df = self.data.get_data_frame(include_extra_data=True)
+
+        # extra_info db is ragged, so check that we have the right columns
+        self.assertIn("extra", df.columns)
+        self.assertIn("additional", df.columns)
+        self.assertIn("trial_number", df.columns)
+
+        # First row is missing the extra data, so check that it is missing
+        np.testing.assert_equal(df.iloc[0]["trial_number"], np.nan)
+        self.assertEqual(df.iloc[1]["trial_number"], 2)
 
 
 if __name__ == "__main__":
