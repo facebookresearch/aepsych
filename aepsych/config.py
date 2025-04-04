@@ -9,7 +9,6 @@ import ast
 import configparser
 import inspect
 import json
-import logging
 import re
 import typing
 import warnings
@@ -20,6 +19,7 @@ import botorch
 import gpytorch
 import numpy as np
 import torch
+from aepsych.utils_logging import logger
 
 _T = TypeVar("_T")
 _ET = TypeVar("_ET")
@@ -247,7 +247,7 @@ class Config(configparser.ConfigParser):
             except ValueError:
                 # Check if ub/lb exists in common
                 if "ub" in self["common"] and "lb" in self["common"]:
-                    logging.warning(
+                    logger.warning(
                         "Parameter-specific bounds are incomplete, falling back to ub/lb in [common]"
                     )
                 else:

@@ -128,12 +128,12 @@ class AskHandlerTestCase(BaseServerTestCase):
 
         [init_strat]
         generator = SobolGenerator
-        min_total_tells = 1
+        min_total_tells = 2
 
         [opt_strat]
         generator = OptimizeAcqfGenerator
         model = GPClassificationModel
-        min_total_tells = 2
+        min_total_tells = 4
 
         [OptimizeAcqfGenerator]
         acqf = MCLevelSetEstimation
