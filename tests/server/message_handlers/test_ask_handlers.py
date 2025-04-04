@@ -100,13 +100,18 @@ class AskHandlerTestCase(BaseServerTestCase):
             "version": "0.01",
             "message": {"config_str": manual_dummy_config},
         }
+
         ask_request = {"type": "ask", "message": {"num_points": 10}}
 
         self.s.handle_request(setup_request)
 
-        resp = self.s.handle_request(ask_request)
+        with self.assertLogs() as log:
+            resp = self.s.handle_request(ask_request)
         self.assertEqual(len(resp["config"]["par1"]), 4)
         self.assertEqual(resp["num_points"], 4)
+        self.assertIn(
+            "Asked for more points than are left in the generator", log[-1][-1]
+        )
 
     def test_fixed_ask(self):
         config_str = """
@@ -128,12 +133,12 @@ class AskHandlerTestCase(BaseServerTestCase):
 
         [init_strat]
         generator = SobolGenerator
-        min_total_tells = 1
+        min_total_tells = 2
 
         [opt_strat]
         generator = OptimizeAcqfGenerator
         model = GPClassificationModel
-        min_total_tells = 2
+        min_total_tells = 4
 
         [OptimizeAcqfGenerator]
         acqf = MCLevelSetEstimation
