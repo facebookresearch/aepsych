@@ -21,7 +21,7 @@ class Log10Plus(Log10, Transform):
     def __init__(
         self,
         indices: list[int],
-        constant: float = 0.0,
+        constant: float | torch.Tensor = 0.0,
         transform_on_train: bool = True,
         transform_on_eval: bool = True,
         transform_on_fantasize: bool = True,
@@ -32,7 +32,7 @@ class Log10Plus(Log10, Transform):
 
         Args:
             indices (list[int]): The indices of the parameters to log transform.
-            constant (float): The constant to add to inputs before log transforming.
+            constant (float | torch.Tensor): The constant to add to inputs before log transforming.
                 Defaults to 0.0.
             transform_on_train (bool): A boolean indicating whether to apply the
                 transforms in train() mode. Default: True.
@@ -51,7 +51,12 @@ class Log10Plus(Log10, Transform):
             transform_on_fantasize=transform_on_fantasize,
             reverse=reverse,
         )
-        self.register_buffer("constant", torch.tensor(constant, dtype=torch.long))
+        self.register_buffer(
+            "constant",
+            torch.tensor(constant, dtype=torch.long)
+            if not isinstance(constant, torch.Tensor)
+            else constant.long(),
+        )
 
     @subset_transform
     def _transform(self, X: torch.Tensor) -> torch.Tensor:

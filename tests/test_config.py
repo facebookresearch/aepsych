@@ -46,9 +46,7 @@ class ConfigTestCase(unittest.TestCase):
         outcome_types = [binary]
         parnames = [par1, par2]
         strategy_names = [init_strat, opt_strat]
-        model = GPClassificationModel
-        acqf = MCLevelSetEstimation
-
+        
         [par1]
         par_type = continuous
         lower_bound = 1
@@ -66,6 +64,7 @@ class ConfigTestCase(unittest.TestCase):
 
         [opt_strat]
         generator = OptimizeAcqfGenerator
+        model = GPClassificationModel
         min_asks = 20
         min_post_range = 0.01
         keep_most_recent = 10
@@ -82,6 +81,7 @@ class ConfigTestCase(unittest.TestCase):
         [OptimizeAcqfGenerator]
         restarts = 10
         samps = 1000
+        acqf = MCLevelSetEstimation
         """
         config = Config()
         config.update(config_str=config_str)
@@ -90,9 +90,9 @@ class ConfigTestCase(unittest.TestCase):
             config.get_section("MCLevelSetEstimation")
             == {"beta": "3.84", "objective": "ProbitObjective", "target": "0.75"}
         )
-        self.assertTrue(
-            config.get_section("OptimizeAcqfGenerator")
-            == {"restarts": "10", "samps": "1000"}
+        self.assertDictEqual(
+            config.get_section("OptimizeAcqfGenerator"),
+            {"restarts": "10", "samps": "1000", "acqf": "MCLevelSetEstimation"},
         )
         strat = SequentialStrategy.from_config(config)
 
