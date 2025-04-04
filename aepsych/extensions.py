@@ -11,7 +11,6 @@ import sys
 import warnings
 from pathlib import Path
 from types import ModuleType
-from typing import Dict, List, Optional
 
 from aepsych.config import ConfigurableMixin
 from aepsych.utils_logging import getLogger
@@ -24,18 +23,18 @@ class ExtensionManager(ConfigurableMixin):
     simple Python scripts) as a module. In the future, extensions may have specific
     requirements that the extension manager will expect (e.g., unload)."""
 
-    def __init__(self, extensions: Optional[List[str]] = None) -> None:
+    def __init__(self, extensions: list[str] | None = None) -> None:
         """Initialize the ExtensionManager. Each extension is represented by a path to
         the script.
 
         Args:
-            files (List[str]): List of file paths of extension scripts.
+            files (list[str]): List of file paths of extension scripts.
         """
         if extensions is not None:
             self.ext_files = {Path(path).stem: Path(path) for path in extensions}
         else:
             self.ext_files = {}
-        self.loaded_modules: Dict[str, ModuleType] = {}
+        self.loaded_modules: dict[str, ModuleType] = {}
 
     def load(self) -> None:
         """Load all extensions in ExtensionManager"""
