@@ -47,7 +47,7 @@ class GPRegressionTest(unittest.TestCase):
             strategy_names = [init_strat, opt_strat]
 
             [init_strat]
-            min_asks = 10
+            min_asks = 20
             generator = SobolGenerator
 
             [opt_strat]
@@ -56,7 +56,7 @@ class GPRegressionTest(unittest.TestCase):
             model = GPRegressionModel
 
             [OptimizeAcqfGenerator]
-            acqf = qNoisyExpectedImprovement
+            acqf = qLogNoisyExpectedImprovement
 
             [GPRegressionModel]
             likelihood = GaussianLikelihood
