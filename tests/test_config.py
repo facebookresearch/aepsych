@@ -720,6 +720,7 @@ class ConfigTestCase(unittest.TestCase):
             [init_strat]
             generator = SobolGenerator
             model = GPClassificationModel
+            min_asks = 1
             """
         config1 = Config()
         config1.update(config_str=config_str1)
@@ -744,6 +745,7 @@ class ConfigTestCase(unittest.TestCase):
             [init_strat]
             generator = SobolGenerator
             model = GPClassificationModel
+            min_asks = 1
             """
         config2 = Config()
         config2.update(config_str=config_str2)
@@ -768,6 +770,7 @@ class ConfigTestCase(unittest.TestCase):
             [init_strat]
             generator = SobolGenerator
             model = PairwiseProbitModel
+            min_asks = 1
             """
         config3 = Config()
         config3.update(config_str=config_str3)
@@ -804,6 +807,7 @@ class ConfigTestCase(unittest.TestCase):
             [init_strat]
             generator = SobolGenerator
             model = GPClassificationModel
+            min_asks = 1
             """
         config1 = Config()
         config1.update(config_str=config_str1)
@@ -888,10 +892,12 @@ class ConfigTestCase(unittest.TestCase):
             [init strat]
             generator = SobolGenerator
             model = GPClassificationModel
+            min_asks = 1
 
             [opt_strat]
             generator = OptimizeAcqfGenerator
             model = GPClassificationModel
+            min_asks = 1
 
             [OptimizeAcqfGenerator]
             acqf = MCLevelSetEstimation
@@ -917,6 +923,7 @@ class ConfigTestCase(unittest.TestCase):
             [init_strat]
             generator = SobolGenerator
             model = GPClassificationModel
+            min_asks = 1
 
             [OptimizeAcqfGenerator]
             acqf = MCLevelSetEstimation
@@ -1338,9 +1345,9 @@ class ConfigTestCase(unittest.TestCase):
         )
 
     def test_deprecation_warning(self):
-        config_str = f"""
-                [common]
-                generator = MonotonicRejectionGenerator
+        config_str = """
+            [common]
+            generator = MonotonicRejectionGenerator
         """
         config = Config(config_str=config_str)
 
@@ -1363,6 +1370,7 @@ class ConfigTestCase(unittest.TestCase):
             [opt_strat]
             model = ModelAlias
             generator = SobolGenerator
+            min_asks = 1
 
             [ModelAlias]
             class = GPClassificationModel
@@ -1391,10 +1399,12 @@ class ConfigTestCase(unittest.TestCase):
             [init_strat]
             model = ModelAlias
             generator = SobolGenerator
+            min_asks = 1
 
             [opt_strat]
             model = ModelAlias
             generator = SobolGenerator
+            min_asks = 1
 
             [ModelAlias]
             class = GPClassificationModel
