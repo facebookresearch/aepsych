@@ -8,6 +8,7 @@
 import logging
 import logging.config
 import os
+from typing import Any
 
 logger = logging.getLogger()
 
@@ -47,7 +48,7 @@ def getLogger(level=logging.INFO, log_path: str = "logs") -> logging.Logger:
     """
     os.makedirs(log_path, exist_ok=True)
 
-    logging_config = {
+    logging_config: dict[str, Any] = {
         "version": 1,
         "disable_existing_loggers": True,
         "formatters": {"standard": {"()": ColorFormatter}},
@@ -69,5 +70,11 @@ def getLogger(level=logging.INFO, log_path: str = "logs") -> logging.Logger:
         },
     }
 
+    aepsych_mode = os.environ.get("aepsych_mode", "")
+    if aepsych_mode == "test":
+        logging_config["loggers"][""] = {}
+        logger.setLevel(logging.ERROR)
+
     logging.config.dictConfig(logging_config)
+
     return logger
