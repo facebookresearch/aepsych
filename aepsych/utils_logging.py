@@ -23,11 +23,11 @@ class ColorFormatter(logging.Formatter):
     my_format = "%(asctime)-15s [%(levelname)-7s] %(message)s"
 
     FORMATS = {
-        logging.DEBUG: reset + grey + my_format,
-        logging.INFO: reset + white + my_format,
-        logging.WARNING: reset + yellow + my_format,
-        logging.ERROR: reset + red + my_format,
-        logging.CRITICAL: reset + bold_red + my_format,
+        logging.DEBUG: grey + my_format + reset,
+        logging.INFO: white + my_format + reset,
+        logging.WARNING: yellow + my_format + reset,
+        logging.ERROR: red + my_format + reset,
+        logging.CRITICAL: bold_red + my_format + reset,
     }
 
     def format(self, record):
