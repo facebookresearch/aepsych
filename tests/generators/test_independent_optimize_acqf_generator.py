@@ -80,9 +80,6 @@ class IndependentGPStratTest(unittest.TestCase):
                 baz_response = torch.bernoulli(f_2d(point))
                 qux_response = f_2d(point, target=torch.tensor([-0.5, -0.5]))
 
-                print(
-                    f"adding data: x = {point}, baz = {baz_response}, qux = {qux_response}"
-                )
                 strat.add_data(point, torch.tensor([[baz_response, qux_response]]))
 
     def test_diff_max_asks(self):

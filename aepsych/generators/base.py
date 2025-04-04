@@ -12,6 +12,7 @@ from typing import Any, Generic, Protocol, runtime_checkable, TypeVar
 import torch
 from aepsych.config import Config, ConfigurableMixin
 from aepsych.models.base import AEPsychModelMixin
+from aepsych.utils_logging import logger
 from botorch.acquisition import (
     AcquisitionFunction,
     LogNoisyExpectedImprovement,
@@ -138,7 +139,7 @@ class AcqfGenerator(AEPsychGenerator):
                 if value.default == _empty and key not in extra_acqf_args:
                     if key not in config["common"]:
                         # HACK: Not actually sure why some required args can be missing
-                        warnings.warn(
+                        logger.debug(
                             f"{acqf_name} requires the {key} option but we could not find it.",
                             UserWarning,
                         )

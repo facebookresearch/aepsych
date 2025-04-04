@@ -8,6 +8,7 @@
 import logging
 import logging.config
 import os
+from typing import Any
 
 logger = logging.getLogger()
 
@@ -22,11 +23,11 @@ class ColorFormatter(logging.Formatter):
     my_format = "%(asctime)-15s [%(levelname)-7s] %(message)s"
 
     FORMATS = {
-        logging.DEBUG: reset + grey + my_format,
-        logging.INFO: reset + white + my_format,
-        logging.WARNING: reset + yellow + my_format,
-        logging.ERROR: reset + red + my_format,
-        logging.CRITICAL: reset + bold_red + my_format,
+        logging.DEBUG: grey + my_format + reset,
+        logging.INFO: white + my_format + reset,
+        logging.WARNING: yellow + my_format + reset,
+        logging.ERROR: red + my_format + reset,
+        logging.CRITICAL: bold_red + my_format + reset,
     }
 
     def format(self, record):
@@ -47,7 +48,7 @@ def getLogger(level=logging.INFO, log_path: str = "logs") -> logging.Logger:
     """
     os.makedirs(log_path, exist_ok=True)
 
-    logging_config = {
+    logging_config: dict[str, Any] = {
         "version": 1,
         "disable_existing_loggers": True,
         "formatters": {"standard": {"()": ColorFormatter}},
@@ -69,5 +70,11 @@ def getLogger(level=logging.INFO, log_path: str = "logs") -> logging.Logger:
         },
     }
 
+    aepsych_mode = os.environ.get("aepsych_mode", "")
+    if aepsych_mode == "test":
+        logging_config["loggers"][""] = {}
+        logger.setLevel(logging.ERROR)
+
     logging.config.dictConfig(logging_config)
+
     return logger
