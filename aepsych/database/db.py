@@ -564,9 +564,11 @@ class Database:
 
         return pd.DataFrame(exp_dict)
 
-    def get_data_frame(self) -> pd.DataFrame:
+    def get_data_frame(self, include_extra_data: bool = False) -> pd.DataFrame:
         """Converts parameter and outcome data in the database into a pandas dataframe.
-
+        Args:
+            include_extra_data (bool): Whether to include columns for extra data from
+                the raw table. Defaults to False.
         Returns:
             pandas.Dataframe: The dataframe containing the parameter and outcome data.
         """
@@ -586,6 +588,15 @@ class Database:
 
                 row.update({par.param_name: par.param_value for par in pars})
                 row.update({out.outcome_name: out.outcome_value for out in outs})
+
+                extra_data = pars[0].parent.extra_data
+                if include_extra_data and extra_data is not None:
+                    if isinstance(extra_data, str):
+                        extra_data_dict = json.loads(extra_data)
+                    elif isinstance(extra_data, dict):
+                        extra_data_dict = extra_data
+
+                    row.update(extra_data_dict)
 
                 rows.append(row)
 
