@@ -103,7 +103,7 @@ class TransformsWrapperTest(unittest.TestCase):
             seed = 12345
 
             [opt_strat]
-            min_total_tells = 2
+            min_total_tells = 12
             generator = OptimizeAcqfGenerator
             model = GPRegressionModel
 
@@ -120,12 +120,16 @@ class TransformsWrapperTest(unittest.TestCase):
             "type": "tell",
             "message": {"config": {"signal1": [50], "signal2": [50]}, "outcome": 1},
         }
+        exit_request = {"type": "exit", "message": {}}
 
         server.handle_request(setup_request)
-        while not server.strat.finished:
+        tell_count = 0
+        while tell_count < 11:
             server.handle_request(ask_request)
             server.handle_request(tell_request)
+            tell_count += 1
 
+        server.handle_request(exit_request)
         # Remember transform for later
         transforms = server.strat.transforms
         server.cleanup()
