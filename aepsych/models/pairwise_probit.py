@@ -124,7 +124,6 @@ class PairwiseProbitModel(PairwiseGP, AEPsychModelMixin):
         self,
         train_x: torch.Tensor,
         train_y: torch.Tensor,
-        optimizer_kwargs: dict[str, Any] | None = None,
         **kwargs,
     ) -> None:
         """Fit the model to the training data.
@@ -132,21 +131,13 @@ class PairwiseProbitModel(PairwiseGP, AEPsychModelMixin):
         Args:
             train_x (torch.Tensor): Trainin x points.
             train_y (torch.Tensor): Training y points.
-            optimizer_kwargs (dict[str, Any], optional): Keyword arguments to pass to the optimizer. Defaults to None.
         """
-        if optimizer_kwargs is not None:
-            if not "optimizer_kwargs" in optimizer_kwargs:
-                optimizer_kwargs = optimizer_kwargs.copy()
-                optimizer_kwargs.update(self.optimizer_options)
-        else:
-            optimizer_kwargs = {"options": self.optimizer_options}
-
         self.train()
         mll = PairwiseLaplaceMarginalLogLikelihood(self.likelihood, self)
         datapoints, comparisons = self._pairs_to_comparisons(train_x, train_y)
         self.set_train_data(datapoints, comparisons)
 
-        optimizer_kwargs = {} if optimizer_kwargs is None else optimizer_kwargs.copy()
+        optimizer_kwargs = self.optimizer_options.copy()
         max_fit_time = kwargs.pop("max_fit_time", self.max_fit_time)
         if max_fit_time is not None:
             if "options" not in optimizer_kwargs:
