@@ -1182,7 +1182,7 @@ class GPClassificationTest(unittest.TestCase):
             upper_bound = 2
 
             [init_strat]
-            min_asks = 0
+            min_asks = 1
             generator = SobolGenerator
 
             [opt_strat]
