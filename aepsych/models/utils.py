@@ -188,7 +188,7 @@ def get_min(
     _, _arg = get_extremum(
         model, "min", bounds, locked_dims, n_samples, max_time=max_time
     )
-    arg = torch.tensor(_arg.reshape(1, bounds.shape[1]))
+    arg = _arg.reshape(1, bounds.shape[1])
     if probability_space:
         val, _ = model.predict_probability(arg)
     else:
@@ -223,7 +223,7 @@ def get_max(
     _, _arg = get_extremum(
         model, "max", bounds, locked_dims, n_samples, max_time=max_time
     )
-    arg = torch.tensor(_arg.reshape(1, bounds.shape[1]))
+    arg = _arg.reshape(1, bounds.shape[1])
     if probability_space:
         val, _ = model.predict_probability(arg)
     else:
@@ -283,7 +283,7 @@ def inv_query(
         weights,
     )
 
-    arg = torch.tensor(_arg.reshape(1, bounds.shape[1]))
+    arg = _arg.reshape(1, bounds.shape[1])
     if probability_space:
         val, _ = model.predict_probability(arg)
     else:
