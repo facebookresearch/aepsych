@@ -30,9 +30,12 @@ class TestManualGenerator(unittest.TestCase):
         acq3 = mod.gen()
         self.assertEqual(acq3.shape, (1, 3))
 
-        with self.assertWarns(RuntimeWarning):
+        with self.assertLogs() as log:
             acq4 = mod.gen(num_points=10)
         self.assertEqual(acq4.shape, (4, 3))
+        self.assertIn(
+            "Asked for more points than are left in the generator", log[-1][-1]
+        )
 
     def test_manual_generator(self):
         points = [[10, 10], [10, 11], [11, 10], [11, 11]]
@@ -86,8 +89,10 @@ class TestManualGenerator(unittest.TestCase):
         config.update(config_str=config_str)
         gen = ParameterTransformedGenerator.from_config(config, "ManualGenerator")
 
-        with self.assertWarnsRegex(Warning, "Cannot fix features"):
+        with self.assertLogs() as log:
             gen.gen(fixed_features={0: 10.5})
+
+        self.assertIn("Cannot fix features", log[-1][-1])
 
 
 class TestSampleAroundPointsGenerator(unittest.TestCase):

@@ -5,7 +5,6 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-import warnings
 from typing import Any
 
 import torch
@@ -13,6 +12,7 @@ from aepsych.config import Config
 from aepsych.generators.base import AEPsychGenerator
 from aepsych.models.base import AEPsychModelMixin
 from aepsych.utils import _process_bounds
+from aepsych.utils_logging import logger
 from torch.quasirandom import SobolEngine
 
 
@@ -68,13 +68,12 @@ class ManualGenerator(AEPsychGenerator):
             torch.Tensor: Next set of point(s) to evaluate, [num_points x dim].
         """
         if num_points > (len(self.points) - self._idx):
-            warnings.warn(
-                "Asked for more points than are left in the generator! Giving everthing it has!",
-                RuntimeWarning,
+            logger.warning(
+                "Asked for more points than are left in the generator! Giving everything it has!",
             )
 
         if fixed_features is not None and len(fixed_features) != 0:
-            warnings.warn(
+            logger.warning(
                 f"Cannot fix features when generating from {self.__class__.__name__}"
             )
 

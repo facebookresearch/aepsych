@@ -73,7 +73,7 @@ def getLogger(level=logging.INFO, log_path: str = "logs") -> logging.Logger:
     aepsych_mode = os.environ.get("aepsych_mode", "")
     if aepsych_mode == "test":
         logging_config["loggers"][""] = {}
-        logger.setLevel(logging.ERROR)
+        logger.setLevel(logging.CRITICAL)
 
     logging.config.dictConfig(logging_config)
 
