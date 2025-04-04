@@ -27,7 +27,6 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">configparser</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">inspect</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">typing</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
@@ -38,6 +37,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">gpytorch</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.utils_logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
 
 <span class="n">_T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">"_T"</span><span class="p">)</span>
 <span class="n">_ET</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">"_ET"</span><span class="p">)</span>
@@ -265,7 +265,7 @@
             <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
                 <span class="c1"># Check if ub/lb exists in common</span>
                 <span class="k">if</span> <span class="s2">"ub"</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">]</span> <span class="ow">and</span> <span class="s2">"lb"</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">]:</span>
-                    <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                         <span class="s2">"Parameter-specific bounds are incomplete, falling back to ub/lb in [common]"</span>
                     <span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
