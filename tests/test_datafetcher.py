@@ -59,6 +59,7 @@ class DataFetcherTestCase(unittest.TestCase):
                   min_asks = 5
                   generator = SobolGenerator
                   model = {model_name}
+                  refit_every = 5
                """
 
     def pre_seed_config(
