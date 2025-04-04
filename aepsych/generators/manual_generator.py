@@ -73,7 +73,7 @@ class ManualGenerator(AEPsychGenerator):
                 RuntimeWarning,
             )
 
-        if fixed_features is not None:
+        if fixed_features is not None and len(fixed_features) != 0:
             warnings.warn(
                 f"Cannot fix features when generating from {self.__class__.__name__}"
             )
