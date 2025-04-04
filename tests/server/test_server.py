@@ -14,8 +14,10 @@ import threading
 import time
 import unittest
 import uuid
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-from unittest.mock import MagicMock
+from typing import Any
+from unittest.mock import MagicMock, patch
 
 import aepsych.server as server
 import aepsych.utils_logging as utils_logging
@@ -79,6 +81,14 @@ generator = ManualGenerator
 points = {points}
 seed = 123
 """
+
+
+def handle_wait(server, request: dict[str, Any]):
+    time.sleep(0.25)
+
+    if request["message"]["terminate"]:
+        server.exit_server_loop = True
+    return {"queue_size": len(server.queue)}
 
 
 class BaseServerTestCase(unittest.TestCase):
@@ -283,18 +293,6 @@ class ServerTestCase(BaseServerTestCase):
                 self.assertEqual(self.s.socket.receive(False), BAD_REQUEST)
             else:
                 self.assertEqual(self.s.socket.receive(False), message3)
-
-    def test_queue(self):
-        """Test to see that the queue is being handled correctly"""
-
-        self.s.socket.accept_client = MagicMock()
-        ask_request = {"type": "ask", "message": ""}
-        self.s.socket.receive = MagicMock(return_value=ask_request)
-        self.s.socket.send = MagicMock()
-        self.s.exit_server_loop = True
-        with self.assertRaises(SystemExit):
-            self.s.serve()
-        assert len(self.s.queue) == 0
 
     def test_replay(self):
         exp_config = """
@@ -569,8 +567,9 @@ class BackgroundServerTestCase(unittest.IsolatedAsyncioTestCase):
         )
 
         # Start the server in a separate thread
-        self.server_thread = threading.Thread(target=self.server_instance.serve)
-        self.server_thread.daemon = True
+        self.server_thread = threading.Thread(
+            target=self.server_instance.serve, daemon=True
+        )
         self.server_thread.start()
 
         # Give the server time to start up
@@ -579,6 +578,7 @@ class BackgroundServerTestCase(unittest.IsolatedAsyncioTestCase):
         # Create a client socket and connect to the server
         # Explicitly create an IPv4 socket
         self.reader, self.writer = await asyncio.open_connection(self.ip, self.port)
+        self.reader_lock = asyncio.Lock()
 
     async def asyncTearDown(self):
         """Clean up resources after the test."""
@@ -603,7 +603,8 @@ class BackgroundServerTestCase(unittest.IsolatedAsyncioTestCase):
     async def mock_client(self, request):
         self.writer.write(json.dumps(request).encode())
         await self.writer.drain()
-        response = await self.reader.read(1024 * 512)
+        async with self.reader_lock:
+            response = await self.reader.read(1024 * 512)
         return json.loads(response.decode())
 
     async def test_exception_json_response(self):
@@ -628,6 +629,18 @@ class BackgroundServerTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertIn("server_error", response)
         # Verify that the original message is included in the response
         self.assertEqual(response["message"], malformed_tell_request)
+
+    @patch.dict("aepsych.server.message_handlers.MESSAGE_MAP", {"wait": handle_wait})
+    async def test_queue(self):
+        """Test that queue is being handled correctly"""
+        terminate_wait_request = {"type": "wait", "message": {"terminate": True}}
+
+        results = await asyncio.gather(self.mock_client(terminate_wait_request))
+        self.assertEqual(len(self.server_instance.queue), 0)
+        self.assertEqual(results[0]["queue_size"], 0)
+
+        self.server_thread.join(timeout=5)
+        self.assertFalse(self.server_thread.is_alive())
 
 
 if __name__ == "__main__":

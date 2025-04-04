@@ -853,8 +853,10 @@ class GPClassificationTest(unittest.TestCase):
             next_x = strat.gen()
             strat.add_data(next_x, [bernoulli.rvs(norm.cdf(f_1d(next_x)))])
 
-        with self.assertWarns(RuntimeWarning):
+        with self.assertLogs() as log:
             strat.gen()
+
+        self.assertIn("Ran out of generators", log[0][0].message)
 
     def test_hyperparam_consistency(self):
         # verify that creating the model `from_config` or with `__init__` has the same hyperparams
