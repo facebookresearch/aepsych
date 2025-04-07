@@ -7,7 +7,6 @@
 
 from __future__ import annotations
 
-import warnings
 from typing import Any
 
 import numpy as np
@@ -67,9 +66,7 @@ class SequentialStrategy(ConfigurableMixin):
     def _make_next_strat(self) -> None:
         """Switch to the next strategy."""
         if (self._strat_idx + 1) >= len(self.strat_list):
-            warnings.warn(
-                "Ran out of generators, staying on final generator!", RuntimeWarning
-            )
+            logger.warning("Ran out of generators, staying on final generator!")
             return
 
         # populate new model with final data from last model
