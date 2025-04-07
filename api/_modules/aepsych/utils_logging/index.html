@@ -91,7 +91,7 @@
     <span class="n">aepsych_mode</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"aepsych_mode"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">aepsych_mode</span> <span class="o">==</span> <span class="s2">"test"</span><span class="p">:</span>
         <span class="n">logging_config</span><span class="p">[</span><span class="s2">"loggers"</span><span class="p">][</span><span class="s2">""</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">CRITICAL</span><span class="p">)</span>
 
     <span class="n">logging</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">dictConfig</span><span class="p">(</span><span class="n">logging_config</span><span class="p">)</span>
 
