@@ -120,3 +120,13 @@ class OnesGenerator(AEPsychGenerator, ConfigurableMixin):
 
 
 Config.register_object(OnesGenerator)
+
+
+# If you would like your extension to be unloadable, you can define the unload function.
+# The extension manager can try to unload a module, which will run this function. If
+# this function is not defined, the module representing the extension will be removed
+# from the module cache only.
+def _unload():
+    # For this unload, we just remove the new objects we added
+    del Config.registered_names["VerboseGPClassificationModel"]
+    del Config.registered_names["OnesGenerator"]

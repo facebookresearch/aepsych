@@ -88,4 +88,9 @@ Notice how we can simply refer to the new object by its name
 "VerboseGPClassificationModel", this is available in addition to the original
 GPClassificationModel as we did not modify the orignal, just subclassed it.
 
+It is possible to unload extensions. Currently, there's no server support for unloading,
+but it is available to call directly in code. You define an `_unload()` function in the
+extension script that will be called when extensions are unloaded via the
+ExtensionManager.
+
 A complete script for this extenion can be found [here](https://github.com/facebookresearch/aepsych/blob/main/extensions_example/new_objects.py).
