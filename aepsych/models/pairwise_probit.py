@@ -154,10 +154,10 @@ class PairwiseProbitModel(PairwiseGP, AEPsychModelMixin):
             optimizer_kwargs["options"]["maxfun"] = n_eval
             logger.info(f"fit maxfun is {n_eval}")
 
-        logger.info("Starting fit...")
+        logger.info("Starting fitting (no warm start)...")
         starttime = time.time()
         fit_gpytorch_mll(mll, optimizer_kwargs=optimizer_kwargs, **kwargs)
-        logger.info(f"Fit done, time={time.time() - starttime}")
+        logger.info(f"Fitting done, took {time.time() - starttime}")
 
     def predict(
         self,

@@ -140,8 +140,7 @@ class AcqfGenerator(AEPsychGenerator):
                     if key not in config["common"]:
                         # HACK: Not actually sure why some required args can be missing
                         logger.debug(
-                            f"{acqf_name} requires the {key} option but we could not find it.",
-                            UserWarning,
+                            f"{acqf_name} requires the {key} option but we could not find it."
                         )
                         continue
 
