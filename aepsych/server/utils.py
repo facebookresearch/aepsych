@@ -57,7 +57,7 @@ def run_database(args):
         if args.summarize or "tocsv" in args and args.tocsv is not None:
             # Make a temporary database using TemporaryDirectory for automatic cleanup
             _, db_name = os.path.split(database_path)
-            temp_dir = tempfile.TemporaryDirectory()
+            temp_dir = tempfile.TemporaryDirectory(ignore_cleanup_errors=True)
             temp_db_path = os.path.join(temp_dir.name, db_name)
             shutil.copy2(database_path, temp_db_path)
             logger.info(
