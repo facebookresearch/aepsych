@@ -8,7 +8,6 @@
 import importlib.util
 import logging
 import sys
-import warnings
 from pathlib import Path
 from types import ModuleType
 
@@ -45,7 +44,7 @@ class ExtensionManager(ConfigurableMixin):
     def _import_extension(self, name: str) -> ModuleType:
         # Given an extension name, import the module, returning it
         if name in self.loaded_modules:
-            warnings.warn(f"The extension '{name}' is already loaded.", UserWarning)
+            logger.warning(f"The extension '{name}' is already loaded.")
             return self.loaded_modules[name]
 
         # Creates a module from a file
@@ -57,3 +56,26 @@ class ExtensionManager(ConfigurableMixin):
         self.loaded_modules[name] = module
 
         return module
+
+    def unload(self, extensions: str | list[str] | None = None):
+        """Unload extensions. Removes the extension module from the module cache. If the
+        module has the _unload function defined, it will also run that before
+        unloading.
+
+        Args:
+            extensions (str | list[str], optional): Extension to be unloaded. If not
+                set, we will attempt to unload all extensions with the unload function
+                defined.
+        """
+
+        if isinstance(extensions, str):
+            extensions = [extensions]
+        elif extensions is None:
+            extensions = list(self.loaded_modules.keys())
+
+        for extension in extensions:
+            if hasattr(self.loaded_modules[extension], "_unload"):
+                self.loaded_modules[extension]._unload()
+
+            del self.loaded_modules[extension]
+            del sys.modules[extension]
