@@ -5,6 +5,7 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
+import io
 import json
 import os
 import shutil
@@ -17,6 +18,7 @@ from pathlib import Path
 import aepsych.config as configuration
 import aepsych.database.db as db
 import aepsych.database.tables as tables
+import aepsych.database.utils as db_utils
 import numpy as np
 import pandas as pd
 import sqlalchemy
@@ -656,6 +658,51 @@ class DBUtilityTestCase(unittest.TestCase):
         # First row is missing the extra data, so check that it is missing
         np.testing.assert_equal(df.iloc[0]["trial_number"], np.nan)
         self.assertEqual(df.iloc[1]["trial_number"], 2)
+
+    def test_combine_dbs_list(self):
+        """Test the combine_dbs function with a list of database paths."""
+        # Get paths to existing test databases
+        current_path = Path(os.path.abspath(__file__)).parent
+        db_path = current_path / "test_databases"
+        db_path1 = db_path / "single_stimuli.db"
+        db_path2 = db_path / "extra_info.db"
+
+        # Create output database path
+        out_path = Path("./{}.db".format(str(uuid.uuid4().hex)))
+
+        # Combine the databases
+        with unittest.mock.patch("sys.stdout", new_callable=io.StringIO) as mock_stdout:
+            num_experiments = db_utils.combine_dbs(
+                out_path=out_path,
+                dbs=[db_path1, db_path2],
+                exclude=None,
+                verbose=False,
+            )
+
+        # Check prints
+        prints = mock_stdout.getvalue().strip().split("\n")
+        self.assertEqual(len(prints), 2)
+        for print_ in prints:
+            self.assertEqual("Copying master record with unique ID 1", print_)
+
+        # Check that the correct number of experiments were combined
+        self.assertEqual(num_experiments, 2)
+
+        # Open the combined database
+        combined_db = db.Database(db_path=str(out_path), update=False)
+
+        # Check that the combined database has both master records
+        master_records = combined_db.get_master_records()
+        self.assertEqual(len(master_records), 2)
+
+        # Check that the origin db paths are stored in the extra_metadata
+        for record in master_records:
+            extra_metadata = json.loads(record.extra_metadata)
+            self.assertIn("origin_db", extra_metadata)
+            origin_db = extra_metadata["origin_db"]
+            self.assertTrue(
+                "single_stimuli.db" in origin_db or "extra_info.db" in origin_db
+            )
 
 
 if __name__ == "__main__":
