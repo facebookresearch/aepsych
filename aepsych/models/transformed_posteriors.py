@@ -66,7 +66,10 @@ class MCTransformedPosterior(TransformedPosterior):
         """
         # Default to identity function
         if sample_transform is None:
-            sample_transform = lambda x: x
+
+            def sample_transform(x):
+                return x
+
         super().__init__(
             posterior=posterior,
             sample_transform=sample_transform,

@@ -9,7 +9,6 @@ import unittest
 
 import numpy as np
 import torch
-from aepsych.models import GPClassificationModel
 from aepsych.utils import _process_bounds, dim_grid, make_scaled_sobol
 
 
@@ -29,11 +28,8 @@ class UtilsTestCase(unittest.TestCase):
     def test_dim_grid_model_size(self):
         lb = -4.0
         ub = 4.0
-        dim = 1
         gridsize = 10
-        mb = GPClassificationModel(
-            dim=1,
-        )
+
         grid = dim_grid(
             lower=torch.tensor([lb]), upper=torch.tensor([ub]), gridsize=gridsize
         )

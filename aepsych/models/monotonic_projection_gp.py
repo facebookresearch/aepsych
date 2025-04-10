@@ -12,12 +12,8 @@ from typing import Any
 import gpytorch
 import numpy as np
 import torch
-from aepsych.config import Config
-from aepsych.factory.default import default_mean_covar_factory
 from aepsych.models.gp_classification import GPClassificationModel
-from aepsych.models.inducing_points import GreedyVarianceReduction
 from aepsych.models.inducing_points.base import InducingPointAllocator
-from aepsych.utils import get_dims, get_optimizer_options
 from botorch.posteriors.gpytorch import GPyTorchPosterior
 from gpytorch.likelihoods import Likelihood
 from statsmodels.stats.moment_helpers import corr2cov, cov2corr

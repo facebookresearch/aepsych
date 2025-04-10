@@ -5,7 +5,6 @@
 # LICENSE file in the root directory of this source tree.
 import abc
 import re
-import warnings
 from inspect import _empty, signature
 from typing import Any, Generic, Protocol, runtime_checkable, TypeVar
 

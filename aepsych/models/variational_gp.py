@@ -11,7 +11,6 @@ from typing import Any
 
 import gpytorch
 import torch
-from aepsych.config import Config
 from aepsych.factory.default import default_mean_covar_factory
 from aepsych.models.base import AEPsychModelMixin
 from aepsych.models.inducing_points import GreedyVarianceReduction

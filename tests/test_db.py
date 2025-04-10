@@ -248,10 +248,6 @@ class DBTestCase(unittest.TestCase):
         # open the new db
         test_database = db.Database(db_path=dst_db_path.as_posix(), update=False)
 
-        replay_tells = [
-            row for row in test_database.get_replay_for(1) if row.message_type == "tell"
-        ]
-
         # Make sure that update is required
         self.assertTrue(test_database.is_update_required())
 

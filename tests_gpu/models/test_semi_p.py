@@ -10,26 +10,18 @@ import unittest
 import numpy as np
 import numpy.testing as npt
 import torch
-from aepsych.acquisition import MCPosteriorVariance
 from aepsych.acquisition.lookahead import GlobalMI
 from aepsych.acquisition.objective import (
     FloorGumbelObjective,
     FloorLogitObjective,
     FloorProbitObjective,
-    ProbitObjective,
 )
-from aepsych.acquisition.objective.semi_p import (
-    SemiPProbabilityObjective,
-    SemiPThresholdObjective,
-)
-from aepsych.generators import OptimizeAcqfGenerator, SobolGenerator
+from aepsych.generators import OptimizeAcqfGenerator
 from aepsych.likelihoods import BernoulliObjectiveLikelihood
 from aepsych.likelihoods.semi_p import LinearBernoulliLikelihood
 from aepsych.models import HadamardSemiPModel, SemiParametricGPModel
-from aepsych.models.semi_p import _hadamard_mvn_approx, semi_p_posterior_transform
-from aepsych.strategy import SequentialStrategy, Strategy
+from aepsych.models.semi_p import semi_p_posterior_transform
 from aepsych.utils import make_scaled_sobol
-from gpytorch.distributions import MultivariateNormal
 from parameterized import parameterized
 
 

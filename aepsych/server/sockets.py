@@ -113,9 +113,9 @@ class PySocket(object):
             logger.error("No connection to send to!")
 
             return
-        if type(message) == str:
+        if isinstance(message, str):
             pass  # keep it as-is
-        elif type(message) == int:
+        elif isinstance(message, int):
             message = str(message)
         else:
             message = json.dumps(SimplifyArrays(message))
