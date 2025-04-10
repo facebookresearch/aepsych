@@ -159,10 +159,10 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">dim</span> <span class="o">=</span> <span class="n">lb</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="p">)):</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="p">)):</span>
         <span class="k">assert</span> <span class="p">(</span>
-            <span class="n">l</span> <span class="o">&lt;=</span> <span class="n">u</span>
-        <span class="p">),</span> <span class="sa">f</span><span class="s2">"Lower bound </span><span class="si">{</span><span class="n">l</span><span class="si">}</span><span class="s2"> is not less than or equal to upper bound </span><span class="si">{</span><span class="n">u</span><span class="si">}</span><span class="s2"> on dimension </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">!"</span>
+            <span class="n">lower</span> <span class="o">&lt;=</span> <span class="n">upper</span>
+        <span class="p">),</span> <span class="sa">f</span><span class="s2">"Lower bound </span><span class="si">{</span><span class="n">lower</span><span class="si">}</span><span class="s2"> is not less than or equal to upper bound </span><span class="si">{</span><span class="n">upper</span><span class="si">}</span><span class="s2"> on dimension </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">!"</span>
 
     <span class="k">return</span> <span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="p">,</span> <span class="n">dim</span>
 
