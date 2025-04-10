@@ -803,4 +803,4 @@ class TransformsFixed(unittest.TestCase):
         )
 
         with self.assertRaises(RuntimeError):
-            transforms = ParameterTransforms(fixed1=fixed1, fixed2=fixed2)
+            _ = ParameterTransforms(fixed1=fixed1, fixed2=fixed2)

@@ -8,7 +8,6 @@ import torch
 from aepsych.config import ConfigurableMixin
 from gpytorch.distributions import MultivariateNormal
 from gpytorch.likelihoods import Likelihood
-from gpytorch.mlls import VariationalELBO
 from gpytorch.mlls._approximate_mll import _ApproximateMarginalLogLikelihood
 from gpytorch.models import ApproximateGP
 from linear_operator.operators import DiagLinearOperator

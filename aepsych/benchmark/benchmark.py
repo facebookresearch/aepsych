@@ -85,7 +85,7 @@ class Benchmark:
         def gen_combinations(d):
             keys, values = d.keys(), d.values()
             # only go cartesian on list leaves
-            values = [v if type(v) == list else [v] for v in values]
+            values = [v if isinstance(v, list) else [v] for v in values]
             combinations = itertools.product(*values)
 
             return [dict(zip(keys, c)) for c in combinations]

@@ -7,12 +7,10 @@ from __future__ import annotations
 
 import time
 
-import numpy as np
 import torch
 from aepsych.generators.grid_eval_acqf_generator import GridEvalAcqfGenerator
 from aepsych.models.base import AEPsychModelMixin
 from aepsych.utils_logging import getLogger
-from numpy.random import choice
 
 logger = getLogger()
 

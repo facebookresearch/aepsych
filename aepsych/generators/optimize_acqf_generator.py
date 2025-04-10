@@ -10,9 +10,7 @@ import warnings
 from typing import Any
 
 import torch
-from aepsych.acquisition import MCLevelSetEstimation
 from aepsych.acquisition.lookahead import LookaheadAcquisitionFunction
-from aepsych.config import Config
 from aepsych.generators.base import AcqfGenerator
 from aepsych.models.base import AEPsychModelMixin
 from aepsych.utils_logging import getLogger
