@@ -91,7 +91,7 @@ class SingleProbitMI(unittest.TestCase):
         )
         x = torch.rand(size=(10, 1))
         acqf = BernoulliMCMutualInformation(model=model, objective=ProbitObjective())
-        acq_pytorch = acqf(x)
+        acq_pytorch = acqf(x.unsqueeze(1))
 
         samps_numpy = norm.cdf(
             multivariate_normal.rvs(mean=np.ones(10) * 1.2, cov=x @ x.T, size=10000)
