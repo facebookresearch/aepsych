@@ -373,11 +373,13 @@ class BenchProblemTestCase(unittest.TestCase):
                 "stimuli_per_trial": 1,
                 "outcome_types": ["binary"],
                 "strategy_names": "[init_strat, opt_strat]",
-                "acqf": "MCLevelSetEstimation",
-                "model": "GPClassificationModel",
             },
             "init_strat": {"generator": "SobolGenerator", "min_asks": 50},
-            "opt_strat": {"generator": "OptimizeAcqfGenerator", "min_asks": 1},
+            "opt_strat": {
+                "generator": "OptimizeAcqfGenerator",
+                "model": "GPClassificationModel",
+                "min_asks": 1,
+            },
             "MCLevelSetEstimation": {
                 "target": 0.75,
                 "beta": 3.84,
@@ -389,6 +391,7 @@ class BenchProblemTestCase(unittest.TestCase):
             "OptimizeAcqfGenerator": {
                 "restarts": 10,
                 "samps": 1000,
+                "acqf": "MCLevelSetEstimation",
             },
         }
         problem = LSETestProblem()

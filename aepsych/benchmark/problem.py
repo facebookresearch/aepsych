@@ -227,7 +227,11 @@ class LSEProblem(Problem):
     def __init__(self, thresholds: float | list | torch.Tensor) -> None:
         super().__init__()
         thresholds = [thresholds] if isinstance(thresholds, float) else thresholds
-        self.thresholds = torch.tensor(thresholds)
+        self.thresholds = (
+            torch.tensor(thresholds)
+            if not isinstance(thresholds, torch.Tensor)
+            else thresholds
+        )
 
     @property
     def metadata(self) -> dict[str, Any]:
