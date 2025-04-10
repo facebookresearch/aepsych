@@ -94,12 +94,12 @@ class Strategy(ConfigurableMixin):
         self.is_finished = False
 
         if run_indefinitely:
-            warnings.warn(
+            logger.warning(
                 f"Strategy {name} will run indefinitely until finish() is explicitly called. Other stopping criteria will be ignored."
             )
 
         elif min_total_tells > 0 and min_asks > 0:
-            warnings.warn(
+            logger.warning(
                 "Specifying both min_total_tells and min_asks > 0 may lead to unintended behavior."
             )
 
@@ -122,9 +122,8 @@ class Strategy(ConfigurableMixin):
 
             if use_gpu_modeling:
                 if not torch.cuda.is_available():
-                    warnings.warn(
+                    logger.warning(
                         f"GPU requested for model {type(model).__name__}, but no GPU found! Using CPU instead.",
-                        UserWarning,
                     )
                     self.model_device = torch.device("cpu")
                 else:
@@ -135,16 +134,14 @@ class Strategy(ConfigurableMixin):
 
         if use_gpu_generating:
             if model is None:
-                warnings.warn(
+                logger.warning(
                     f"GPU requested for generator {type(generator).__name__} but this generator has no model to move to GPU. Using CPU instead.",
-                    UserWarning,
                 )
                 self.generator_device = torch.device("cpu")
             else:
                 if not torch.cuda.is_available():
-                    warnings.warn(
+                    logger.warning(
                         f"GPU requested for generator {type(generator).__name__}, but no GPU found! Using CPU instead.",
-                        UserWarning,
                     )
                     self.generator_device = torch.device("cpu")
                 else:
@@ -607,9 +604,8 @@ class Strategy(ConfigurableMixin):
 
         if options["model"] is not None and not options["generator"]._requires_model:
             if options["refit_every"] < options["min_asks"]:
-                warnings.warn(
+                logger.warning(
                     f"Strategy '{name}' has refit_every < min_asks even though its generator does not require a model. Consider making refit_every = min_asks to speed up point generation.",
-                    UserWarning,
                 )
 
         options["min_total_outcome_occurrences"] = config.getint(
