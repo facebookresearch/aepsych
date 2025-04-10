@@ -428,7 +428,10 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
             )
 
         xy = torch.stack(
-            torch.meshgrid(torch.linspace(-1, 1, 30), torch.linspace(-1, 1, 30)), dim=-1
+            torch.meshgrid(
+                torch.linspace(-1, 1, 30), torch.linspace(-1, 1, 30), indexing="ij"
+            ),
+            dim=-1,
         ).view(-1, 2)
 
         zhat, _ = strat.predict(xy)
