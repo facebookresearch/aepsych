@@ -155,13 +155,6 @@ def get_dataframe_from_replay(
         )
         id_of_replay = uuid_of_replay
 
-    warnings.warn(
-        "get_dataframe_from_replay is deprecated."
-        + " Use generate_experiment_table with return_df = True instead.",
-        DeprecationWarning,
-        stacklevel=2,
-    )
-
     if id_of_replay is None:
         records = server.db.get_master_records()
         if len(records) > 0:
