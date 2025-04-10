@@ -15,16 +15,26 @@ from aepsych.server.message_handlers.handle_tell import flatten_tell_record
 logger = utils_logging.getLogger(logging.INFO)
 
 
-def replay(server, uuid_to_replay, skip_computations=False):
+def replay(
+    server,
+    id_to_replay=None,
+    skip_computations=False,
+    *,
+    uuid_to_replay=None,
+):
     """
     Run a replay against the server. The unique ID will be looked up in the database.
     if skip_computations is true, skip all the asks and queries, which should make the replay much faster.
     """
-    warnings.warn(
-        "replay arg 'uuid_to_replay` is not actually a uuid, just the unique ID in the DB of the specific run of an experiment. This argument will change soon.",
-        DeprecationWarning,
-    )
-    if uuid_to_replay is None:
+    if uuid_to_replay is not None:
+        warnings.warn(
+            "replay arg 'uuid_to_replay` is not actually a uuid, just the unique ID in the DB of the specific run of an experiment. This argument will change soon.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        id_to_replay = uuid_to_replay
+
+    if id_to_replay is None:
         raise RuntimeError("unique ID is a required parameter to perform a replay")
 
     if server.db is None:
@@ -35,14 +45,14 @@ def replay(server, uuid_to_replay, skip_computations=False):
             "skip_computations=True, make sure to refit the final strat before doing anything!"
         )
 
-    master_record = server.db.get_master_record(uuid_to_replay)
+    master_record = server.db.get_master_record(id_to_replay)
 
     # We're going to assume that a config message will be sent in this replay such that the server.strat_id matches this record
     server._db_master_record = master_record
 
     if master_record is None:
         raise RuntimeError(
-            f"The unique ID {uuid_to_replay} isn't in the database. Unable to perform replay."
+            f"The unique ID {id_to_replay} isn't in the database. Unable to perform replay."
         )
 
     # this prevents writing back to the DB and creating a circular firing squad
@@ -58,15 +68,24 @@ def replay(server, uuid_to_replay, skip_computations=False):
     server.skip_computations = False
 
 
-def get_strats_from_replay(server, uuid_of_replay=None, force_replay=False):
-    warnings.warn(
-        "replay arg 'uuid_of_replay` is not actually a uuid, just the unique ID in the DB of the specific run of an experiment. This argument will change soon.",
-        DeprecationWarning,
-    )
-    if uuid_of_replay is None:
+def get_strats_from_replay(
+    server,
+    id_of_replay=None,
+    force_replay=False,
+    *,
+    uuid_of_replay=None,
+):
+    if uuid_of_replay is not None:
+        warnings.warn(
+            "replay arg 'uuid_of_replay` is not actually a uuid, just the unique ID in the DB of the specific run of an experiment. This argument will change soon.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        id_of_replay = uuid_of_replay
+    if id_of_replay is None:
         records = server.db.get_master_records()
         if len(records) > 0:
-            uuid_of_replay = records[-1].unique_id
+            id_of_replay = records[-1].unique_id
         else:
             raise RuntimeError("Server has no experiment records!")
 
@@ -75,29 +94,36 @@ def get_strats_from_replay(server, uuid_of_replay=None, force_replay=False):
             "Force-replaying to get non-final strats is deprecated after the ability"
             + " to save all strats was added, and will eventually be removed.",
             DeprecationWarning,
+            stacklevel=2,
         )
-        replay(server, uuid_of_replay, skip_computations=True)
+        replay(server, id_of_replay, skip_computations=True)
         for strat in server._strats:
             if strat.has_model:
                 strat.model.fit(strat.x, strat.y)
         return server._strats
     else:
-        return server.db.get_strats_for(uuid_of_replay)
+        return server.db.get_strats_for(id_of_replay)
 
 
-def get_strat_from_replay(server, uuid_of_replay=None, strat_id=-1):
-    warnings.warn(
-        "replay arg 'uuid_to_replay` is not actually a uuid, just the unique ID in the DB of the specific run of an experiment. This argument will change soon.",
-        DeprecationWarning,
-    )
-    if uuid_of_replay is None:
+def get_strat_from_replay(
+    server, id_of_replay=None, strat_id=-1, *, uuid_of_replay=None
+):
+    if uuid_of_replay is not None:
+        warnings.warn(
+            "replay arg 'uuid_to_replay` is not actually a uuid, just the unique ID in the DB of the specific run of an experiment. This argument will change soon.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        id_of_replay = uuid_of_replay
+
+    if id_of_replay is None:
         records = server.db.get_master_records()
         if len(records) > 0:
-            uuid_of_replay = records[-1].unique_id
+            id_of_replay = records[-1].unique_id
         else:
             raise RuntimeError("Server has no experiment records!")
 
-    strats = server.db.get_strat_for(uuid_of_replay, strat_id)
+    strats = server.db.get_strat_for(id_of_replay, strat_id)
     if strats is not None:
         return strats
     else:
@@ -106,10 +132,11 @@ def get_strat_from_replay(server, uuid_of_replay=None, strat_id=-1):
             + " trying to replay tells to generate a final strat. Note"
             + " that this fallback will eventually be removed!",
             DeprecationWarning,
+            stacklevel=2,
         )
         # sometimes there's no final strat, e.g. if it's a very old database
         # (we dump strats on crash) in this case, replay the setup and tells
-        replay(server, uuid_of_replay, skip_computations=True)
+        replay(server, id_of_replay, skip_computations=True)
         # then if the final strat is model-based, refit
         strat = server._strats[strat_id]
         if strat.has_model:
@@ -117,11 +144,17 @@ def get_strat_from_replay(server, uuid_of_replay=None, strat_id=-1):
         return strat
 
 
-def get_dataframe_from_replay(server, uuid_of_replay=None, force_replay=False):
-    warnings.warn(
-        "replay arg 'uuid_to_replay` is not actually a uuid, just the unique ID in the DB of the specific run of an experiment. This argument will change soon.",
-        DeprecationWarning,
-    )
+def get_dataframe_from_replay(
+    server, id_of_replay=None, force_replay=False, *, uuid_of_replay=None
+):
+    if uuid_of_replay is not None:
+        warnings.warn(
+            "replay arg 'uuid_to_replay` is not actually a uuid, just the unique ID in the DB of the specific run of an experiment. This argument will change soon.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        id_of_replay = uuid_of_replay
+
     warnings.warn(
         "get_dataframe_from_replay is deprecated."
         + " Use generate_experiment_table with return_df = True instead.",
@@ -129,16 +162,16 @@ def get_dataframe_from_replay(server, uuid_of_replay=None, force_replay=False):
         stacklevel=2,
     )
 
-    if uuid_of_replay is None:
+    if id_of_replay is None:
         records = server.db.get_master_records()
         if len(records) > 0:
-            uuid_of_replay = records[-1].unique_id
+            id_of_replay = records[-1].unique_id
         else:
             raise RuntimeError("Server has no experiment records!")
 
-    recs = server.db.get_replay_for(uuid_of_replay)
+    recs = server.db.get_replay_for(id_of_replay)
 
-    strats = get_strats_from_replay(server, uuid_of_replay, force_replay=force_replay)
+    strats = get_strats_from_replay(server, id_of_replay, force_replay=force_replay)
 
     out = pd.DataFrame(
         [flatten_tell_record(server, rec) for rec in recs if rec.message_type == "tell"]

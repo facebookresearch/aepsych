@@ -12,6 +12,7 @@ import os
 import sys
 import threading
 import traceback
+import warnings
 
 import aepsych.database.db as db
 import aepsych.utils_logging as utils_logging
@@ -321,17 +322,60 @@ class AEPsychServer(object):
 
                 raise RuntimeError(exception_message)
 
-    def replay(self, uuid_to_replay, skip_computations=False):
-        return replay(self, uuid_to_replay, skip_computations)
+    def replay(self, id_to_replay=None, skip_computations=False, uuid_to_replay=None):
+        if uuid_to_replay is not None:
+            warnings.warn(
+                "replay arg 'uuid_to_replay` is not actually a uuid, just the unique ID in the DB of the specific run of an experiment. This argument will change soon.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            id_to_replay = uuid_to_replay
 
-    def get_strats_from_replay(self, uuid_of_replay=None, force_replay=False):
-        return get_strats_from_replay(self, uuid_of_replay, force_replay)
+        return replay(
+            self, id_to_replay=id_to_replay, skip_computations=skip_computations
+        )
 
-    def get_strat_from_replay(self, uuid_of_replay=None, strat_id=-1):
-        return get_strat_from_replay(self, uuid_of_replay, strat_id)
+    def get_strats_from_replay(
+        self, id_of_replay=None, force_replay=False, uuid_of_replay=None
+    ):
+        if uuid_of_replay is not None:
+            warnings.warn(
+                "replay arg 'uuid_of_replay` is not actually a uuid, just the unique ID in the DB of the specific run of an experiment. This argument will change soon.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            id_of_replay = uuid_of_replay
 
-    def get_dataframe_from_replay(self, uuid_of_replay=None, force_replay=False):
-        return get_dataframe_from_replay(self, uuid_of_replay, force_replay)
+        return get_strats_from_replay(
+            self, id_of_replay=id_of_replay, force_replay=force_replay
+        )
+
+    def get_strat_from_replay(
+        self, id_of_replay=None, strat_id=-1, uuid_of_replay=None
+    ):
+        if uuid_of_replay is not None:
+            warnings.warn(
+                "replay arg 'uuid_of_replay` is not actually a uuid, just the unique ID in the DB of the specific run of an experiment. This argument will change soon.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            id_of_replay = uuid_of_replay
+        return get_strat_from_replay(self, id_of_replay=id_of_replay, strat_id=strat_id)
+
+    def get_dataframe_from_replay(
+        self, id_of_replay=None, force_replay=False, uuid_of_replay=None
+    ):
+        if uuid_of_replay is not None:
+            warnings.warn(
+                "replay arg 'uuid_of_replay` is not actually a uuid, just the unique ID in the DB of the specific run of an experiment. This argument will change soon.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            id_of_replay = uuid_of_replay
+
+        return get_dataframe_from_replay(
+            self, id_of_replay=id_of_replay, force_replay=force_replay
+        )
 
 
 #! THIS IS WHAT START THE SERVER
