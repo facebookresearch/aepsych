@@ -177,7 +177,7 @@
 <span class="sd">            dict[Any, Any]: a collection of the metadata stored in this conig.</span>
 <span class="sd">        """</span>
         <span class="n">configdict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
-        <span class="n">metadata</span> <span class="o">=</span> <span class="n">configdict</span><span class="p">[</span><span class="s2">"metadata"</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">metadata</span> <span class="o">=</span> <span class="n">configdict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"metadata"</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">only_extra</span><span class="p">:</span>
             <span class="n">default_metadata</span> <span class="o">=</span> <span class="p">[</span>
