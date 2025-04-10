@@ -31,7 +31,7 @@ def handle_exit(server, request: dict[str, Any]) -> ExitResponse:
                 true if this function succeeds.
     """
     termination_type = "Normal termination"
-    logger.info("Got termination message!")
+    logger.info("got termination message!")
     server.write_strats(termination_type)
     server.exit_server_loop = True
 
