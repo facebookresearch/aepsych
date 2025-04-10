@@ -8,9 +8,7 @@
 import argparse
 import logging
 import os
-import shutil
 import sys
-import tempfile
 
 import aepsych.database.db as db
 import aepsych.utils_logging as utils_logging
@@ -85,17 +83,17 @@ def run_database(args):
         if args.summarize:
             summary = database.summarize_experiments()
             print(summary)
-            database.delete_db()
+            database.cleanup()
 
         elif "tocsv" in args and args.tocsv is not None:
             try:
                 database.to_csv(args.tocsv)
                 logger.info(f"Exported contents of {database_path} to {args.tocsv}")
-                database.delete_db()
             except Exception as error:
                 logger.error(
                     f"Failed to export contents of {database_path} with error `{error}`"
                 )
+            database.cleanup()
 
         elif "update" in args and args.update:
             logger.info(f"Updating the database {database_path}")

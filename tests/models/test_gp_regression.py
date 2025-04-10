@@ -16,6 +16,7 @@ from aepsych.server import AEPsychServer
 from aepsych.server.message_handlers.handle_ask import ask
 from aepsych.server.message_handlers.handle_setup import configure
 from aepsych.server.message_handlers.handle_tell import tell
+from aepsych.utils_logging import _set_test_warning_filters
 from gpytorch.likelihoods import GaussianLikelihood
 
 # run on single threads to keep us from deadlocking weirdly in CI
@@ -33,6 +34,7 @@ class GPRegressionTest(unittest.TestCase):
         return response
 
     def setUp(self):
+        _set_test_warning_filters()  # Needed to silence warnings from unittest
         np.random.seed(0)
         torch.manual_seed(0)
 
