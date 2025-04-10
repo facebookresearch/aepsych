@@ -14,6 +14,7 @@ import tempfile
 
 import aepsych.database.db as db
 import aepsych.utils_logging as utils_logging
+from aepsych.database.utils import combine_dbs
 
 logger = utils_logging.getLogger(logging.INFO)
 
@@ -46,6 +47,21 @@ def parse_argument(args):
         help="Export the data to a csv file with the provided path.",
     )
 
+    parser.add_argument(
+        "--combine",
+        type=str,
+        help="Combine csvs within the listed directory into a single db at the -db path.",
+    )
+
+    parser.add_argument(
+        "--exclude",
+        type=str,
+        help="Exclude certain files for other commands, this is currently only used for combine to exclude databases.",
+        action="extend",
+        nargs="*",
+        default=[],
+    )
+
     return parser.parse_args(args)
 
 
@@ -66,6 +82,15 @@ def run_database(args):
             # Store the temp_dir object to keep it alive until the database is no longer needed
             args._temp_dir_summary = temp_dir
             database_path = temp_db_path
+
+        if "combine" in args and args.combine is not None:
+            n_exp = combine_dbs(
+                out_path=database_path,
+                dbs=args.combine,
+                exclude=args.exclude,
+            )
+            logger.info(f"Combined {n_exp} experiment sessions into {database_path}")
+            return
 
         database = db.Database(database_path)
 
