@@ -72,9 +72,9 @@ def ask(server, num_points: int = 1, **kwargs) -> dict[str, Any] | None:
     """
     if server.skip_computations:
         # Fakes points being generated and tracked by strategy to end strategies
-        server.strat._strat._count += num_points
         if server.strat._strat.finished:
             server.strat._make_next_strat()
+        server.strat._strat._count += num_points
         return None
 
     # The fixed_pars kwargs name is purposefully different to the fixed_features
