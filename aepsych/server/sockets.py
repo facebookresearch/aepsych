@@ -122,3 +122,6 @@ class PySocket(object):
         logger.info(f"Sending: {message}")
         sys.stdout.flush()
         self.conn.sendall(bytes(message, "utf-8"))
+
+    def __del__(self):
+        self.socket.close()
