@@ -621,7 +621,13 @@ class BackgroundServerTestCase(unittest.IsolatedAsyncioTestCase):
             "type": "tell",
             "message": {"config": {"x": [0.5]}},  # Missing 'outcome' field
         }
-        response = await self.mock_client(malformed_tell_request)
+
+        with self.assertLogs() as log:
+            response = await self.mock_client(malformed_tell_request)
+
+        self.assertIn(
+            "tell() missing 1 required positional argument: 'outcome'", log.output[-1]
+        )
 
         # Verify that the response contains the server_error key
         self.assertIn("server_error", response)
