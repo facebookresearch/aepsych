@@ -4,7 +4,6 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-import json
 import unittest
 import uuid
 from unittest.mock import MagicMock, patch
@@ -32,6 +31,7 @@ class RemoteServerTestCase(unittest.TestCase):
         self.client._send_recv = MagicMock(wraps=lambda x: self.s.handle_request(x))
 
     def tearDown(self):
+        del self.client
         self.s.cleanup()
 
         # cleanup the db
@@ -141,14 +141,22 @@ class RemoteServerTestCase(unittest.TestCase):
         self.assertEqual(response["x"][0], 0.0)  # Lower bound
         self.assertEqual(response["x"][1], 1.0)  # Upper bound
 
-        self.client.finalize()
+        # self.client.finalize()
 
 
-class LocalServerTestCase(RemoteServerTestCase):
+class LocalServerTestCase(unittest.TestCase):
     def setUp(self):
         database_path = "./{}.db".format(str(uuid.uuid4().hex))
         self.s = AEPsychServer(database_path=database_path)
         self.client = AEPsychClient(server=self.s)
+
+    def tearDown(self):
+        del self.client
+        self.s.cleanup()
+
+        # cleanup the db
+        if self.s.db is not None:
+            self.s.db.delete_db()
 
     def test_warns_ignored_args(self):
         with self.assertWarns(UserWarning):
