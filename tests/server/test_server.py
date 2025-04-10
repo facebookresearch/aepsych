@@ -183,8 +183,8 @@ class ServerTestCase(BaseServerTestCase):
             tell_request["message"]["config"]["x"] = [expected_x[i]]
             tell_request["message"]["config"]["z"] = [expected_z[i]]
             tell_request["message"]["outcome"] = expected_y[i]
-            tell_request["extra_info"]["e1"] = 1
-            tell_request["extra_info"]["e2"] = 2
+            tell_request["message"]["e1"] = 1
+            tell_request["message"]["e2"] = 2
             i = i + 1
             self.s.handle_request(tell_request)
 
@@ -220,8 +220,8 @@ class ServerTestCase(BaseServerTestCase):
             tell_request["message"]["config"]["x"] = [expected_x[i]]
             tell_request["message"]["config"]["z"] = [expected_z[i]]
             tell_request["message"]["outcome"] = expected_y[i]
-            tell_request["extra_info"]["e1"] = 1
-            tell_request["extra_info"]["e2"] = 2
+            tell_request["message"]["e1"] = 1
+            tell_request["message"]["e2"] = 2
             i = i + 1
             self.s.handle_request(tell_request)
 
@@ -250,7 +250,6 @@ class ServerTestCase(BaseServerTestCase):
         tell_request = {
             "type": "tell",
             "message": {"config": {"x": [0.5]}, "outcome": 1},
-            "extra_info": {},
         }
         self.s.handle_request(setup_request)
         expected_x = [0, 1, 2, 3]
@@ -262,8 +261,8 @@ class ServerTestCase(BaseServerTestCase):
             tell_request["message"]["config"]["x"] = expected_x[i]
             tell_request["message"]["config"]["z"] = expected_z[i]
             tell_request["message"]["outcome"] = expected_y[i]
-            tell_request["extra_info"]["e1"] = 1
-            tell_request["extra_info"]["e2"] = 2
+            tell_request["message"]["e1"] = 1
+            tell_request["message"]["e2"] = 2
             i = i + 1
             self.s.handle_request(tell_request)
 
