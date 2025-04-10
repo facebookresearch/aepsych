@@ -191,7 +191,7 @@ class Strategy(ConfigurableMixin):
         if self.generator._requires_model:
             assert self.model is not None, f"{self.generator} requires a model!"
 
-        if self.min_asks == self.min_total_tells == 0:
+        if self.min_asks == self.min_total_tells == 0 and self.max_asks is None:
             logger.warning(
                 "strategy.min_asks == strategy.min_total_tells == 0. This strategy will not generate any points!",
             )
