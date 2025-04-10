@@ -99,6 +99,24 @@ it is formatted using formatException() and appended to the message.</p>
 </dd>
 </dl>
 </dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="aepsych.utils_logging.TestFilter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.utils_logging.</span></span><span class="sig-name descname"><span class="pre">TestFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/utils_logging.html#TestFilter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.utils_logging.TestFilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Filter</span></code></p>
+<p>Initialize a filter.</p>
+<p>Initialize with the name of the logger which, together with its
+children, will have its events allowed through the filter. If no
+name is specified, allow every event.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.utils_logging.TestFilter.patterns">
+<span class="sig-name descname"><span class="pre">patterns</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['^Parameter-specific</span> <span class="pre">bounds</span> <span class="pre">are</span> <span class="pre">incomplete,</span> <span class="pre">falling</span> <span class="pre">back</span> <span class="pre">to</span> <span class="pre">ub/lb</span> <span class="pre">in</span> <span class="pre">\\[common\\]']</span></em><a class="headerlink" href="#aepsych.utils_logging.TestFilter.patterns" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.utils_logging.TestFilter.filter">
+<span class="sig-name descname"><span class="pre">filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/utils_logging.html#TestFilter.filter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.utils_logging.TestFilter.filter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a record, return True if we fail to match (thus log it).</p>
+</dd></dl>
+</dd></dl>
 </section>
 </section>
 </div>

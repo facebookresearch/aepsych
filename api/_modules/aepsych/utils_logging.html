@@ -26,6 +26,8 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging.config</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span>
@@ -88,14 +90,59 @@
         <span class="p">},</span>
     <span class="p">}</span>
 
-    <span class="n">aepsych_mode</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"aepsych_mode"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">aepsych_mode</span> <span class="o">==</span> <span class="s2">"test"</span><span class="p">:</span>
-        <span class="n">logging_config</span><span class="p">[</span><span class="s2">"loggers"</span><span class="p">][</span><span class="s2">""</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">CRITICAL</span><span class="p">)</span>
+    <span class="n">aepsych_mode</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"AEPSYCH_MODE"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+    <span class="n">ci</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"CI"</span><span class="p">,</span> <span class="s2">"false"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">aepsych_mode</span> <span class="o">==</span> <span class="s2">"test"</span> <span class="ow">or</span> <span class="n">ci</span> <span class="o">==</span> <span class="s2">"true"</span><span class="p">:</span>
+        <span class="n">_set_test_warning_filters</span><span class="p">()</span>
+
+        <span class="n">logging_config</span><span class="p">[</span><span class="s2">"filters"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"test_filter"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"()"</span><span class="p">:</span> <span class="n">TestFilter</span><span class="p">}}</span>
+        <span class="n">logging_config</span><span class="p">[</span><span class="s2">"handlers"</span><span class="p">][</span><span class="s2">"default"</span><span class="p">][</span><span class="s2">"filters"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"test_filter"</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">logging_config</span><span class="p">[</span><span class="s2">"handlers"</span><span class="p">][</span><span class="s2">"file"</span><span class="p">]</span>
+        <span class="n">logging_config</span><span class="p">[</span><span class="s2">"loggers"</span><span class="p">][</span><span class="s2">""</span><span class="p">][</span><span class="s2">"handlers"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"default"</span><span class="p">]</span>
+        <span class="n">logging_config</span><span class="p">[</span><span class="s2">"loggers"</span><span class="p">][</span><span class="s2">""</span><span class="p">][</span><span class="s2">"level"</span><span class="p">]</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span>
 
     <span class="n">logging</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">dictConfig</span><span class="p">(</span><span class="n">logging_config</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">logger</span></div>
+
+
+<span class="n">_IGNORED_WARNINGS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="sa">r</span><span class="s2">"A not p\.d\., added jitter of .* to the diagonal"</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s2">"Optimization failed within `scipy\.optimize\.minimize` with status \d+ and message ABNORMAL_TERMINATION_IN_LNSRCH"</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s2">"`scipy_minimize` terminated with status \d+, displaying original message from `scipy\.optimize\.minimize`: ABNORMAL_TERMINATION_IN_LNSRCH"</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s2">"Optimization failed in `gen_candidates_scipy` with the following warning\(s\):"</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s2">"`scipy_minimize` terminated with status OptimizationStatus\.FAILURE, displaying original message from `scipy\.optimize\.minimize`: ABNORMAL_TERMINATION_IN_LNSRCH"</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s2">"Optimization failed on the second try, after generating a new set of initial conditions\."</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s2">"Matplotlib is building the font cache; this may take a moment\."</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s2">"Skipping device Apple Paravirtual device that does not support Metal 2\.0"</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_set_test_warning_filters</span><span class="p">():</span>
+    <span class="c1"># Used to ignore warnings unhelpful warnings during testing or CI</span>
+    <span class="n">aepsych_mode</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"AEPSYCH_MODE"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+    <span class="n">ci</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"CI"</span><span class="p">,</span> <span class="s2">"false"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">aepsych_mode</span> <span class="o">==</span> <span class="s2">"test"</span> <span class="ow">or</span> <span class="n">ci</span> <span class="o">==</span> <span class="s2">"true"</span><span class="p">:</span>
+        <span class="n">warning</span> <span class="o">=</span> <span class="s2">"|"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_IGNORED_WARNINGS</span><span class="p">)</span>
+        <span class="c1"># for warning in _IGNORED_WARNINGS:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">"ignore"</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">warning</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="TestFilter"><a class="viewcode-back" href="../../utils_logging.html#aepsych.utils_logging.TestFilter">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">TestFilter</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">Filter</span><span class="p">):</span>
+    <span class="n">patterns</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="c1"># TODO: Completely remove the need of the filter by fixing this warning</span>
+        <span class="sa">r</span><span class="s2">"^Parameter-specific bounds are incomplete, falling back to ub/lb in \[common\]"</span><span class="p">,</span>
+    <span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">""</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="c1"># Compile regex</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">re</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">"|"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">patterns</span><span class="p">))</span>
+
+<div class="viewcode-block" id="TestFilter.filter"><a class="viewcode-back" href="../../utils_logging.html#aepsych.utils_logging.TestFilter.filter">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Given a record, return True if we fail to match (thus log it)."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">msg</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span></div></div>
 </pre></div>
 </div>
 </div>
