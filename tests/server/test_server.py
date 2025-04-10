@@ -466,6 +466,8 @@ class ServerTestCase(BaseServerTestCase):
         self.assertTrue(one == 1)
         self.assertTrue(strat.generator._base_obj.__class__.__name__ == "OnesGenerator")
 
+        self.s.extensions.unload()
+
     def test_read_only_mode(self):
         """Test that read-only mode creates a temporary copy of the database and doesn't modify the original."""
         # Create a server with a database and add some data to it
