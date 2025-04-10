@@ -362,8 +362,10 @@ class ConfigTestCase(unittest.TestCase):
 
         config = Config(config_str=config_str)
 
-        with self.assertWarns(UserWarning):
+        with self.assertLogs() as log:
             Strategy.from_config(config, "init_strat")
+
+        self.assertIn("Strategy 'init_strat' has refit_every < min_asks", log.output[0])
 
     def test_nested_tensor(self):
         points = [[0.25, 0.75], [0.5, 0.9]]

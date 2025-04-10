@@ -13,7 +13,7 @@ from aepsych.strategy import Strategy
 
 class TestStrategyGPU(unittest.TestCase):
     def test_gpu_no_model_generator_warn(self):
-        with self.assertWarns(UserWarning):
+        with self.assertLogs() as log:
             Strategy(
                 lb=[0.0],
                 ub=[1.0],
@@ -23,6 +23,11 @@ class TestStrategyGPU(unittest.TestCase):
                 generator=SobolGenerator(lb=[0], ub=[1]),
                 use_gpu_generating=True,
             )
+
+        self.assertIn(
+            "GPU requested for generator SobolGenerator but this generator has no model to move to GPU",
+            log.output[0],
+        )
 
 
 if __name__ == "__main__":
