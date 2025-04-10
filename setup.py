@@ -26,7 +26,7 @@ BENCHMARK_REQUIRES = ["tqdm", "pathos", "multiprocess", "torcheval"]
 
 DEV_REQUIRES = BENCHMARK_REQUIRES + [
     "coverage",
-    "flake8",
+    "ruff",
     "sqlalchemy-stubs",  # for mypy stubs
     "mypy==1.14.0",
     "parameterized",
