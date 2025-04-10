@@ -141,10 +141,10 @@ def _process_bounds(
     else:
         dim = lb.shape[0]
 
-    for i, (l, u) in enumerate(zip(lb, ub)):
+    for i, (lower, upper) in enumerate(zip(lb, ub)):
         assert (
-            l <= u
-        ), f"Lower bound {l} is not less than or equal to upper bound {u} on dimension {i}!"
+            lower <= upper
+        ), f"Lower bound {lower} is not less than or equal to upper bound {upper} on dimension {i}!"
 
     return lb, ub, dim
 

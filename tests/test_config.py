@@ -9,13 +9,11 @@ import json
 import os
 import unittest
 import uuid
-from typing import List, Optional, Union
 
-import numpy as np
 import torch
 from aepsych.acquisition import EAVC, MCLevelSetEstimation
 from aepsych.acquisition.objective import FloorGumbelObjective, ProbitObjective
-from aepsych.config import Config, ConfigurableMixin, ParameterConfigError
+from aepsych.config import Config, ParameterConfigError
 from aepsych.generators import (
     IntensityAwareSemiPGenerator,
     OptimizeAcqfGenerator,

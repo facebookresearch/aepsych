@@ -15,7 +15,6 @@ import time
 import unittest
 import uuid
 import warnings
-from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
 from unittest.mock import MagicMock, patch

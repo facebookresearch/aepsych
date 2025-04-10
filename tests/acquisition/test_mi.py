@@ -79,8 +79,6 @@ class SingleProbitMI(unittest.TestCase):
     def test_mi_acqf(self):
         mean = ConstantMean().initialize(constant=1.2)
         covar = LinearKernel().initialize(variance=1.0)
-        lb = torch.tensor([0.0])
-        ub = torch.tensor([1.0])
         inducing_size = 10
 
         model = GPClassificationModel(

@@ -8,7 +8,6 @@
 from typing import Any
 
 import torch
-from aepsych.config import Config
 from aepsych.generators.base import AEPsychGenerator
 from aepsych.models.base import AEPsychModelMixin
 from aepsych.utils import _process_bounds

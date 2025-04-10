@@ -7,7 +7,6 @@
 
 import unittest
 
-import gpytorch
 import torch
 from aepsych.config import Config
 from aepsych.models.gp_classification import GPClassificationModel

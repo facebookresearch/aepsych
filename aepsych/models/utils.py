@@ -13,8 +13,7 @@ import numpy as np
 import torch
 from aepsych.config import Config
 from aepsych.models.base import AEPsychModelMixin
-from aepsych.models.semi_p import semi_p_posterior_transform
-from aepsych.utils import dim_grid, get_jnd_multid, promote_0d
+from aepsych.utils import dim_grid, get_jnd_multid
 from botorch.acquisition import PosteriorMean
 from botorch.acquisition.objective import (
     PosteriorTransform,

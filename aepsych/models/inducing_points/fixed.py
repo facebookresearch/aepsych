@@ -1,7 +1,6 @@
 from typing import Any
 
 import torch
-from aepsych.config import Config
 from aepsych.models.inducing_points.base import BaseAllocator
 
 

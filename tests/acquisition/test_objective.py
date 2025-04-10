@@ -18,7 +18,6 @@ from aepsych.acquisition.objective import (
     FloorProbitObjective,
 )
 from aepsych.config import Config
-from aepsych.strategy import SequentialStrategy
 from parameterized import parameterized
 from scipy.stats import gumbel_l, logistic, norm
 

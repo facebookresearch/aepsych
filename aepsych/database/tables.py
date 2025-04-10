@@ -7,14 +7,11 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import json
 import logging
 import pickle
 from collections.abc import Iterable
 from typing import Any
 
-from aepsych.config import Config
-from aepsych.version import __version__
 from sqlalchemy import (
     Boolean,
     Column,
@@ -27,7 +24,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.engine import Engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship, sessionmaker
+from sqlalchemy.orm import relationship
 
 logger = logging.getLogger()
 
@@ -501,9 +498,8 @@ class DbRawTable(Base):
                     )
 
                     for param_name, param_value in params.items():
-                        if (
-                            isinstance(param_value, Iterable)
-                            and type(param_value) != str
+                        if isinstance(param_value, Iterable) and not isinstance(
+                            param_value, str
                         ):
                             if len(param_value) == 1:
                                 db.record_param(
@@ -527,11 +523,10 @@ class DbRawTable(Base):
                                 param_value=float(param_value),
                             )
 
-                    if isinstance(outcomes, Iterable) and type(outcomes) != str:
+                    if isinstance(outcomes, Iterable) and not isinstance(outcomes, str):
                         for j, outcome_value in enumerate(outcomes):
-                            if (
-                                isinstance(outcome_value, Iterable)
-                                and type(outcome_value) != str
+                            if isinstance(outcome_value, Iterable) and not isinstance(
+                                outcome_value, str
                             ):
                                 if len(outcome_value) == 1:
                                     outcome_value = outcome_value[0]
