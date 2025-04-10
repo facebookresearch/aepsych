@@ -11,3 +11,8 @@ target-version = ["py310"]
 [tool.ufmt]
 formatter = "ruff-api"
 sorter = "usort"
+
+[tool.ruff]
+include = [
+    "aepsych_client/**/*.py", "tests/**/*.py",
+]
