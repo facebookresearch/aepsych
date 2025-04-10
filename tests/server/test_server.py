@@ -171,7 +171,6 @@ class ServerTestCase(BaseServerTestCase):
         tell_request = {
             "type": "tell",
             "message": {"config": {"x": [0.5]}, "outcome": 1},
-            "extra_info": {},
         }
         self.s.handle_request(setup_request)
         expected_x = [0, 1, 2, 3]
@@ -208,7 +207,6 @@ class ServerTestCase(BaseServerTestCase):
         tell_request = {
             "type": "tell",
             "message": {"config": {"x": [0.5]}, "outcome": 1},
-            "extra_info": {},
         }
         expected_x = [0, 1, 2, 3]
         expected_z = list(reversed(expected_x))
