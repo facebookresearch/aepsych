@@ -159,7 +159,7 @@ class Config(configparser.ConfigParser):
             dict[Any, Any]: a collection of the metadata stored in this conig.
         """
         configdict = self.to_dict()
-        metadata = configdict["metadata"].copy()
+        metadata = configdict.get("metadata", {}).copy()
 
         if only_extra:
             default_metadata = [
