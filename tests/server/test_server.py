@@ -14,6 +14,7 @@ import threading
 import time
 import unittest
 import uuid
+import warnings
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
@@ -556,7 +557,11 @@ class BackgroundServerTestCase(unittest.IsolatedAsyncioTestCase):
 
     async def asyncSetUp(self):
         """Set up a server instance running in a background thread."""
-        # Create a server instance with port 5555
+        # Multithread socket doesn't play nice, so we ignore these warnings
+        warnings.filterwarnings(
+            "ignore", message="unclosed <socket.socket ", category=ResourceWarning
+        )
+        # Create a server instance with port
         self.ip = "localhost"
         # 0 is a special port number that tells the OS to assign an available port
         self.server_socket = server.sockets.PySocket(ip=self.ip, port=0)
@@ -585,14 +590,10 @@ class BackgroundServerTestCase(unittest.IsolatedAsyncioTestCase):
         self.writer.close()
         await self.writer.wait_closed()
 
-        # Set the exit flag to stop the server thread
-        self.server_instance.exit_server_loop = True
-
-        # Wait for the server thread to finish
-        self.server_thread.join(timeout=5)
-
         # Clean up the server
         self.server_instance.cleanup()
+        self.server_instance.exit_server_loop = True
+        self.server_thread.join(timeout=5)
 
         # Delete the database
         try:

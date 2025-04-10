@@ -8,6 +8,8 @@
 import logging
 import logging.config
 import os
+import re
+import warnings
 from typing import Any
 
 logger = logging.getLogger()
@@ -70,11 +72,54 @@ def getLogger(level=logging.INFO, log_path: str = "logs") -> logging.Logger:
         },
     }
 
-    aepsych_mode = os.environ.get("aepsych_mode", "")
-    if aepsych_mode == "test":
-        logging_config["loggers"][""] = {}
-        logger.setLevel(logging.CRITICAL)
+    aepsych_mode = os.environ.get("AEPSYCH_MODE", "")
+    ci = os.environ.get("CI", "false")
+    if aepsych_mode == "test" or ci == "true":
+        _set_test_warning_filters()
+
+        logging_config["filters"] = {"test_filter": {"()": TestFilter}}
+        logging_config["handlers"]["default"]["filters"] = ["test_filter"]
+        del logging_config["handlers"]["file"]
+        logging_config["loggers"][""]["handlers"] = ["default"]
+        logging_config["loggers"][""]["level"] = logging.WARNING
 
     logging.config.dictConfig(logging_config)
 
     return logger
+
+
+_IGNORED_WARNINGS = [
+    r"A not p\.d\., added jitter of .* to the diagonal",
+    r"Optimization failed within `scipy\.optimize\.minimize` with status 2 and message ABNORMAL_TERMINATION_IN_LNSRCH\.",
+    r"Optimization failed in `gen_candidates_scipy` with the following warning\(s\):",
+    r"`scipy_minimize` terminated with status OptimizationStatus\.FAILURE, displaying original message from `scipy\.optimize\.minimize`: ABNORMAL_TERMINATION_IN_LNSRCH",
+    r"Optimization failed on the second try, after generating a new set of initial conditions\.",
+    r"Matplotlib is building the font cache; this may take a moment\.",
+]
+
+
+def _set_test_warning_filters():
+    # Used to ignore warnings unhelpful warnings during testing or CI
+    aepsych_mode = os.environ.get("AEPSYCH_MODE", "")
+    ci = os.environ.get("CI", "false")
+    if aepsych_mode == "test" or ci == "true":
+        warning = "|".join(_IGNORED_WARNINGS)
+        # for warning in _IGNORED_WARNINGS:
+        warnings.filterwarnings("ignore", message=warning)
+
+
+class TestFilter(logging.Filter):
+    patterns = [
+        # TODO: Completely remove the need of the filter by fixing this warning
+        r"^Parameter-specific bounds are incomplete, falling back to ub/lb in \[common\]",
+    ]
+
+    def __init__(self, name=""):
+        super().__init__(name)
+
+        # Compile regex
+        self.re = re.compile("|".join(self.patterns))
+
+    def filter(self, record):
+        """Given a record, return True if we fail to match (thus log it)."""
+        return self.re.search(record.msg) is None
