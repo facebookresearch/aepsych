@@ -681,7 +681,7 @@ class DBUtilityTestCase(unittest.TestCase):
 
         # Check prints
         prints = mock_stdout.getvalue().strip().split("\n")
-        self.assertEqual(len(prints), 2)
+        self.assertEqual(len(prints), 2, prints)
         for print_ in prints:
             self.assertEqual("Copying master record with unique ID 1", print_)
 
