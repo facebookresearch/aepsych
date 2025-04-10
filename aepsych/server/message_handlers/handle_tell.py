@@ -102,8 +102,13 @@ def flatten_tell_record(server, rec: DbReplayTable) -> dict[str, Any]:
         )[0]
     )
 
-    if rec.extra_info is not None:
-        out.update(rec.extra_info)
+    extra_data = {
+        key: value
+        for key, value in rec.message_contents["message"].items()
+        if key not in ["config", "outcome", "model_data"]
+    }
+    if len(extra_data) != 0:
+        out.update(extra_data)
 
     return out
 
