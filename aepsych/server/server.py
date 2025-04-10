@@ -293,6 +293,9 @@ class AEPsychServer(object):
 
     def write_strats(self, termination_type):
         if self._db_master_record is not None and self.strat is not None:
+            if not hasattr(self.db, "_engine") or self.db._engine is None:
+                logger.warning("There's no db engine, we can't write strats.")
+                return
             logger.info(f"Dumping strats to DB due to {termination_type}.")
             for strat in self._strats:
                 buffer = io.BytesIO()

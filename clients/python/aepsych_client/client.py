@@ -357,4 +357,7 @@ class AEPsychClient:
         return self._send_recv(request)
 
     def __del__(self):
+        if self.socket is not None:
+            self.socket.close()
+
         self.finalize()
