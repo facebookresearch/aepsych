@@ -75,18 +75,13 @@ def combine_dbs(
         if verbose:
             print(f"Adding {db_path} to {out_path}")
 
-        # Make a temporary copy
-        tmp_dir = tempfile.TemporaryDirectory(ignore_cleanup_errors=True)
-        tmp_db = Path(tmp_dir.name) / db_path.stem
-        shutil.copy2(db_path, tmp_db)
-        db = Database(db_path=str(tmp_db), update=False)
+        db = Database(db_path=str(db_path), update=False, read_only=True)
 
         # Replay each master
         for master in db.get_master_records():
             transfer_dbs(out_db, master, extra_metadata={"origin_db": str(db_path)})
 
         num_experiments += 1
-        tmp_dir.cleanup()
 
     return num_experiments
 

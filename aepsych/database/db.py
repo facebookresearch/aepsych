@@ -10,6 +10,8 @@ import io
 import json
 import logging
 import os
+import shutil
+import tempfile
 import uuid
 from contextlib import contextmanager
 from pathlib import Path
@@ -29,25 +31,44 @@ logger = logging.getLogger()
 
 
 class Database:
-    def __init__(self, db_path: str | None = None, update: bool = True) -> None:
+    def __init__(
+        self, db_path: str | None = None, update: bool = True, read_only: bool = False
+    ) -> None:
         """Initialize the database object.
 
         Args:
             db_path (str, optional): The path to the database. Defaults to None.
             update (bool): Update the db to the latest schema. Defaults to True.
+            read_only (bool): Whether to make a copy of the database such that it is
+                effectively read only. Does not do anything is db_path does not already
+                exist.
         """
         if db_path is None:
             db_path = "./databases/default.db"
 
+        self._temp_dir = None
+        if os.path.exists(db_path):
+            if read_only:
+                # Create a temporary copy of the database
+                _, db_name = os.path.split(db_path)
+                # Use TemporaryDirectory which will clean up automatically when the program exits
+                self._temp_dir = tempfile.TemporaryDirectory(ignore_cleanup_errors=True)
+                temp_db_path = os.path.join(self._temp_dir.name, db_name)
+                shutil.copy2(db_path, temp_db_path)
+                logger.info(f"Found DB at {db_path}, using a read only copy!")
+                db_path = temp_db_path
+            else:
+                logger.info(f"Found DB at {db_path}, appending!")
+        else:
+            if read_only:
+                raise FileNotFoundError(
+                    f"Database does not exist at {db_path} and read_only is set to True"
+                )
+            logger.info(f"No DB found at {db_path}, creating a new DB!")
+
         db_dir, db_name = os.path.split(db_path)
         self._db_name = db_name
         self._db_dir = db_dir
-
-        if os.path.exists(db_path):
-            logger.info(f"Found DB at {db_path}, appending!")
-        else:
-            logger.info(f"No DB found at {db_path}, creating a new DB!")
-
         self._engine = self.get_engine()
 
         if update and self.is_update_required():
@@ -82,6 +103,18 @@ class Database:
             close_all_sessions()
             self._full_db_path.unlink()
             self._engine = None
+
+        if self._temp_dir is not None:
+            self._temp_dir.cleanup()
+
+    def cleanup(self) -> None:
+        """Cleanup the database object, doesn't delete db"""
+        if self._engine is not None and self._full_db_path.exists():
+            close_all_sessions()
+            self._engine = None
+
+        if self._temp_dir is not None:
+            self._temp_dir.cleanup()
 
     def is_update_required(self) -> bool:
         """Check if an update is required on the database.

@@ -496,7 +496,7 @@ class ServerTestCase(BaseServerTestCase):
         )
 
         # Verify that the read-only server has a _temp_dir attribute
-        self.assertTrue(hasattr(read_only_server, "_temp_dir"))
+        self.assertTrue(hasattr(read_only_server.db, "_temp_dir"))
 
         # Verify that the database path being used is different from the original
         self.assertNotEqual(read_only_server.db._full_db_path.as_posix(), self.db_path)
@@ -518,7 +518,7 @@ class ServerTestCase(BaseServerTestCase):
         )
 
         # Store the temp_dir path for later verification
-        temp_dir_path = read_only_server._temp_dir.name
+        temp_dir_path = read_only_server.db._temp_dir.name
 
         # Clean up the read-only server
         read_only_server.cleanup()

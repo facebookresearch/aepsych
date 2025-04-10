@@ -9,9 +9,7 @@ import argparse
 import io
 import logging
 import os
-import shutil
 import sys
-import tempfile
 import threading
 import traceback
 
@@ -62,25 +60,7 @@ class AEPsychServer(object):
         self.exit_server_loop = False
         self._db_raw_record = None
 
-        # Handle read-only mode
-        if database_path is not None and read_only:
-            if not os.path.exists(database_path):
-                raise FileNotFoundError(
-                    f"Database does not exist at {database_path} and read_only is set to True"
-                )
-            # Create a temporary copy of the database
-            _, db_name = os.path.split(database_path)
-            # Use TemporaryDirectory which will clean up automatically when the program exits
-            self._temp_dir = tempfile.TemporaryDirectory()
-            temp_db_path = os.path.join(self._temp_dir.name, db_name)
-            shutil.copy2(database_path, temp_db_path)
-            logger.info(
-                f"Created temporary copy of DB from {database_path} at {temp_db_path}"
-            )
-            # Use the temporary database path instead
-            database_path = temp_db_path
-
-        self.db: db.Database = db.Database(database_path)
+        self.db: db.Database = db.Database(database_path, read_only=read_only)
         self.skip_computations = False
         self.strat_names = None
         self.extensions = None
@@ -112,10 +92,7 @@ class AEPsychServer(object):
             None
         """
         self.socket.close()
-        if hasattr(self, "_temp_dir"):
-            # Close db
-            self.db.delete_db()
-            self._temp_dir.cleanup()
+        self.db.cleanup()
 
     def _receive_send(self, is_exiting: bool) -> None:
         """Receive messages from the client.
