@@ -19,9 +19,11 @@ class HandleExitTestCase(BaseServerTestCase):
         self.s.socket.receive = MagicMock(return_value=request)
         self.s.dump = MagicMock()
 
-        with self.assertRaises(SystemExit) as cm:
-            self.s.serve()
+        with self.assertLogs() as log:
+            with self.assertRaises(SystemExit) as cm:
+                self.s.serve()
 
+        self.assertIn("No connection to send to!", " ".join(log.output))
         self.assertEqual(cm.exception.code, 0)
 
     def test_exit_response(self):
