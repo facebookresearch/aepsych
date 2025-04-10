@@ -207,7 +207,7 @@ class TestSequenceGenerators(unittest.TestCase):
         lb = torch.tensor([-1.0, -1.0])
         ub = torch.tensor([1.0, 1.0])
 
-        with self.assertWarns(UserWarning):
+        with self.assertLogs() as log:
             self.strat = Strategy(
                 model=GPClassificationModel(
                     dim=2,
@@ -220,6 +220,8 @@ class TestSequenceGenerators(unittest.TestCase):
                 min_asks=1,  # should be ignored
                 run_indefinitely=True,
             )
+
+        self.assertIn("Strategy  will run indefinitely until finish()", log.output[0])
         self.strat.gen()
         self.assertFalse(self.strat.finished)
         self.strat.finish()
@@ -357,7 +359,7 @@ class TestStrategyGPU(unittest.TestCase):
         torch.cuda.is_available(), "gpu is available, can't test no gpu warning"
     )
     def test_no_gpu_model_warn(self):
-        with self.assertWarns(UserWarning):
+        with self.assertLogs() as log:
             Strategy(
                 lb=[0],
                 ub=[1],
@@ -370,11 +372,16 @@ class TestStrategyGPU(unittest.TestCase):
                 use_gpu_modeling=True,
             )
 
+        self.assertIn(
+            "GPU requested for model GPClassificationModel, but no GPU found!",
+            log.output[0],
+        )
+
     @unittest.skipIf(
         torch.cuda.is_available(), "gpu is available, can't test no gpu warning"
     )
     def test_no_gpu_generator_warn(self):
-        with self.assertWarns(UserWarning):
+        with self.assertLogs() as log:
             Strategy(
                 lb=[0],
                 ub=[1],
@@ -388,6 +395,11 @@ class TestStrategyGPU(unittest.TestCase):
                 ),
                 use_gpu_generating=True,
             )
+
+        self.assertIn(
+            "GPU requested for generator OptimizeAcqfGenerator, but no GPU found!",
+            log.output[0],
+        )
 
 
 if __name__ == "__main__":
