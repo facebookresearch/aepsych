@@ -130,6 +130,23 @@ class DataFetcherTestCase(unittest.TestCase):
         self.s.cleanup()
         self.s.db.delete_db()
 
+    def assert_datafetcher_warnings(self, log, stim=True, bounds=True, outcome=True):
+        log_out = " ".join(log.output)
+
+        if stim:
+            self.assertRegex(
+                log_out, r"it has \d stimuli and the current experiment has \d stimuli"
+            )
+
+        if bounds:
+            self.assertRegex(
+                log_out,
+                r"has bounds \(-?\d, -?\d\) compared to the active bounds \(-?\d, -?\d\)",
+            )
+
+        if outcome:
+            self.assertRegex(log_out, "mismatch in outcome type")
+
     def test_create_from_config(self):
         test_names = ["my experiment", "my_exp"]
         test_exp_ids = ["exp1", "exp2", "exp3"]
@@ -222,8 +239,10 @@ class DataFetcherTestCase(unittest.TestCase):
             Config(config_str=config_str), "my_strat"
         )
 
-        valid_ids = test_fetcher._get_valid_data_ids(self.s)
+        with self.assertLogs() as log:
+            valid_ids = test_fetcher._get_valid_data_ids(self.s)
 
+        self.assert_datafetcher_warnings(log)
         self.assertTrue(
             len(validation_set.intersection(set(valid_ids))) == len(validation_set)
             and len(validation_set) == len(valid_ids)
@@ -260,8 +279,10 @@ class DataFetcherTestCase(unittest.TestCase):
             Config(config_str=config_str), "my_strat"
         )
 
-        valid_ids = test_fetcher._get_valid_data_ids(self.s)
+        with self.assertLogs() as log:
+            valid_ids = test_fetcher._get_valid_data_ids(self.s)
 
+        self.assert_datafetcher_warnings(log)
         self.assertTrue(
             len(validation_set.intersection(set(valid_ids))) == len(validation_set)
             and len(validation_set) == len(valid_ids)
@@ -283,8 +304,10 @@ class DataFetcherTestCase(unittest.TestCase):
             Config(config_str=config_str), "my_strat"
         )
 
-        valid_ids = test_fetcher._get_valid_data_ids(self.s)
+        with self.assertLogs() as log:
+            valid_ids = test_fetcher._get_valid_data_ids(self.s)
 
+        self.assert_datafetcher_warnings(log)
         self.assertTrue(
             len(validation_set.intersection(set(valid_ids))) == len(validation_set)
             and len(validation_set) == len(valid_ids)
@@ -312,8 +335,10 @@ class DataFetcherTestCase(unittest.TestCase):
             Config(config_str=config_str), "my_strat"
         )
 
-        valid_ids = test_fetcher._get_valid_data_ids(self.s)
+        with self.assertLogs() as log:
+            valid_ids = test_fetcher._get_valid_data_ids(self.s)
 
+        self.assert_datafetcher_warnings(log, outcome=False, bounds=False)
         self.assertTrue(
             len(validation_set.intersection(set(valid_ids))) == len(validation_set)
             and len(validation_set) == len(valid_ids)
@@ -330,8 +355,10 @@ class DataFetcherTestCase(unittest.TestCase):
             Config(config_str=config_str), "my_strat"
         )
 
-        valid_ids = test_fetcher._get_valid_data_ids(self.s)
+        with self.assertLogs() as log:
+            valid_ids = test_fetcher._get_valid_data_ids(self.s)
 
+        self.assert_datafetcher_warnings(log, bounds=False)
         self.assertTrue(
             len(validation_set.intersection(set(valid_ids))) == len(validation_set)
             and len(validation_set) == len(valid_ids)
@@ -347,8 +374,10 @@ class DataFetcherTestCase(unittest.TestCase):
             Config(config_str=config_str), "my_strat"
         )
 
-        valid_ids = test_fetcher._get_valid_data_ids(self.s)
+        with self.assertLogs() as log:
+            valid_ids = test_fetcher._get_valid_data_ids(self.s)
 
+        self.assert_datafetcher_warnings(log)
         self.assertTrue(
             len(validation_set.intersection(set(valid_ids))) == len(validation_set)
             and len(validation_set) == len(valid_ids)
@@ -365,7 +394,13 @@ class DataFetcherTestCase(unittest.TestCase):
             "message": {"config_str": config_str},
         }
 
-        self.s.handle_request(setup_message)
+        with self.assertLogs() as log:
+            self.s.handle_request(setup_message)
+
+        self.assertIn(
+            "1200 rows of data had parameters that were undefined", " ".join(log.output)
+        )
+        self.assertIn("warm started with 1200 rows of data", " ".join(log.output))
 
         for strat in self.s.strat.strat_list:
             if self.s.config.has_option(strat.name, "seed_data_conditions"):
@@ -391,7 +426,10 @@ class DataFetcherTestCase(unittest.TestCase):
             "message": {"config_str": config_str},
         }
 
-        self.s.handle_request(setup_message)
+        with self.assertLogs() as log:
+            self.s.handle_request(setup_message)
+
+        self.assert_datafetcher_warnings(log, stim=False)
 
         for strat in self.s.strat.strat_list:
             if self.s.config.has_option(strat.name, "seed_data_conditions"):
