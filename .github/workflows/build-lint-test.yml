@@ -9,7 +9,7 @@ on:
     - cron: "0 12 * * *" # every day at 4AM west coast time
 
 env:
-  aepsych_mode: test
+  AEPSYCH_MODE: test
 
 jobs:
   lint:
