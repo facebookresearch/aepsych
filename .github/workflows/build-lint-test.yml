@@ -10,6 +10,7 @@ on:
 
 env:
   AEPSYCH_MODE: test
+  TQDM_DISABLE: 1
 
 jobs:
   lint:
