@@ -90,11 +90,13 @@ def getLogger(level=logging.INFO, log_path: str = "logs") -> logging.Logger:
 
 _IGNORED_WARNINGS = [
     r"A not p\.d\., added jitter of .* to the diagonal",
-    r"Optimization failed within `scipy\.optimize\.minimize` with status 2 and message ABNORMAL_TERMINATION_IN_LNSRCH\.",
+    r"Optimization failed within `scipy\.optimize\.minimize` with status \d+ and message ABNORMAL_TERMINATION_IN_LNSRCH",
+    r"`scipy_minimize` terminated with status \d+, displaying original message from `scipy\.optimize\.minimize`: ABNORMAL_TERMINATION_IN_LNSRCH",
     r"Optimization failed in `gen_candidates_scipy` with the following warning\(s\):",
     r"`scipy_minimize` terminated with status OptimizationStatus\.FAILURE, displaying original message from `scipy\.optimize\.minimize`: ABNORMAL_TERMINATION_IN_LNSRCH",
     r"Optimization failed on the second try, after generating a new set of initial conditions\.",
     r"Matplotlib is building the font cache; this may take a moment\.",
+    r"Skipping device Apple Paravirtual device that does not support Metal 2\.0",
 ]
 
 
