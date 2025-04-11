@@ -79,6 +79,7 @@ def combine_dbs(
         for master in db.get_master_records():
             transfer_dbs(out_db, master, extra_metadata={"origin_db": str(db_path)})
 
+        db.cleanup()
         num_experiments += 1
 
     return num_experiments

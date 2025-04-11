@@ -99,10 +99,12 @@ class Database:
 
     def delete_db(self) -> None:
         """Delete the database."""
-        if self._engine is not None and self._full_db_path.exists():
+        if self._engine is not None:
             close_all_sessions()
-            self._full_db_path.unlink()
             self._engine = None
+
+        if self._full_db_path.exists():
+            self._full_db_path.unlink()
 
         if self._temp_dir is not None:
             self._temp_dir.cleanup()
