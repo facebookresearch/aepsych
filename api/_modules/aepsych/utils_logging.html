@@ -124,8 +124,24 @@
     <span class="n">ci</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"CI"</span><span class="p">,</span> <span class="s2">"false"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">aepsych_mode</span> <span class="o">==</span> <span class="s2">"test"</span> <span class="ow">or</span> <span class="n">ci</span> <span class="o">==</span> <span class="s2">"true"</span><span class="p">:</span>
         <span class="n">warning</span> <span class="o">=</span> <span class="s2">"|"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_IGNORED_WARNINGS</span><span class="p">)</span>
-        <span class="c1"># for warning in _IGNORED_WARNINGS:</span>
         <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">"ignore"</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">warning</span><span class="p">)</span>
+
+        <span class="n">compiled_warnings</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">warning</span><span class="p">)</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">raise_warnings</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">category</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">lineno</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">line</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+            <span class="c1"># Makes warnings that are printed case exceptions, mimics real showwarning</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="n">warnings</span><span class="o">.</span><span class="n">WarningMessage</span><span class="p">(</span>
+                <span class="n">message</span><span class="p">,</span> <span class="n">category</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">lineno</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="n">line</span>
+            <span class="p">)</span>
+            <span class="c1"># Double check if this warning is ignored</span>
+            <span class="k">if</span> <span class="n">compiled_warnings</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">msg</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span>
+
+            <span class="n">warnings</span><span class="o">.</span><span class="n">_showwarnmsg_impl</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">message</span>
+
+        <span class="n">warnings</span><span class="o">.</span><span class="n">showwarning</span> <span class="o">=</span> <span class="n">raise_warnings</span>
+        <span class="c1"># warnings.simplefilter("ignore")</span>
 
 
 <div class="viewcode-block" id="TestFilter"><a class="viewcode-back" href="../../utils_logging.html#aepsych.utils_logging.TestFilter">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">TestFilter</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">Filter</span><span class="p">):</span>
