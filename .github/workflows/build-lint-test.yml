@@ -33,8 +33,7 @@ jobs:
 
       - name: Lint aepsych with ruff
         run: |
-          ruff check --select=E9,F63,F7,F82
-          ruff check --exit-zero --output-format github
+          ruff check --select=E9,F63,F7,F82 --output-format github
 
       - name: Type check aepsych with mypy
         if: always()
@@ -43,8 +42,7 @@ jobs:
       - name: Lint aepsych_client with ruff
         if: always()
         run: |
-          ruff check --select=E9,F63,F7,F82
-          ruff check --exit-zero --output-format github
+          ruff check --select=E9,F63,F7,F82 --output-format github
         working-directory: clients/python
 
       - name: Type check aepsych_client with mypy

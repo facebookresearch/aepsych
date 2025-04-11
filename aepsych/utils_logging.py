@@ -106,8 +106,24 @@ def _set_test_warning_filters():
     ci = os.environ.get("CI", "false")
     if aepsych_mode == "test" or ci == "true":
         warning = "|".join(_IGNORED_WARNINGS)
-        # for warning in _IGNORED_WARNINGS:
         warnings.filterwarnings("ignore", message=warning)
+
+        compiled_warnings = re.compile(warning)
+
+        def raise_warnings(message, category, filename, lineno, file=None, line=None):
+            # Makes warnings that are printed case exceptions, mimics real showwarning
+            msg = warnings.WarningMessage(
+                message, category, filename, lineno, file, line
+            )
+            # Double check if this warning is ignored
+            if compiled_warnings.search(str(msg)) is not None:
+                return
+
+            warnings._showwarnmsg_impl(msg)
+            raise message
+
+        warnings.showwarning = raise_warnings
+        # warnings.simplefilter("ignore")
 
 
 class TestFilter(logging.Filter):
