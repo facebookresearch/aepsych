@@ -216,5 +216,36 @@ generator = SobolGenerator
 model = GPClassificationModel
 ```
 
+<h2>Defining objects with aliases</h2>
+Some experiment configs will want two copies of the same class with different
+parameters. For example, you want two strategies to use the same class of
+generator but with different configuration (e.g., OptimizeAcqfGenerator with different
+acquisition functions). To do this, the OptimizeAcqfGenerator can be defined with
+aliases in strategies as such.
+
+```
+[explore_strat]
+min_asks = 20
+generator = explore_generator
+model = GPClassificationModel
+
+[opt_strat]
+min_asks = 20
+generator = optimize_generator
+model = GPClassificationModel
+
+[explore_generator]
+class = OptimizeAcqfGenerator
+acqf = qNegIntegratedPosteriorVariance
+
+[optimize_generator]
+class = OptimizeAcqfGenerator
+acqf = EAVC
+```
+
+Any object can be defined using an alias. The alias must not match the name of another
+object. In the block for an alias, it must have a class option referring to the
+original object.
+
 <h2>Controlling the Timing of Trials (Experimental)</h2>
 It is often important that each trial in a psychophysics experiment can be completed quickly so that the participant's and experimenter's time is not wasted. As noted elsewhere in this document, there are many settings that can be tweaked to make point generation and model fitting faster, but determining what values these settings should take to meet your timing constraints can take a lot of trial and error. To eliminate this guesswork, we have introduced two settings to explicitly control trial timing. You can set the maximum amount of time, in seconds, that should be spent generating points using max_gen_time under `OptimizeAcqfGenerator`, and you can set the maximum amount of time, in seconds, that should be spent fitting the model using `max_fit_time` under `GPClassificationModel`. These settings are considered experimental because they are still undergoing testing, but our initial findings indicate that they can be used to dramatically decrease computation time with minimal impact on results.
