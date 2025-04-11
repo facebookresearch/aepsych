@@ -7,6 +7,10 @@
 
 import sys
 
+from .utils_logging import _set_test_warning_filters
+
+_set_test_warning_filters()
+
 import torch
 from gpytorch.likelihoods import BernoulliLikelihood, GaussianLikelihood
 

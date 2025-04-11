@@ -6,8 +6,6 @@
 # LICENSE file in the root directory of this source tree.
 import io
 import json
-import shutil
-import tempfile
 import warnings
 from pathlib import Path
 from typing import Sequence
