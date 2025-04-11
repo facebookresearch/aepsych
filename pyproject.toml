@@ -19,3 +19,4 @@ include = [
     "tests/**/*.py",
     "tests_gpu/**/*.py"
 ]
+exclude = ["aepsych/__init__.py"]
