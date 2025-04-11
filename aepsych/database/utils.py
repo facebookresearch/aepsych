@@ -6,8 +6,6 @@
 # LICENSE file in the root directory of this source tree.
 import io
 import json
-import shutil
-import tempfile
 import warnings
 from pathlib import Path
 from typing import Sequence
@@ -81,6 +79,7 @@ def combine_dbs(
         for master in db.get_master_records():
             transfer_dbs(out_db, master, extra_metadata={"origin_db": str(db_path)})
 
+        db.cleanup()
         num_experiments += 1
 
     return num_experiments
