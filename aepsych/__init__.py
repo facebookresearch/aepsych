@@ -28,6 +28,7 @@ from .config import Config
 from .likelihoods import BernoulliObjectiveLikelihood
 from .models import GPClassificationModel
 from .strategy import SequentialStrategy, Strategy
+from .version import __version__  # noqa
 
 torch.set_default_dtype(torch.float64)
 
