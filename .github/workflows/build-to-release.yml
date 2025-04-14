@@ -122,7 +122,7 @@ jobs:
       - name: Install repo and get version
         run: |
           python3 -m pip install .
-          echo "version=$(python -c "import aepsych; print(aepsych.version.__version__)")" >> "$GITHUB_ENV"
+          echo "version=$(python -c "import aepsych; print(aepsych.__version__)")" >> "$GITHUB_ENV"
 
       - uses: actions/checkout@v4
         with:
