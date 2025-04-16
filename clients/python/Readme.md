@@ -1,4 +1,4 @@
-# AEPsych Python client v0.2.0
+# AEPsych Python client v0.5.0
 
 This lets you use Python to interface with the AEPsych server to do model-based adaptive experimentation.
 
