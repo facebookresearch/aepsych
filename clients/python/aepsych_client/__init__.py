@@ -5,5 +5,6 @@
 # LICENSE file in the root directory of this source tree.
 
 from .client import AEPsychClient
+from .version import __version__  # noqa
 
 __all__ = ["AEPsychClient"]
