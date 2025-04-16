@@ -621,6 +621,12 @@ class Database:
                 row["participant_id"] = rec.participant_id
                 row["timestamp"] = pars[0].parent.timestamp
 
+                if include_extra_data and rec.extra_metadata is not None:
+                    try:
+                        row.update(json.loads(rec.extra_metadata))
+                    except (json.JSONDecodeError, TypeError):
+                        continue
+
                 row.update({par.param_name: par.param_value for par in pars})
                 row.update({out.outcome_name: out.outcome_value for out in outs})
 
