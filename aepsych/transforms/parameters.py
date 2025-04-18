@@ -859,8 +859,8 @@ def transform_options(
                     value = transforms.transform(value)
 
                 def _arr_to_list(iter):
-                    if hasattr(iter, "__iter__"):
-                        iter = list(iter)
+                    if isinstance(iter, np.ndarray):
+                        iter = iter.tolist()
                         iter = [_arr_to_list(element) for element in iter]
                         return iter
                     return iter
