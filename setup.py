@@ -13,13 +13,13 @@ REQUIRES = [
     "numpy<2.0, >=1.20",
     "matplotlib",
     "torch",
-    "scipy==1.14.1",
+    "scipy",
     "SQLAlchemy==1.4.46",
     "dill",
     "pandas",
     "aepsych_client",
     "statsmodels",
-    "botorch==0.12.0",
+    "botorch==0.13.0",
 ]
 
 BENCHMARK_REQUIRES = ["tqdm", "pathos", "multiprocess", "torcheval"]
