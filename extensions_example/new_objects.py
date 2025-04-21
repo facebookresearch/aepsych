@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) Meta, Inc. and its affiliates.
+# Copyright (c) Meta Platforms, Inc. and affiliates.
 # All rights reserved.
 
 # This source code is licensed under the license found in the
@@ -13,15 +13,15 @@ from aepsych.config import Config, ConfigurableMixin
 from aepsych.generators.base import AEPsychGenerator
 
 """
-Extensions scripts that can be invoked by configs to allow extending AEPsych's 
+Extensions scripts that can be invoked by configs to allow extending AEPsych's
 capabilities without changing AEPsych itself. These scripts will be invoked right at the
-start of parsing a config. 
+start of parsing a config.
 
 These extension scripts will be run by the server, thus must exist on the machine that
-the extensions exist on. Extensions manipulate the server behavior, not the client. 
+the extensions exist on. Extensions manipulate the server behavior, not the client.
 
 This example demonstrates how to add objects to the Config namespace such that they can
-be used as other AEPsych objects are. 
+be used as other AEPsych objects are.
 """
 
 
