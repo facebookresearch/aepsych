@@ -646,7 +646,7 @@ class Database:
 
         return pd.concat(dfs)
 
-    def to_csv(self, path: str):
+    def to_csv(self, path: str, include_extra_data: bool = False):
         """Exports the parameter and outcome data in the database to a csv file.
 
         This function can also be called from the command line using
@@ -654,6 +654,8 @@ class Database:
 
         Args:
             path (str): The filepath of the output csv.
+            include_extra_data (bool): Whether to include columns for extra data
+            from the raw table. Defaults to False.
         """
-        df = self.get_data_frame()
+        df = self.get_data_frame(include_extra_data=include_extra_data)
         df.to_csv(path, index=False)
