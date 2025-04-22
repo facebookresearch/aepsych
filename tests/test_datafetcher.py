@@ -1,3 +1,10 @@
+#!/usr/bin/env python3
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+# All rights reserved.
+
+# This source code is licensed under the license found in the
+# LICENSE file in the root directory of this source tree.
+
 import logging
 import shutil
 import time
@@ -72,7 +79,7 @@ class DataFetcherTestCase(unittest.TestCase):
         ex_data=None,
     ):
         config_str = f"""seed_data_conditions = {conds_name}
-        
+
                   [{conds_name}]"""
 
         if exp_names:
