@@ -87,7 +87,7 @@ def run_database(args):
 
         elif "tocsv" in args and args.tocsv is not None:
             try:
-                database.to_csv(args.tocsv)
+                database.to_csv(args.tocsv, include_extra_data=True)
                 logger.info(f"Exported contents of {database_path} to {args.tocsv}")
             except Exception as error:
                 logger.error(
