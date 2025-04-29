@@ -12,7 +12,7 @@ from aepsych.config import Config
 from aepsych.transforms.ops.base import StringParameterMixin, Transform
 
 
-class Fixed(Transform, StringParameterMixin, torch.nn.Module):
+class Fixed(Transform, StringParameterMixin):
     def __init__(
         self,
         indices: list[int],

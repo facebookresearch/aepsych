@@ -12,7 +12,7 @@ from aepsych.transforms.ops.base import Transform
 from botorch.models.transforms.input import subset_transform
 
 
-class Round(Transform, torch.nn.Module):
+class Round(Transform):
     def __init__(
         self,
         indices: list[int],
