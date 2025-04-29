@@ -6,7 +6,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import torch
-from aepsych.models.inducing_points.base import BaseAllocator
+from aepsych.models.inducing_points.base import BaseAllocator, EMPTY_SIZE
 from scipy.cluster.vq import kmeans2
 
 
@@ -18,7 +18,7 @@ class KMeansAllocator(BaseAllocator):
         inputs: torch.Tensor | None = None,
         covar_module: torch.nn.Module | None = None,
         num_inducing: int = 100,
-        input_batch_shape: torch.Size = torch.Size([]),
+        input_batch_shape: torch.Size = EMPTY_SIZE,
     ) -> torch.Tensor:
         """
         Generates `num_inducing` inducing points using k-means++ initialization on the input data.
