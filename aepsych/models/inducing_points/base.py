@@ -13,6 +13,8 @@ from aepsych.config import Config, ConfigurableMixin
 from aepsych.utils import get_dims
 from botorch.models.utils.inducing_point_allocators import InducingPointAllocator
 
+EMPTY_SIZE = torch.Size([])
+
 
 class BaseAllocator(InducingPointAllocator, ConfigurableMixin):
     """Base class for inducing point allocators."""
@@ -34,7 +36,7 @@ class BaseAllocator(InducingPointAllocator, ConfigurableMixin):
         inputs: torch.Tensor | None = None,
         covar_module: torch.nn.Module | None = None,
         num_inducing: int = 100,
-        input_batch_shape: torch.Size = torch.Size([]),
+        input_batch_shape: torch.Size = EMPTY_SIZE,
     ) -> torch.Tensor:
         """
         Abstract method for allocating inducing points. Must replace the

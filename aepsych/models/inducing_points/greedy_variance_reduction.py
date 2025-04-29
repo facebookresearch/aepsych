@@ -6,7 +6,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import torch
-from aepsych.models.inducing_points.base import BaseAllocator
+from aepsych.models.inducing_points.base import BaseAllocator, EMPTY_SIZE
 from botorch.models.utils.inducing_point_allocators import (
     GreedyVarianceReduction as BaseGreedyVarianceReduction,
 )
@@ -18,7 +18,7 @@ class GreedyVarianceReduction(BaseGreedyVarianceReduction, BaseAllocator):
         inputs: torch.Tensor | None = None,
         covar_module: torch.nn.Module | None = None,
         num_inducing: int = 100,
-        input_batch_shape: torch.Size = torch.Size([]),
+        input_batch_shape: torch.Size = EMPTY_SIZE,
     ) -> torch.Tensor:
         """Allocate inducing points using the GreedyVarianceReduction strategy. This is
         a thin wrapper around BoTorch's GreedyVarianceRedution inducing point allocator.
