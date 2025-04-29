@@ -9,7 +9,7 @@ from typing import Any
 
 import torch
 from aepsych.config import Config
-from aepsych.models.inducing_points.base import BaseAllocator
+from aepsych.models.inducing_points.base import BaseAllocator, EMPTY_SIZE
 from botorch.utils.sampling import draw_sobol_samples
 
 
@@ -36,7 +36,7 @@ class SobolAllocator(BaseAllocator):
         inputs: torch.Tensor | None = None,
         covar_module: torch.nn.Module | None = None,
         num_inducing: int = 100,
-        input_batch_shape: torch.Size = torch.Size([]),
+        input_batch_shape: torch.Size = EMPTY_SIZE,
     ) -> torch.Tensor:
         """
         Generates `num_inducing` inducing points within the specified bounds using Sobol sampling.
