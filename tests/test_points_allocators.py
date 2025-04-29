@@ -11,13 +11,14 @@ import torch
 from aepsych.config import Config
 from aepsych.models.gp_classification import GPClassificationModel
 from aepsych.models.inducing_points import (
+    DataAllocator,
     FixedAllocator,
     FixedPlusAllocator,
     GreedyVarianceReduction,
     KMeansAllocator,
     SobolAllocator,
 )
-from aepsych.strategy import Strategy
+from aepsych.strategy import SequentialStrategy, Strategy
 from aepsych.transforms.parameters import ParameterTransforms, transform_options
 from sklearn.datasets import make_classification
 
@@ -481,6 +482,79 @@ class TestInducingPointAllocators(unittest.TestCase):
                 points=fixed_points,
                 main_allocator=KMeansAllocator,
             )
+
+    def test_data_allocator(self):
+        """Test basic functionality of DataAllocator."""
+        allocator = DataAllocator(dim=2)
+        inputs = torch.tensor([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]])
+
+        # Test that it returns the input data and sets last_allocator_used
+        inducing_points = allocator.allocate_inducing_points(
+            inputs=inputs, num_inducing=10
+        )
+        self.assertTrue(torch.equal(inducing_points, inputs))
+        self.assertIs(allocator.last_allocator_used, DataAllocator)
+        self.assertIsNot(inducing_points, inputs)  # Should be a clone
+
+        # Test when no inputs are provided we get dummy points
+        inducing_points = allocator.allocate_inducing_points(num_inducing=10)
+        self.assertEqual(inducing_points.shape, (10, 2))
+        self.assertTrue(torch.all(inducing_points == 0))
+
+        # Test warning when num_inducing is less than inputs
+        with self.assertWarns(UserWarning) as w:
+            inducing_points = allocator.allocate_inducing_points(
+                inputs=inputs, num_inducing=2
+            )
+
+        self.assertEqual(len(w.warnings), 1)
+        self.assertIn("DataAllocator ignores num_inducing=2", w.warning.args[0])
+        self.assertTrue(torch.all(inducing_points == inputs))
+
+    def test_data_allocator_config_smoketest(self):
+        """Test DataAllocator integration with model and config."""
+        # Test with config
+        config_str = """
+            [common]
+            parnames = [par1]
+            stimuli_per_trial = 1
+            outcome_types = [binary]
+            strategy_names = [init_strat, opt_strat]
+
+            [par1]
+            par_type = continuous
+            lower_bound = 0
+            upper_bound = 1
+
+            [init_strat]
+            generator = SobolGenerator
+            min_asks = 2
+
+            [opt_strat]
+            generator = OptimizeAcqfGenerator
+            min_asks = 1
+            model = GPClassificationModel
+
+            [GPClassificationModel]
+            inducing_point_method = DataAllocator
+            inducing_size = 2
+
+            [OptimizeAcqfGenerator]
+            acqf = MCLevelSetEstimation
+        """
+
+        config = Config()
+        config.update(config_str=config_str)
+        strat = SequentialStrategy.from_config(config)
+
+        for response in [0, 1]:
+            point = strat.gen()
+            strat.add_data(point, torch.tensor([response]))
+
+        point = strat.gen()
+        self.assertTrue(
+            torch.all(strat.model.variational_strategy.inducing_points == strat.x)
+        )
 
 
 if __name__ == "__main__":
