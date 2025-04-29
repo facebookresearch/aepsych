@@ -635,16 +635,9 @@ class DBUtilityTestCase(unittest.TestCase):
         db_path = current_path
         db_path = db_path.joinpath("test_databases/extra_info.db")
 
-        # Make a copy of the database
-        dst_db_path = Path("./{}.db".format(str(uuid.uuid4().hex)))
-        shutil.copy(db_path, dst_db_path)
+        extra_info_data = db.Database(db_path, read_only=True)
 
-        time.sleep(0.1)
-        self.assertTrue(dst_db_path.is_file())
-
-        self.data = db.Database(dst_db_path)
-
-        df = self.data.get_data_frame(include_extra_data=True)
+        df = extra_info_data.get_data_frame(include_extra_data=True)
 
         # extra_info db is ragged, so check that we have the right columns
         self.assertIn("extra", df.columns)
@@ -685,7 +678,7 @@ class DBUtilityTestCase(unittest.TestCase):
         self.assertEqual(num_experiments, 2)
 
         # Open the combined database
-        combined_db = db.Database(db_path=str(out_path), update=False)
+        combined_db = db.Database(db_path=str(out_path), update=False, read_only=True)
 
         # Check that the combined database has both master records
         master_records = combined_db.get_master_records()
