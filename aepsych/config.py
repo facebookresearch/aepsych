@@ -239,8 +239,16 @@ class Config(configparser.ConfigParser):
                     # Validate the parameter-specific block
                     self._check_param_settings(par_name)
 
-                    lb[i] = self[par_name].get("lower_bound", fallback="0")
-                    ub[i] = self[par_name].get("upper_bound", fallback="1")
+                    if self[par_name]["par_type"] == "categorical":
+                        raise NotImplementedError(
+                            "Categorical parameters not supported yet"
+                        )
+                        choices = self.getlist(par_name, "choices", element_type=str)
+                        lb[i] = "0"
+                        ub[i] = str(len(choices) - 1)
+                    else:
+                        lb[i] = self[par_name].get("lower_bound", fallback="0")
+                        ub[i] = self[par_name].get("upper_bound", fallback="1")
 
                 self["common"]["lb"] = f"[{', '.join(lb)}]"
                 self["common"]["ub"] = f"[{', '.join(ub)}]"
@@ -397,6 +405,12 @@ class Config(configparser.ConfigParser):
                     f"Parameter {param_name} is fixed and needs to have value set."
                 )
 
+        elif param_block["par_type"] == "categorical":
+            # Need a choices array
+            if "choices" not in param_block:
+                raise ValueError(
+                    f"Parameter {param_name} is missing the choices setting."
+                )
         else:
             raise ParameterConfigError(
                 f"Parameter {param_name} has an unsupported parameter type {param_block['par_type']}."
