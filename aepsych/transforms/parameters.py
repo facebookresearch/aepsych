@@ -16,7 +16,7 @@ import torch
 from aepsych.config import Config, ConfigurableMixin
 from aepsych.generators.base import AcqfGenerator, AEPsychGenerator
 from aepsych.models.base import AEPsychModelMixin
-from aepsych.transforms.ops import Fixed, Log10Plus, NormalizeScale, Round
+from aepsych.transforms.ops import Categorical, Fixed, Log10Plus, NormalizeScale, Round
 from aepsych.transforms.ops.base import Transform
 from aepsych.utils import get_bounds
 from botorch.acquisition import AcquisitionFunction
@@ -61,7 +61,7 @@ class ParameterTransforms(ChainedInputTransform, ConfigurableMixin):
                     for key in transform.string_map.keys():
                         if key in fixed_string_map:
                             raise RuntimeError(
-                                "Conflicting string maps between the Fixed transforms, each parameter can only have a single string map."
+                                "Conflicting string maps between the string transforms, each parameter can only have a single string map."
                             )
 
                     fixed_string_map.update(transform.string_map)
@@ -145,8 +145,9 @@ class ParameterTransforms(ChainedInputTransform, ConfigurableMixin):
     ) -> torch.Tensor:
         r"""Transform bounds of a parameter.
 
-        Individual transforms are applied in sequence. Then an adjustment is applied to
-        ensure the bounds are correct.
+        Individual transforms are applied in sequence. Looks for a specific
+        transform_bounds method in each transform to apply that, otherwise uses the
+        normal transform.
 
         Args:
             X (torch.Tensor): A tensor of inputs. Either `[dim]` or `[2, dim]`.
@@ -255,13 +256,22 @@ class ParameterTransforms(ChainedInputTransform, ConfigurableMixin):
                 )
                 transform_dict[f"{par}_Round"] = round
 
-            if par_type == "fixed":
+            elif par_type == "fixed":
                 fixed = Fixed.from_config(
                     config=config, name=par, options=transform_options
                 )
 
                 # We don't mess with bounds since we don't want to modify indices
                 transform_dict[f"{par}_Fixed"] = fixed
+
+            # Categorical variable
+            elif par_type == "categorical":
+                categorical = Categorical.from_config(
+                    config=config, name=par, options=transform_options
+                )
+
+                transform_dict[f"{par}_Categorical"] = categorical
+                continue  # Prevents log-scaling or normalizing
 
             # Log scale
             if config.getboolean(par, "log_scale", fallback=False):

@@ -4,7 +4,6 @@
 
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
-
 import unittest
 import uuid
 
@@ -20,7 +19,7 @@ from aepsych.transforms import (
     ParameterTransformedModel,
     ParameterTransforms,
 )
-from aepsych.transforms.ops import Fixed, Log10Plus, NormalizeScale, Round
+from aepsych.transforms.ops import Categorical, Fixed, Log10Plus, NormalizeScale, Round
 
 
 class TransformsWrapperTest(unittest.TestCase):
@@ -804,3 +803,33 @@ class TransformsFixed(unittest.TestCase):
 
         with self.assertRaises(RuntimeError):
             _ = ParameterTransforms(fixed1=fixed1, fixed2=fixed2)
+
+
+class TransformCategorical(unittest.TestCase):
+    def test_standalone_transform(self):
+        categories = {1: ["red", "green", "blue"], 3: ["big", "small"]}
+        input = torch.tensor([[0.2, 2, 4, 0, 1], [0.5, 0, 3, 0, 1], [0.9, 1, 0, 1, 0]])
+        input_cats = np.array(
+            [
+                [0.2, "blue", 4, "big", "right"],
+                [0.5, "red", 3, "big", "right"],
+                [0.9, "green", 0, "small", "left"],
+            ],
+            dtype="O",
+        )
+
+        transforms = ParameterTransforms(
+            categorical1=Categorical(indices=[1, 3], categories=categories),
+            categorical2=Categorical(indices=[4], categories={4: ["left", "right"]}),
+        )
+
+        transformed = transforms.transform(input)
+        untransformed = transforms.untransform(transformed)
+
+        self.assertTrue(torch.equal(input, untransformed))  # Test no-op
+
+        strings = transforms.indices_to_str(input)
+        self.assertTrue(np.all(input_cats == strings))
+
+        indices = transforms.str_to_indices(input_cats)
+        self.assertTrue(torch.all(indices == input))
