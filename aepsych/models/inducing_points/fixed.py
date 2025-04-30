@@ -8,7 +8,7 @@
 from typing import Any
 
 import torch
-from aepsych.models.inducing_points.base import BaseAllocator
+from aepsych.models.inducing_points.base import BaseAllocator, EMPTY_SIZE
 
 
 class FixedAllocator(BaseAllocator):
@@ -31,7 +31,7 @@ class FixedAllocator(BaseAllocator):
         inputs: torch.Tensor | None = None,
         covar_module: torch.nn.Module | None = None,
         num_inducing: int = 100,
-        input_batch_shape: torch.Size = torch.Size([]),
+        input_batch_shape: torch.Size = EMPTY_SIZE,
     ) -> torch.Tensor:
         """Allocate inducing points by returning the fixed inducing points.
 
@@ -93,7 +93,7 @@ class FixedPlusAllocator(BaseAllocator):
         inputs: torch.Tensor | None = None,
         covar_module: torch.nn.Module | None = None,
         num_inducing: int = 100,
-        input_batch_shape: torch.Size = torch.Size([]),
+        input_batch_shape: torch.Size = EMPTY_SIZE,
     ) -> torch.Tensor:
         points = self.main_allocator.allocate_inducing_points(
             inputs=inputs,
