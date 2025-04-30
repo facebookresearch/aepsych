@@ -11,12 +11,14 @@ import torch
 from aepsych.config import Config
 from aepsych.models.gp_classification import GPClassificationModel
 from aepsych.models.inducing_points import (
+    AllMixedAllocator,
     DataAllocator,
     FixedAllocator,
     FixedPlusAllocator,
     GreedyVarianceReduction,
     KMeansAllocator,
     SobolAllocator,
+    SubsetMixedAllocator,
 )
 from aepsych.strategy import SequentialStrategy, Strategy
 from aepsych.transforms.parameters import ParameterTransforms, transform_options
@@ -524,6 +526,203 @@ class TestDataAllocator(unittest.TestCase):
         point = strat.gen()
         self.assertTrue(
             torch.all(strat.model.variational_strategy.inducing_points == strat.x)
+        )
+
+
+class TestMixedAllocators(unittest.TestCase):
+    """Tests for the mixed inducing point allocators (MixedBaseAllocator and its subclasses)."""
+
+    def test_subset_mixed_allocator(self):
+        """Test the SubsetMixedAllocator class."""
+        # Create a SubsetMixedAllocator
+        allocator = SubsetMixedAllocator(
+            dim=3,
+            categorical_params={2: 3},  # Parameter at index 2 has 3 categories
+            continuous_allocator=KMeansAllocator,
+        )
+
+        # Create some test inputs
+        inputs = torch.tensor(
+            [
+                [0.1, 0.2, 0],
+                [0.3, 0.4, 1],
+                [0.5, 0.6, 2],
+                [0.7, 0.8, 0],
+                [0.9, 1.0, 1],
+            ]
+        )
+
+        # Allocate inducing points
+        num_inducing = 4
+        inducing_points = allocator.allocate_inducing_points(
+            inputs=inputs,
+            num_inducing=num_inducing,
+        )
+
+        # Check that the correct number of inducing points were allocated
+        self.assertEqual(inducing_points.shape, (num_inducing, 3))
+
+        # Check that the categorical values are valid (0, 1, or 2)
+        categorical_values = inducing_points[:, 2]
+        self.assertTrue(
+            torch.all((categorical_values >= 0) & (categorical_values <= 2))
+        )
+
+        # Check that the last_allocator_used was set correctly
+        self.assertIs(allocator.last_allocator_used, SubsetMixedAllocator)
+
+    def test_subset_mixed_allocator_dummy_points(self):
+        """Test allocating dummy points when inputs is None."""
+        # Create a SubsetMixedAllocator
+        allocator = SubsetMixedAllocator(
+            dim=3,
+            categorical_params={2: 3},  # Parameter at index 2 has 3 categories
+            continuous_allocator=KMeansAllocator,
+        )
+
+        # Allocate dummy inducing points
+        num_inducing = 5
+        inducing_points = allocator.allocate_inducing_points(
+            inputs=None,
+            num_inducing=num_inducing,
+        )
+
+        # Check that the correct number of dummy points were allocated
+        self.assertEqual(inducing_points.shape, (num_inducing, 3))
+
+        # Check that all values are zeros (dummy points)
+        self.assertTrue(torch.all(inducing_points == 0))
+
+    def test_all_mixed_allocator(self):
+        """Test the AllMixedAllocator class."""
+        # Create an AllMixedAllocator
+        allocator = AllMixedAllocator(
+            dim=3,
+            categorical_params={2: 3},  # Parameter at index 2 has 3 categories
+            continuous_allocator=KMeansAllocator,
+        )
+
+        # Create some test inputs
+        inputs = torch.tensor(
+            [
+                [0.1, 0.2, 0],
+                [0.3, 0.4, 1],
+                [0.5, 0.6, 2],
+                [0.7, 0.8, 0],
+                [0.9, 1.0, 1],
+            ]
+        )
+
+        # Allocate inducing points
+        inducing_points = allocator.allocate_inducing_points(
+            inputs=inputs,
+            num_inducing=10,  # This should be ignored by AllMixedAllocator
+        )
+
+        # Check that we get one inducing point for each categorical value (3 in this case)
+        self.assertEqual(inducing_points.shape, (3, 3))
+
+        # Check that the categorical values include all possible values (0, 1, 2)
+        categorical_values = inducing_points[:, 2]
+        self.assertTrue(set(categorical_values.tolist()) == {0, 1, 2})
+
+        # Check that the last_allocator_used was set correctly
+        self.assertIs(allocator.last_allocator_used, AllMixedAllocator)
+
+    def test_all_mixed_allocator_dummy_points(self):
+        """Test allocating dummy points when inputs is None."""
+        # Create an AllMixedAllocator
+        allocator = AllMixedAllocator(
+            dim=3,
+            categorical_params={2: 3},  # Parameter at index 2 has 3 categories
+            continuous_allocator=KMeansAllocator,
+        )
+
+        # Allocate dummy inducing points
+        num_inducing = 5
+        inducing_points = allocator.allocate_inducing_points(
+            inputs=None,
+            num_inducing=num_inducing,
+        )
+
+        # Check that the correct number of dummy points were allocated
+        self.assertEqual(inducing_points.shape, (num_inducing, 3))
+
+        # Check that all values are zeros (dummy points)
+        self.assertTrue(torch.all(inducing_points == 0))
+
+    def test_multiple_categoricals(self):
+        """Test AllMixedAllocator with multiple categorical parameters."""
+        # Create an AllMixedAllocator with multiple categorical parameters
+        allocator = AllMixedAllocator(
+            dim=4,
+            categorical_params={
+                1: 2,
+                3: 3,
+            },  # Params at indices 1 and 3 are categorical
+            continuous_allocator=SobolAllocator,
+            bounds=torch.tensor([[0, 0], [1, 1]]),
+        )
+
+        # Create some test inputs
+        inputs = torch.tensor(
+            [
+                [0.1, 0, 0.3, 0],
+                [0.4, 1, 0.6, 1],
+                [0.7, 0, 0.9, 2],
+                [1.0, 1, 1.0, 0],
+            ]
+        )
+
+        # Allocate inducing points
+        inducing_points = allocator.allocate_inducing_points(
+            inputs=inputs,
+            num_inducing=10,  # This should be ignored by AllMixedAllocator
+        )
+
+        # Check that we get one inducing point for each combination of categorical values (2*3=6 in this case)
+        self.assertEqual(inducing_points.shape, (6, 4))
+
+        # Check that the categorical values include all possible combinations
+        categorical_values = inducing_points[:, [1, 3]]
+        expected_combinations = torch.tensor(
+            [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2]]
+        )
+
+        # Sort both tensors to ensure consistent comparison
+        categorical_values_sorted = categorical_values[
+            categorical_values[:, 0].argsort()
+        ]
+        categorical_values_sorted = categorical_values_sorted[
+            categorical_values_sorted[:, 1].argsort(stable=True)
+        ]
+
+        expected_combinations_sorted = expected_combinations[
+            expected_combinations[:, 0].argsort()
+        ]
+        expected_combinations_sorted = expected_combinations_sorted[
+            expected_combinations_sorted[:, 1].argsort(stable=True)
+        ]
+
+        self.assertTrue(
+            torch.equal(categorical_values_sorted, expected_combinations_sorted)
+        )
+
+    def test_bad_continuous_kwargs(self):
+        with self.assertRaises(ValueError) as cm:
+            AllMixedAllocator(
+                dim=4,
+                categorical_params={
+                    1: 2,
+                    3: 3,
+                },
+                continuous_allocator=SobolAllocator,
+                bounds=torch.tensor([[0, 0, 0, 0], [1, 1, 1, 1]]),  # Too many
+            )
+
+        self.assertIn(
+            "The continuous allocator does not produce the right shape",
+            cm.exception.args[0],
         )
 
 

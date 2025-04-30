@@ -12,15 +12,18 @@ from .data import DataAllocator
 from .fixed import FixedAllocator, FixedPlusAllocator
 from .greedy_variance_reduction import GreedyVarianceReduction
 from .kmeans import KMeansAllocator
+from .mixed import AllMixedAllocator, SubsetMixedAllocator
 from .sobol import SobolAllocator
 
 __all__ = [
+    "AllMixedAllocator",
     "DataAllocator",
     "FixedAllocator",
     "FixedPlusAllocator",
     "GreedyVarianceReduction",
     "KMeansAllocator",
     "SobolAllocator",
+    "SubsetMixedAllocator",
 ]
 
 Config.register_module(sys.modules[__name__])
