@@ -13,7 +13,7 @@ import re
 import typing
 import warnings
 from types import ModuleType, NoneType, UnionType
-from typing import Any, Callable, ClassVar, Mapping, Sequence, TypeVar
+from typing import Any, Callable, ClassVar, Literal, Mapping, Sequence, TypeVar
 
 import botorch
 import gpytorch
@@ -602,6 +602,31 @@ class ConfigurableMixin(abc.ABC):
                             value = object_cls.from_config(config, object_cls.__name__)
                         else:
                             value = object_cls
+
+                    # Literal (supporting strings, ints, floats)
+                    elif typing.get_origin(annotation) is Literal:
+                        literal_args = typing.get_args(annotation)
+                        for arg in literal_args:
+                            if isinstance(arg, str):
+                                attempt = config.get(name, key, fallback=None)
+                            elif isinstance(arg, int):
+                                attempt = config.getint(name, key, fallback=None)
+                            elif isinstance(arg, float):
+                                attempt = config.getfloat(name, key, fallback=None)
+                            else:
+                                raise NotImplementedError(
+                                    f"Literal types in {annotation} not supported yet!"
+                                )
+
+                            if attempt is None:
+                                continue
+
+                            if attempt in literal_args:
+                                value = attempt
+                            else:
+                                raise RuntimeError(
+                                    f"Value {attempt} is not in the Literal type {annotation} for the option {key}!"
+                                )
 
                     # Callable
                     elif annotation is Callable:

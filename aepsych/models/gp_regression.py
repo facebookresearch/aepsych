@@ -11,7 +11,7 @@ from typing import Any
 
 import gpytorch
 import torch
-from aepsych.factory.default import default_mean_covar_factory
+from aepsych.factory import DefaultMeanCovarFactory
 from aepsych.models.base import AEPsychModelMixin
 from aepsych.utils_logging import getLogger
 from gpytorch.likelihoods import GaussianLikelihood, Likelihood
@@ -64,10 +64,12 @@ class GPRegressionModel(AEPsychModelMixin, ExactGP):
         )
 
         if mean_module is None or covar_module is None:
-            default_mean, default_covar = default_mean_covar_factory(
+            factory = DefaultMeanCovarFactory(
                 dim=self.dim,
                 stimuli_per_trial=self.stimuli_per_trial,
             )
+            default_mean = factory.get_mean()
+            default_covar = factory.get_covar()
 
         self.likelihood = likelihood
         self.mean_module = mean_module or default_mean
