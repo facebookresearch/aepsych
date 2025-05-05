@@ -10,7 +10,7 @@ from typing import Any
 import gpytorch
 import torch
 from aepsych.config import Config
-from aepsych.factory import default_mean_covar_factory
+from aepsych.factory import DefaultMeanCovarFactory
 from aepsych.models.base import AEPsychModelMixin
 from aepsych.utils import _process_bounds, promote_0d
 from aepsych.utils_logging import getLogger
@@ -95,17 +95,10 @@ class PairwiseProbitModel(PairwiseGP, AEPsychModelMixin):
         bounds = torch.stack((self.lb, self.ub))
         input_transform = Normalize(d=dim, bounds=bounds)
         if covar_module is None:
-            config = Config(
-                config_dict={
-                    "default_mean_covar_factory": {
-                        "lb": str(self.lb.tolist()),
-                        "ub": str(self.ub.tolist()),
-                    }
-                }
-            )  # type: ignore
-            _, covar_module = default_mean_covar_factory(
-                config, stimuli_per_trial=self.stimuli_per_trial
+            factory = DefaultMeanCovarFactory(
+                dim=dim, stimuli_per_trial=self.stimuli_per_trial
             )
+            covar_module = factory.get_covar()
 
         super().__init__(
             datapoints=None,
@@ -274,6 +267,9 @@ class PairwiseProbitModel(PairwiseGP, AEPsychModelMixin):
             GPClassificationModel: Configured class instance.
         """
         options = super().get_config_options(config, name, options)
+
+        if config.getint("common", "stimuli_per_trial") != 2:
+            raise ValueError("PairwiseProbitModel only supports stimuli_per_trial = 2.")
 
         # no way of passing mean into PairwiseGP right now
         if "mean_module" in options:

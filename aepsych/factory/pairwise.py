@@ -5,14 +5,111 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
+import warnings
+from typing import Literal
+
 import gpytorch
+import torch
 from aepsych.config import Config
 from aepsych.factory.default import (
     _get_default_cov_function,
     _get_default_mean_function,
     default_mean_covar_factory,
+    DefaultMeanCovarFactory,
 )
 from aepsych.kernels.pairwisekernel import PairwiseKernel
+
+
+class PairwiseMeanCovarFactory(DefaultMeanCovarFactory):
+    def __init__(
+        self,
+        dim: int,
+        stimuli_per_trial: int = 1,
+        shared_dims: list[int] | None = None,
+        zero_mean: bool = True,
+        target: float | None = None,
+        cov_kernel: gpytorch.kernels.Kernel = gpytorch.kernels.RBFKernel,
+        lengthscale_prior: Literal["invgamma", "gamma", "lognormal"] | None = None,
+        ls_loc: torch.Tensor | float | None = None,
+        ls_scale: torch.Tensor | float | None = None,
+        fixed_kernel_amplitude: bool | None = None,
+        outputscale_prior: Literal["box", "gamma"] = "box",
+    ) -> None:
+        if stimuli_per_trial != 1:
+            raise ValueError(
+                "Pairwise kernels can only be used with 1 stimuli per trial as the points "
+                f"are returned as a single flat configuration, got {stimuli_per_trial=}"
+            )
+
+        if dim < 2:
+            raise ValueError(
+                f"Pairwise kernels require at least 2 dimensions, got {dim=}"
+            )
+
+        if shared_dims is not None:
+            self.shared_dims = [int(d) for d in shared_dims]
+            for shared_dim in self.shared_dims:
+                if shared_dim >= dim:
+                    raise ValueError(
+                        f"shared dim is out of bounds: {shared_dim=}, {dim=}"
+                    )
+        else:
+            self.shared_dims = []
+
+        if len(self.shared_dims) > dim:
+            raise ValueError(
+                "There are more shared dimensions than the number of dimensions!"
+            )
+
+        super().__init__(
+            dim=dim,
+            stimuli_per_trial=stimuli_per_trial,
+            zero_mean=zero_mean,
+            target=target,
+            cov_kernel=cov_kernel,
+            lengthscale_prior=lengthscale_prior,
+            ls_loc=ls_loc,
+            ls_scale=ls_scale,
+            fixed_kernel_amplitude=fixed_kernel_amplitude,
+            outputscale_prior=outputscale_prior,
+        )
+
+    def _make_covar_module(self) -> gpytorch.kernels.Kernel:
+        # Make the covariance module
+        active_dims = [i for i in range(self.dim) if i not in self.shared_dims]
+
+        if len(active_dims) % 2 != 0:
+            raise ValueError(
+                f"Number of active dims must be even, got {len(active_dims)=}, {self.dim=}, {self.shared_dims=}"
+            )
+
+        # Temporarily modify attributes to make base pair covariance module
+        original_dim = self.dim
+        self.dim = len(active_dims) // 2
+        self.stimuli_per_trial = 1
+
+        base_cov = super()._make_covar_module()  # TODO: This is really awkward
+
+        self.dim = original_dim
+        self.stimuli_per_trial = 1
+
+        if len(self.shared_dims) == 0:
+            return PairwiseKernel(base_cov)
+
+        else:  # Some paired dims
+            # Need to make an extra shared dim covariance module
+            self.dim = len(self.shared_dims)
+            orig_active_dims = self.active_dims
+            self.active_dims = self.shared_dims
+            self.stimuli_per_trial = 1
+
+            shared_cov = super()._make_covar_module()
+
+            self.dim = original_dim
+            self.stimuli_per_trial = 1
+            self.active_dims = orig_active_dims
+
+            return PairwiseKernel(base_cov, active_dims=active_dims) * shared_cov
 
 
 def pairwise_mean_covar_factory(
@@ -29,6 +126,12 @@ def pairwise_mean_covar_factory(
     Returns:
         tuple[gpytorch.means.ConstantMean, gpytorch.kernels.ScaleKernel]: A tuple containing
         the mean function (ConstantMean) and the covariance function (ScaleKernel)."""
+
+    warnings.warn(
+        "pairwise_mean_covar_factory is deprecated, use the PairwiseMeanCovarFactory class instead!",
+        DeprecationWarning,
+        stacklevel=2,
+    )
 
     assert (
         stimuli_per_trial == 1

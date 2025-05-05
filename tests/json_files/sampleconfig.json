@@ -17,7 +17,7 @@
         "generator": "PairwiseOptimizeAcqfGenerator"
     },
     "PairwiseProbitModel": {
-        "mean_covar_factory": "default_mean_covar_factory"
+        "mean_covar_factory": "DefaultMeanCovarFactory"
     },
     "PairwiseMCPosteriorVariance": {
         "objective": "ProbitObjective"

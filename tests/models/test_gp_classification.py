@@ -920,7 +920,7 @@ class GPClassificationTest(unittest.TestCase):
         upper_bound = 66
 
         [GPClassificationModel]
-        mean_covar_factory = pairwise_mean_covar_factory
+        mean_covar_factory = PairwiseMeanCovarFactory
         """
         config = Config(config_str=config_str)
         m = GPClassificationModel.from_config(config=config)

@@ -96,7 +96,7 @@ model: This specifies the model used to generate points. The model can also be u
 ```
 [GPClassificationModel]
 inducing_size = 100 # Number of inducing points for approximate inference.
-mean_covar_factory = default_mean_covar_factory # the GP mean and convariance
+mean_covar_factory = DefaultMeanCovarFactory # the GP mean and convariance
 ```
 
 This section specifies the settings for the GPClassificationModel used within opt_strat.  Here is an explanation of each of the settings:
