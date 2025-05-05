@@ -17,6 +17,7 @@ from aepsych.factory.default import (
     default_mean_covar_factory,
     DefaultMeanCovarFactory,
 )
+from aepsych.factory.utils import temporary_attributes
 from aepsych.kernels.pairwisekernel import PairwiseKernel
 
 
@@ -84,30 +85,21 @@ class PairwiseMeanCovarFactory(DefaultMeanCovarFactory):
             )
 
         # Temporarily modify attributes to make base pair covariance module
-        original_dim = self.dim
-        self.dim = len(active_dims) // 2
-        self.stimuli_per_trial = 1
-
-        base_cov = super()._make_covar_module()  # TODO: This is really awkward
-
-        self.dim = original_dim
-        self.stimuli_per_trial = 1
+        with temporary_attributes(self, dim=len(active_dims) // 2, stimuli_per_trial=1):
+            base_cov = super()._make_covar_module()
 
         if len(self.shared_dims) == 0:
             return PairwiseKernel(base_cov)
 
         else:  # Some paired dims
-            # Need to make an extra shared dim covariance module
-            self.dim = len(self.shared_dims)
-            orig_active_dims = self.active_dims
-            self.active_dims = self.shared_dims
-            self.stimuli_per_trial = 1
-
-            shared_cov = super()._make_covar_module()
-
-            self.dim = original_dim
-            self.stimuli_per_trial = 1
-            self.active_dims = orig_active_dims
+            # Again temporary attributes
+            with temporary_attributes(
+                self,
+                dim=len(self.shared_dims),
+                active_dims=self.shared_dims,
+                stimuli_per_trial=1,
+            ):
+                shared_cov = super()._make_covar_module()
 
             return PairwiseKernel(base_cov, active_dims=active_dims) * shared_cov
 
