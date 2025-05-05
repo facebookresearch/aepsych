@@ -44,7 +44,7 @@ acqf = MCPosteriorVariance
 
 [GPClassificationModel]
 inducing_size = 10
-mean_covar_factory = default_mean_covar_factory
+mean_covar_factory = DefaultMeanCovarFactory
 
 [SobolGenerator]
 n_points = 2

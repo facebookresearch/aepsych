@@ -195,7 +195,7 @@ class BenchmarkTestCase(unittest.TestCase):
             },
             "GPClassificationModel": {
                 "inducing_size": 10,
-                "mean_covar_factory": "default_mean_covar_factory",
+                "mean_covar_factory": "DefaultMeanCovarFactory",
                 "refit_every": 100,
                 "max_fit_time": 0.1,
             },
@@ -386,7 +386,7 @@ class BenchProblemTestCase(unittest.TestCase):
             },
             "GPClassificationModel": {
                 "inducing_size": 10,
-                "mean_covar_factory": "default_mean_covar_factory",
+                "mean_covar_factory": "DefaultMeanCovarFactory",
             },
             "OptimizeAcqfGenerator": {
                 "restarts": 10,

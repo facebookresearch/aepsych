@@ -44,7 +44,7 @@ class ConfigTestCase(unittest.TestCase):
         outcome_types = [binary]
         parnames = [par1, par2]
         strategy_names = [init_strat, opt_strat]
-        
+
         [par1]
         par_type = continuous
         lower_bound = 1
@@ -74,7 +74,7 @@ class ConfigTestCase(unittest.TestCase):
 
         [GPClassificationModel]
         inducing_size = 10
-        mean_covar_factory = default_mean_covar_factory
+        mean_covar_factory = DefaultMeanCovarFactory
 
         [OptimizeAcqfGenerator]
         restarts = 10
@@ -269,7 +269,7 @@ class ConfigTestCase(unittest.TestCase):
         generator = IntensityAwareSemiPGenerator
         min_asks = 1
         model = SemiParametricGPModel
-        
+
         [IntensityAwareSemiPGenerator]
         acqf = EAVC
         """
@@ -324,7 +324,7 @@ class ConfigTestCase(unittest.TestCase):
             objective = ProbitObjective
             [GPClassificationModel]
             inducing_size = 10
-            mean_covar_factory = default_mean_covar_factory
+            mean_covar_factory = DefaultMeanCovarFactory
             [OptimizeAcqfGenerator]
             restarts = 10
             samps = 1000""".strip().replace(" ", "")
@@ -418,7 +418,7 @@ class ConfigTestCase(unittest.TestCase):
             model = PairwiseProbitModel
 
             [PairwiseProbitModel]
-            mean_covar_factory = default_mean_covar_factory
+            mean_covar_factory = DefaultMeanCovarFactory
 
             [PairwiseMCPosteriorVariance]
             objective = ProbitObjective
@@ -631,7 +631,7 @@ class ConfigTestCase(unittest.TestCase):
             generator = PairwiseOptimizeAcqfGenerator
 
             [PairwiseProbitModel]
-            mean_covar_factory = default_mean_covar_factory
+            mean_covar_factory = DefaultMeanCovarFactory
 
             [PairwiseMCPosteriorVariance]
             objective = ProbitObjective
@@ -680,7 +680,7 @@ class ConfigTestCase(unittest.TestCase):
                 "generator": "PairwiseOptimizeAcqfGenerator"
             },
             "PairwiseProbitModel": {
-                "mean_covar_factory": "default_mean_covar_factory"
+                "mean_covar_factory": "DefaultMeanCovarFactory"
             },
             "PairwiseMCPosteriorVariance": {
                 "objective": "ProbitObjective"
@@ -744,47 +744,18 @@ class ConfigTestCase(unittest.TestCase):
 
             [init_strat]
             generator = SobolGenerator
-            model = GPClassificationModel
+            model = PairwiseProbitModel
             min_asks = 1
             """
         config2 = Config()
         config2.update(config_str=config_str2)
 
-        config_str3 = """
-            [common]
-            stimuli_per_trial = 1
-            outcome_types = [binary]
-            parnames = [par1, par2]
-            strategy_names = [init_strat]
-
-            [par1]
-            par_type = continuous
-            lower_bound = 0
-            upper_bound = 1
-
-            [par2]
-            par_type = continuous
-            lower_bound = 0
-            upper_bound = 1
-
-            [init_strat]
-            generator = SobolGenerator
-            model = PairwiseProbitModel
-            min_asks = 1
-            """
-        config3 = Config()
-        config3.update(config_str=config_str3)
-
         # this should work
         SequentialStrategy.from_config(config1)
 
         # this should fail
-        with self.assertRaises(AssertionError):
-            SequentialStrategy.from_config(config3)
-
-        # this should fail too
-        with self.assertRaises(AssertionError):
-            SequentialStrategy.from_config(config3)
+        with self.assertRaises(ValueError):
+            SequentialStrategy.from_config(config2)
 
     def test_outcome_compatibility(self):
         config_str1 = """
