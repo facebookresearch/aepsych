@@ -648,6 +648,8 @@ class DBUtilityTestCase(unittest.TestCase):
         np.testing.assert_equal(df.iloc[0]["trial_number"], np.nan)
         self.assertEqual(df.iloc[1]["trial_number"], 2)
 
+        extra_info_data.cleanup()
+
     def test_combine_dbs_list(self):
         """Test the combine_dbs function with a list of database paths."""
         # Get paths to existing test databases
@@ -692,6 +694,8 @@ class DBUtilityTestCase(unittest.TestCase):
             self.assertTrue(
                 "single_stimuli.db" in origin_db or "extra_info.db" in origin_db
             )
+
+        combined_db.cleanup()
 
 
 if __name__ == "__main__":
