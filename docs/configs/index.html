@@ -124,7 +124,7 @@ model: This specifies the model used to generate points. The model can also be u
 <p><h3>GPClassificationModel</h3></p>
 <pre><code class="hljs"><span class="hljs-section">[GPClassificationModel]</span>
 <span class="hljs-attr">inducing_size</span> = <span class="hljs-number">100</span> <span class="hljs-comment"># Number of inducing points for approximate inference.</span>
-<span class="hljs-attr">mean_covar_factory</span> = default_mean_covar_factory <span class="hljs-comment"># the GP mean and convariance</span>
+<span class="hljs-attr">mean_covar_factory</span> = DefaultMeanCovarFactory <span class="hljs-comment"># the GP mean and convariance</span>
 </code></pre>
 <p>This section specifies the settings for the GPClassificationModel used within opt_strat.  Here is an explanation of each of the settings:</p>
 <p><strong><code>inducing_size</code></strong>: This specifies the number of inducing points that are used in the Gaussian process model, which determine the quality of the approximate model posterior. A rule of thumb you can use is to set <code>inducing_size</code> to 50 times your number of dimensions.</p>
