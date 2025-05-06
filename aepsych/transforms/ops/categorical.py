@@ -4,11 +4,12 @@
 
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
-from typing import Any
+from typing import Any, Literal
 
 import torch
 from aepsych.config import Config
 from aepsych.transforms.ops.base import StringParameterMixin, Transform
+from botorch.models.transforms.input import subset_transform
 
 
 class Categorical(Transform, StringParameterMixin):
@@ -17,7 +18,6 @@ class Categorical(Transform, StringParameterMixin):
     transform_on_train = True
     transform_on_eval = True
     transform_on_fantasize = True
-    training = True
     reverse = False
 
     def __init__(
@@ -37,13 +37,15 @@ class Categorical(Transform, StringParameterMixin):
                 the list of categories for that input. There must be a list for
                 each index in `indices`.
         """
+        super().__init__()
         self.indices = indices
         self.categories = categories
         self.string_map = self.categories
 
+    @subset_transform
     def _transform(self, X: torch.Tensor) -> torch.Tensor:
-        r"""This is a no-op as these transforms should be acting on indices
-        already.
+        r"""This basically does nothing but round the nputs to the nearest
+        integer.
 
         Args:
             X (torch.Tensor): A `batch_shape x n x d`-dim tensor of inputs.
@@ -51,11 +53,12 @@ class Categorical(Transform, StringParameterMixin):
         Returns:
             torch.Tensor: The input tensor.
         """
-        return X
+        return X.round()
 
+    @subset_transform
     def _untransform(self, X: torch.Tensor) -> torch.Tensor:
-        r"""This is a no-op as these transforms should be acting on indices
-        already.
+        r"""This basically does nothing but round the inputs to the nearest
+        integer.
 
         Args:
             X (torch.Tensor): A `batch_shape x n x d`-dim tensor of transformed inputs.
@@ -63,7 +66,7 @@ class Categorical(Transform, StringParameterMixin):
         Returns:
             torch.Tensor: The input tensor.
         """
-        return X
+        return X.round()
 
     @classmethod
     def get_config_options(
@@ -91,7 +94,61 @@ class Categorical(Transform, StringParameterMixin):
 
         if "categories" not in options:
             idx = options["indices"][0]  # There should only be one index
-            cat_dict = {idx: config.getlist(name, "categories", element_type=str)}
+            cat_dict = {idx: config.getlist(name, "choices", element_type=str)}
             options["categories"] = cat_dict
 
+        if "bounds" in options:
+            del options["bounds"]  # Remove bounds if present
+
         return options
+
+    def transform_bounds(
+        self, X: torch.Tensor, bound: Literal["lb", "ub"] | None = None, **kwargs
+    ) -> torch.Tensor:
+        r"""Return the bounds X transformed.
+
+        Args:
+            X (torch.Tensor): Either a `[1, dim]` or `[2, dim]` tensor of parameter
+                bounds.
+            bound (Literal["lb", "ub"], optional): The bound that this is, if None, we
+                will assume the input is both bounds with a `[2, dim]` X.
+            **kwargs: passed to _transform_bounds
+                epsilon: will modify the offset for the rounding to ensure each discrete
+                    value has equal space in the parameter space.
+
+        Returns:
+            torch.Tensor: A transformed set of parameter bounds.
+        """
+        epsilon = kwargs.get("epsilon", 1e-6)
+        return self._transform_bounds(X, bound=bound, epsilon=epsilon)
+
+    def _transform_bounds(
+        self,
+        X: torch.Tensor,
+        bound: Literal["lb", "ub"] | None = None,
+        epsilon: float = 1e-6,
+    ) -> torch.Tensor:
+        r"""Return the bounds X transformed.
+
+        Args:
+            X (torch.Tensor): Either a `[1, dim]` or `[2, dim]` tensor of parameter
+                bounds.
+            bound (Literal["lb", "ub"], optional): The bound that this is, if None, we
+                will assume the input is both bounds with a `[2, dim]` X.
+            epsilon:
+            **kwargs: other kwargs
+
+        Returns:
+            torch.Tensor: A transformed set of parameter bounds.
+        """
+        X = X.clone()
+
+        if bound == "lb":
+            X[0, self.indices] -= torch.tensor([0.5] * len(self.indices))
+        elif bound == "ub":
+            X[0, self.indices] += torch.tensor([0.5 - epsilon] * len(self.indices))
+        else:  # Both bounds
+            X[0, self.indices] -= torch.tensor([0.5] * len(self.indices))
+            X[1, self.indices] += torch.tensor([0.5 - epsilon] * len(self.indices))
+
+        return X

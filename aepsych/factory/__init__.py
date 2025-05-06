@@ -9,6 +9,7 @@ import sys
 
 from ..config import Config
 from .default import default_mean_covar_factory, DefaultMeanCovarFactory
+from .mixed import MixedMeanCovarFactory
 from .pairwise import pairwise_mean_covar_factory, PairwiseMeanCovarFactory
 from .song import song_mean_covar_factory, SongMeanCovarFactory
 
@@ -24,6 +25,7 @@ TODO write a modular AEPsych tutorial.
 __all__ = [
     "DefaultMeanCovarFactory",
     "default_mean_covar_factory",
+    "MixedMeanCovarFactory",
     "pairwise_mean_covar_factory",
     "PairwiseMeanCovarFactory",
     "SongMeanCovarFactory",

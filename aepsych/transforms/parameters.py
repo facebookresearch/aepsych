@@ -270,6 +270,10 @@ class ParameterTransforms(ChainedInputTransform, ConfigurableMixin):
                     config=config, name=par, options=transform_options
                 )
 
+                transform_options["bounds"] = categorical.transform_bounds(
+                    transform_options["bounds"]
+                )
+
                 transform_dict[f"{par}_Categorical"] = categorical
                 continue  # Prevents log-scaling or normalizing
 

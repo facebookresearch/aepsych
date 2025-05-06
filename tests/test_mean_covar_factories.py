@@ -9,13 +9,19 @@ import unittest
 
 import gpytorch
 import numpy as np
+import torch
 from aepsych.config import Config
 from aepsych.factory import (
     DefaultMeanCovarFactory,
+    MixedMeanCovarFactory,
     PairwiseMeanCovarFactory,
     SongMeanCovarFactory,
 )
+from aepsych.generators import SobolGenerator
 from aepsych.kernels.pairwisekernel import PairwiseKernel
+from aepsych.models import GPClassificationModel
+from aepsych.strategy import SequentialStrategy
+from scipy.stats import bernoulli, norm
 
 
 class TestFactories(unittest.TestCase):
@@ -501,3 +507,299 @@ class TestFactories(unittest.TestCase):
         self.assertIsInstance(pairwise, PairwiseKernel)
         self.assertIsInstance(pairwise.latent_kernel, gpytorch.kernels.RBFKernel)
         self.assertTrue(pairwise.latent_kernel.ard_num_dims == 1)
+
+
+class TestMixedFactories(unittest.TestCase):
+    @staticmethod
+    def new_novel_det_channels_params(
+        channel, scale_factor=1.0, wave_freq=1, target=0.75
+    ):
+        """Get the target parameters for 2D synthetic novel_det(channel) function
+            Keyword arguments:
+        channel -- 1D array of channel locations whose thresholds to return
+        scale factor -- scale for the novel_det function, where higher is steeper/lower SD
+        wave_freq -- frequency of location waveform on [-1,1]
+        target -- target threshold
+        """
+        locs = -0.3 * np.sin(5 * wave_freq * (channel - 1 / 6) / np.pi) ** 2 - 0.5
+        scale = (
+            1
+            / (10 * scale_factor)
+            * (0.75 + 0.25 * np.cos(10 * (0.3 + channel) / np.pi))
+        )
+        return locs, scale
+
+    @staticmethod
+    def target_new_novel_det_channels(
+        channel, scale_factor=1.0, wave_freq=1, target=0.75
+    ):
+        """Get the target (i.e. threshold) for 2D synthetic novel_det(channel) function
+            Keyword arguments:
+        channel -- 1D array of channel locations whose thresholds to return
+        scale factor -- scale for the novel_det function, where higher is steeper/lower SD
+        wave_freq -- frequency of location waveform on [-1,1]
+        target -- target threshold
+        """
+        locs, scale = TestMixedFactories.new_novel_det_channels_params(
+            channel, scale_factor, wave_freq, target
+        )
+        return norm.ppf(target, loc=locs, scale=scale)
+
+    @staticmethod
+    def new_novel_det_channels(x, channel, scale_factor=1.0, wave_freq=1, target=0.75):
+        """Get the 2D synthetic novel_det(channel) function
+            Keyword arguments:
+        x -- array of shape (n,2) of locations to sample;
+            x[...,0] is channel from -1 to 1; x[...,1] is intensity from -1 to 1
+        scale factor -- scale for the novel_det function, where higher is steeper/lower SD
+        wave_freq -- frequency of location waveform on [-1,1]
+        """
+        locs, scale = TestMixedFactories.new_novel_det_channels_params(
+            channel, scale_factor, wave_freq, target
+        )
+        return (x - locs) / scale
+
+    @staticmethod
+    def cdf_new_novel_det_channels(channel, scale_factor=1.0, wave_freq=1, target=0.75):
+        """Get the cdf for 2D synthetic novel_det(channel) function
+            Keyword arguments:
+        x -- array of shape (n,2) of locations to sample;
+            x[...,0] is channel from -1 to 1; x[...,1] is intensity from -1 to 1
+        scale factor -- scale for the novel_det function, where higher is steeper/lower SD
+        wave_freq -- frequency of location waveform on [-1,1]
+        """
+        return norm.cdf(
+            TestMixedFactories.new_novel_det_channels(
+                channel, scale_factor, wave_freq, target
+            )
+        )
+
+    def setUp(self):
+        np.random.seed(0)
+        torch.manual_seed(0)
+        n_train = 20
+        n_test = 10
+        generator = SobolGenerator(lb=[-1], ub=[1], dim=1)
+        x = generator.gen(n_train)
+        channel = np.random.choice(2, n_train)
+        f = TestMixedFactories.new_novel_det_channels(x.squeeze(), channel)
+        y = bernoulli.rvs(norm.cdf(f))
+        self.xtest = generator.gen(n_test)
+        self.x = torch.concatenate([x, torch.tensor(channel).unsqueeze(1)], axis=1)
+        self.y = torch.Tensor(y)
+
+        self.f1_true = TestMixedFactories.new_novel_det_channels(
+            self.xtest.squeeze(), 0
+        )
+        self.f2_true = TestMixedFactories.new_novel_det_channels(
+            self.xtest.squeeze(), 1
+        )
+
+    def test_categorical_classification_smoke(self):
+        factory = MixedMeanCovarFactory(
+            dim=2, discrete_params={1: 2}, discrete_kernel="categorical"
+        )
+        mean = factory.get_mean()
+        covar = factory.get_covar()
+        model = GPClassificationModel(dim=2, mean_module=mean, covar_module=covar)
+
+        model.fit(self.x, self.y)
+
+        p1_pred, _ = model.predict_probability(
+            torch.concatenate([self.xtest, torch.zeros_like(self.xtest)], axis=1),
+        )
+        num_mismatches = (
+            (p1_pred > 0.5).numpy() != (norm.cdf(self.f1_true.squeeze()) > 0.5)
+        ).sum()
+        self.assertLessEqual(num_mismatches, 1)
+
+        p2_pred, _ = model.predict_probability(
+            torch.concatenate([self.xtest, torch.ones_like(self.xtest)], axis=1),
+        )
+        num_mismatches = (
+            (p2_pred > 0.5).numpy() != (norm.cdf(self.f2_true.squeeze()) > 0.5)
+        ).sum()
+        self.assertLessEqual(num_mismatches, 1)
+
+    def test_index_classification_smoke(self):
+        factory = MixedMeanCovarFactory(
+            dim=2, discrete_params={1: 2}, discrete_kernel="index"
+        )
+        mean = factory.get_mean()
+        covar = factory.get_covar()
+        model = GPClassificationModel(dim=2, mean_module=mean, covar_module=covar)
+
+        model.fit(self.x, self.y)
+
+        p1_pred, _ = model.predict_probability(
+            torch.concatenate([self.xtest, torch.zeros_like(self.xtest)], axis=1),
+        )
+        num_mismatches = (
+            (p1_pred > 0.5).numpy() != (norm.cdf(self.f1_true.squeeze()) > 0.5)
+        ).sum()
+        self.assertLessEqual(num_mismatches, 1)
+
+        p2_pred, _ = model.predict_probability(
+            torch.concatenate([self.xtest, torch.ones_like(self.xtest)], axis=1),
+        )
+        num_mismatches = (
+            (p2_pred > 0.5).numpy() != (norm.cdf(self.f2_true.squeeze()) > 0.5)
+        ).sum()
+        self.assertLessEqual(num_mismatches, 1)
+
+    def test_mixed_from_config(self):
+        config_str = """
+        [common]
+        parnames = [x, channel, color, y]
+        stimuli_per_trial = 1
+        outcome_types = [binary]
+        strategy_names = [init_strat, opt_strat]
+
+        [x]
+        par_type = continuous
+        lower_bound = -1
+        upper_bound = 1
+
+        [y]
+        par_type = continuous
+        lower_bound = -1
+        upper_bound = 1
+
+        [channel]
+        par_type = categorical
+        choices = [left, middle, right]
+        rank = 2
+
+        [color]
+        par_type = categorical
+        choices = [red, green, blue]
+        rank = 3
+
+        [init_strat]
+        generator = SobolGenerator
+        min_asks = 20
+
+        [opt_strat]
+        generator = OptimizeAcqfGenerator
+        model = GPClassificationModel
+        min_asks = 1
+
+        [OptimizeAcqfGenerator]
+        acqf = qLogNoisyExpectedImprovement
+
+        [GPClassificationModel]
+        mean_covar_factory = MixedMeanCovarFactory
+
+        [MixedMeanCovarFactory]
+        discrete_kernel = index
+        """
+        config = Config(config_str=config_str)
+        strat = SequentialStrategy.from_config(config)
+
+        model = strat.strat_list[-1].model
+        covar = model.covar_module
+
+        # Basic check
+        self.assertEqual(model.dim, 4)
+        self.assertIsInstance(covar, gpytorch.kernels.ProductKernel)
+
+        # Check the additive part
+        add_kernel = covar.kernels[0]
+        self.assertIsInstance(add_kernel.kernels[0], gpytorch.kernels.RBFKernel)
+        self.assertSequenceEqual(add_kernel.kernels[0].active_dims, (0, 3))
+        self.assertEqual(len(add_kernel.kernels[1:]), 2)
+        for kernel, index, rank in zip(add_kernel.kernels[1:], (1, 2), (2, 3)):
+            self.assertIsInstance(kernel, gpytorch.kernels.IndexKernel)
+            self.assertEqual(kernel.active_dims.item(), index)
+            self.assertEqual(kernel.covar_factor.shape[1], rank)
+
+        # Check the product part
+        cont_kernel = covar.kernels[1]
+        self.assertIsInstance(cont_kernel, gpytorch.kernels.RBFKernel)
+        self.assertSequenceEqual(cont_kernel.active_dims, (0, 3))
+
+        index_kernels = covar.kernels[2:]
+        for kernel, index, rank in zip(index_kernels, (1, 2), (2, 3)):
+            self.assertIsInstance(kernel, gpytorch.kernels.IndexKernel)
+            self.assertEqual(kernel.active_dims.item(), index)
+            self.assertEqual(kernel.covar_factor.shape[1], rank)
+
+        # Check there's copies and not duplicates
+        self.assertNotEqual(add_kernel.kernels[0], cont_kernel)
+        self.assertNotEqual(add_kernel.kernels[1], index_kernels[0])
+        self.assertNotEqual(add_kernel.kernels[2], index_kernels[1])
+
+    def test_mixed_acquisition(self):
+        def f_1d(x):
+            """
+            latent is just a gaussian bump at mu
+            """
+            if len(x.shape) == 1:
+                if x[1] == 0:
+                    mu = 0.0
+                else:
+                    mu = 0.4
+                return torch.exp(-((x[0] - mu) ** 2))
+            else:
+                results = []
+                for row in x:
+                    results.append(f_1d(row))
+
+                return torch.tensor(results)
+
+        config_str = """
+        [common]
+        parnames = [x, channel]
+        stimuli_per_trial = 1
+        outcome_types = [binary]
+        strategy_names = [init_strat, opt_strat]
+
+        [x]
+        par_type = continuous
+        lower_bound = -1
+        upper_bound = 1
+
+        [channel]
+        par_type = categorical
+        choices = [left, right]
+
+        [init_strat]
+        generator = SobolGenerator
+        min_asks = 200
+
+        [opt_strat]
+        generator = MixedOptimizeAcqfGenerator
+        model = GPClassificationModel
+        min_asks = 1
+
+        [MixedOptimizeAcqfGenerator]
+        acqf = qLogNoisyExpectedImprovement
+
+        [GPClassificationModel]
+        mean_covar_factory = MixedMeanCovarFactory
+
+        [MixedMeanCovarFactory]
+        # discrete_kernel = index
+        """
+        config = Config(config_str=config_str)
+        strat = SequentialStrategy.from_config(config)
+
+        while not strat.finished:
+            point = strat.gen()
+            y = f_1d(point)
+            response = torch.bernoulli(y)
+            strat.add_data(point, response)
+
+            print(f"{point=}, {response=}")
+
+        x = torch.linspace(-1, 1, 11).unsqueeze(1)
+        channel0 = torch.zeros_like(x)
+        channel1 = torch.ones_like(x)
+        x_0 = torch.cat([x, channel0], dim=1)
+        x_1 = torch.cat([x, channel1], dim=1)
+
+        y_0, _ = strat.predict(x_0, probability_space=True)
+        y_1, _ = strat.predict(x_1, probability_space=True)
+
+        self.assertTrue(torch.allclose(x[torch.argmax(y_0)], torch.tensor([0.0])))
+        self.assertTrue(torch.allclose(x[torch.argmax(y_1)], torch.tensor([0.4])))
