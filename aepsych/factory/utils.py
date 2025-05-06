@@ -8,3 +8,5 @@
 
 __default_invgamma_concentration = 4.6
 __default_invgamma_rate = 1.0
+DEFAULT_INVGAMMA_CONC = 4.6
+DEFAULT_INVGAMMA_RATE = 1.0

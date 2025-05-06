@@ -11,7 +11,7 @@ from typing import Any
 
 import gpytorch
 import torch
-from aepsych.factory.default import default_mean_covar_factory
+from aepsych.factory.default import DefaultMeanCovarFactory
 from aepsych.models.base import AEPsychModelMixin
 from aepsych.models.inducing_points import GreedyVarianceReduction
 from aepsych.models.inducing_points.base import InducingPointAllocator
@@ -71,9 +71,11 @@ class VariationalGPModel(AEPsychModelMixin, ApproximateGP):
         self.mll_class = mll_class or gpytorch.mlls.VariationalELBO
 
         if mean_module is None or covar_module is None:
-            default_mean, default_covar = default_mean_covar_factory(
+            factory = DefaultMeanCovarFactory(
                 dim=self.dim, stimuli_per_trial=self.stimuli_per_trial
             )
+            default_mean = factory.get_mean()
+            default_covar = factory.get_covar()
 
         self.inducing_point_method = inducing_point_method or GreedyVarianceReduction(
             dim=self.dim

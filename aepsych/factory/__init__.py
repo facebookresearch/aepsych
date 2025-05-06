@@ -8,10 +8,9 @@
 import sys
 
 from ..config import Config
-from .default import default_mean_covar_factory
-from .ordinal import ordinal_mean_covar_factory
-from .pairwise import pairwise_mean_covar_factory
-from .song import song_mean_covar_factory
+from .default import default_mean_covar_factory, DefaultMeanCovarFactory
+from .pairwise import pairwise_mean_covar_factory, PairwiseMeanCovarFactory
+from .song import song_mean_covar_factory, SongMeanCovarFactory
 
 """AEPsych factory functions.
 These functions generate a gpytorch Mean and Kernel objects from
@@ -23,10 +22,12 @@ TODO write a modular AEPsych tutorial.
 """
 
 __all__ = [
+    "DefaultMeanCovarFactory",
     "default_mean_covar_factory",
-    "ordinal_mean_covar_factory",
-    "song_mean_covar_factory",
     "pairwise_mean_covar_factory",
+    "PairwiseMeanCovarFactory",
+    "SongMeanCovarFactory",
+    "song_mean_covar_factory",
 ]
 
 Config.register_module(sys.modules[__name__])

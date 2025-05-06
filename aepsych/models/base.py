@@ -13,7 +13,7 @@ from typing import Any, Callable
 import gpytorch
 import torch
 from aepsych.config import Config, ConfigurableMixin
-from aepsych.factory.default import default_mean_covar_factory
+from aepsych.factory.default import DefaultMeanCovarFactory
 from aepsych.utils import get_dims, get_optimizer_options, promote_0d
 from aepsych.utils_logging import getLogger
 from botorch.fit import fit_gpytorch_mll, fit_gpytorch_mll_scipy
@@ -296,12 +296,17 @@ class AEPsychModelMixin(GPyTorchModel, ConfigurableMixin):
             dim = get_dims(config)
 
         mean_covar_factory = config.getobj(
-            name, "mean_covar_factory", fallback=default_mean_covar_factory
+            name, "mean_covar_factory", fallback=DefaultMeanCovarFactory
         )
 
-        mean, covar = mean_covar_factory(
-            config, stimuli_per_trial=cls.stimuli_per_trial
-        )
+        if hasattr(mean_covar_factory, "from_config"):
+            factory = mean_covar_factory.from_config(config)
+            mean, covar = factory.get_mean(), factory.get_covar()
+        else:  # Old style
+            mean, covar = mean_covar_factory(
+                config, stimuli_per_trial=cls.stimuli_per_trial
+            )
+
         max_fit_time = config.getfloat(name, "max_fit_time", fallback=None)
 
         likelihood_cls = config.getobj(name, "likelihood", fallback=None)

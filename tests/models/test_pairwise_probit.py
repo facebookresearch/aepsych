@@ -474,7 +474,12 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
         m2 = PairwiseProbitModel.from_config(
             config=Config(
                 config_dict={
-                    "common": {"lb": "[1,2]", "ub": "[3,4]", "parnames": "[par1, par2]"}
+                    "common": {
+                        "lb": "[1,2]",
+                        "ub": "[3,4]",
+                        "stimuli_per_trial": "2",
+                        "parnames": "[par1, par2]",
+                    }
                 }
             )
         )
@@ -536,7 +541,7 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
             generator = OptimizeAcqfGenerator
 
             [PairwiseProbitModel]
-            mean_covar_factory = default_mean_covar_factory
+            mean_covar_factory = DefaultMeanCovarFactory
             max_fit_time = 1
 
             [PairwiseMCPosteriorVariance]
@@ -590,7 +595,7 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
             generator = OptimizeAcqfGenerator
 
             [PairwiseProbitModel]
-            mean_covar_factory = default_mean_covar_factory
+            mean_covar_factory = DefaultMeanCovarFactory
 
             [PairwiseMCPosteriorVariance]
             objective = ProbitObjective
@@ -646,7 +651,7 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
             generator = OptimizeAcqfGenerator
 
             [PairwiseProbitModel]
-            mean_covar_factory = default_mean_covar_factory
+            mean_covar_factory = DefaultMeanCovarFactory
 
             [PairwiseMCPosteriorVariance]
             objective = ProbitObjective
@@ -711,7 +716,7 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
             generator = OptimizeAcqfGenerator
 
             [PairwiseProbitModel]
-            mean_covar_factory = default_mean_covar_factory
+            mean_covar_factory = DefaultMeanCovarFactory
 
             [PairwiseMCPosteriorVariance]
             objective = ProbitObjective
@@ -771,7 +776,7 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
             generator = OptimizeAcqfGenerator
 
             [PairwiseProbitModel]
-            mean_covar_factory = default_mean_covar_factory
+            mean_covar_factory = DefaultMeanCovarFactory
 
             [PairwiseMCPosteriorVariance]
             objective = ProbitObjective
@@ -808,7 +813,7 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
             generator = OptimizeAcqfGenerator
 
             [PairwiseProbitModel]
-            mean_covar_factory = default_mean_covar_factory
+            mean_covar_factory = DefaultMeanCovarFactory
 
             [PairwiseMCPosteriorVariance]
             objective = ProbitObjective
@@ -844,7 +849,7 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
             generator = OptimizeAcqfGenerator
 
             [PairwiseProbitModel]
-            mean_covar_factory = default_mean_covar_factory
+            mean_covar_factory = DefaultMeanCovarFactory
 
             [PairwiseMCPosteriorVariance]
             objective = ProbitObjective

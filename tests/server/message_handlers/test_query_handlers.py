@@ -46,7 +46,7 @@ class QueryHandlerTestCase(BaseServerTestCase):
             generator = OptimizeAcqfGenerator
 
             [PairwiseProbitModel]
-            mean_covar_factory = default_mean_covar_factory
+            mean_covar_factory = DefaultMeanCovarFactory
 
             [PairwiseMCPosteriorVariance]
             objective = ProbitObjective
@@ -168,7 +168,7 @@ class QueryHandlerTestCase(BaseServerTestCase):
 
             [OptimizeAcqfGenerator]
             acqf = qLogNoisyExpectedImprovement
-            
+
             [qLogNoisyExpectedImprovement]
             objective = ProbitObjective
         """
