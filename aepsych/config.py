@@ -240,9 +240,6 @@ class Config(configparser.ConfigParser):
                     self._check_param_settings(par_name)
 
                     if self[par_name]["par_type"] == "categorical":
-                        raise NotImplementedError(
-                            "Categorical parameters not supported yet"
-                        )
                         choices = self.getlist(par_name, "choices", element_type=str)
                         lb[i] = "0"
                         ub[i] = str(len(choices) - 1)
