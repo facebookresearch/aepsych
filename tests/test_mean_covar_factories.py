@@ -790,8 +790,6 @@ class TestMixedFactories(unittest.TestCase):
             response = torch.bernoulli(y)
             strat.add_data(point, response)
 
-            print(f"{point=}, {response=}")
-
         x = torch.linspace(-1, 1, 11).unsqueeze(1)
         channel0 = torch.zeros_like(x)
         channel1 = torch.ones_like(x)
