@@ -777,9 +777,6 @@ class TestMixedFactories(unittest.TestCase):
 
         [GPClassificationModel]
         mean_covar_factory = MixedMeanCovarFactory
-
-        [MixedMeanCovarFactory]
-        # discrete_kernel = index
         """
         config = Config(config_str=config_str)
         strat = SequentialStrategy.from_config(config)
