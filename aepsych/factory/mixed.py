@@ -103,7 +103,7 @@ class MixedMeanCovarFactory(DefaultMeanCovarFactory):
                         active_dims=(idx,),
                         ard_num_dims=1,
                         prior=gpytorch.priors.LKJCovariancePrior(
-                            n=self.discrete_param_ranks[idx],
+                            n=self.discrete_params[idx],
                             eta=1.5,
                             sd_prior=gpytorch.priors.GammaPrior(1.0, 0.15),
                         ),
