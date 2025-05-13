@@ -109,13 +109,10 @@ class MixedMeanCovarFactory(DefaultMeanCovarFactory):
                         ),
                     )
                 )
-            add_kernel = gpytorch.kernels.AdditiveKernel(
+
+            return gpytorch.kernels.ProductKernel(
                 deepcopy(cont_kernel), *deepcopy(discrete_kernels)
             )
-            prod_kernel = gpytorch.kernels.ProductKernel(
-                deepcopy(cont_kernel), *deepcopy(discrete_kernels)
-            )
-            return add_kernel * prod_kernel
         elif self.discrete_kernel == "categorical":
             constraint = gpytorch.constraints.GreaterThan(lower_bound=1e-4)
             discrete_kernel = botorch.models.kernels.CategoricalKernel(

@@ -703,31 +703,15 @@ class TestMixedFactories(unittest.TestCase):
         self.assertEqual(model.dim, 4)
         self.assertIsInstance(covar, gpytorch.kernels.ProductKernel)
 
-        # Check the additive part
-        add_kernel = covar.kernels[0]
-        self.assertIsInstance(add_kernel.kernels[0], gpytorch.kernels.RBFKernel)
-        self.assertSequenceEqual(add_kernel.kernels[0].active_dims, (0, 3))
-        self.assertEqual(len(add_kernel.kernels[1:]), 2)
-        for kernel, index, rank in zip(add_kernel.kernels[1:], (1, 2), (2, 3)):
-            self.assertIsInstance(kernel, gpytorch.kernels.IndexKernel)
-            self.assertEqual(kernel.active_dims.item(), index)
-            self.assertEqual(kernel.covar_factor.shape[1], rank)
-
-        # Check the product part
-        cont_kernel = covar.kernels[1]
+        cont_kernel = covar.kernels[0]
         self.assertIsInstance(cont_kernel, gpytorch.kernels.RBFKernel)
         self.assertSequenceEqual(cont_kernel.active_dims, (0, 3))
 
-        index_kernels = covar.kernels[2:]
+        index_kernels = covar.kernels[1:]
         for kernel, index, rank in zip(index_kernels, (1, 2), (2, 3)):
             self.assertIsInstance(kernel, gpytorch.kernels.IndexKernel)
             self.assertEqual(kernel.active_dims.item(), index)
             self.assertEqual(kernel.covar_factor.shape[1], rank)
-
-        # Check there's copies and not duplicates
-        self.assertNotEqual(add_kernel.kernels[0], cont_kernel)
-        self.assertNotEqual(add_kernel.kernels[1], index_kernels[0])
-        self.assertNotEqual(add_kernel.kernels[2], index_kernels[1])
 
     def test_mixed_acquisition(self):
         def f_1d(x):
