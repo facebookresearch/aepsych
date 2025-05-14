@@ -334,7 +334,7 @@ class Config(configparser.ConfigParser):
                         f"Object {v} is deprecated and no longer supported!"
                     )
                 else:
-                    warnings.warn(f'No known object "{v}"!')
+                    warnings.warn(f'No known object "{v}"!', stacklevel=2)
 
             return fallback_type(v)
 
@@ -449,7 +449,8 @@ class Config(configparser.ConfigParser):
             warnings.warn(
                 f"Registering {obj.__name__} but already"
                 + f"have {cls.registered_names[obj.__name__]}"
-                + "registered under that name!"
+                + "registered under that name!",
+                stacklevel=2,
             )
         cls.registered_names.update({obj.__name__: obj})
 

@@ -182,7 +182,8 @@ class AEPsychModelMixin(GPyTorchModel, ConfigurableMixin):
         """
         if not strict:
             warnings.warn(
-                "strict set to false, but set_train_data will always follow device"
+                "strict set to false, but set_train_data will always follow device",
+                stacklevel=2,
             )
 
         if inputs is None:

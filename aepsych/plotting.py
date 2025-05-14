@@ -586,7 +586,8 @@ def facet_slices(
     if "layout" in kwargs:
         layout = kwargs.pop("layout")
         warnings.warn(
-            "The layout arg for subplots is defaulted to 'constrained', be careful when changing this"
+            "The layout arg for subplots is defaulted to 'constrained', be careful when changing this",
+            stacklevel=2,
         )
     else:
         layout = "constrained"
@@ -731,6 +732,7 @@ def plot_strat(
     warnings.warn(
         "Plotting directly from strategy is deprecated, plots should be composed manually using the Matplotlib API, AEPsych specific helper functions are available in the plotting submodule.",
         DeprecationWarning,
+        stacklevel=2,
     )
     assert (
         "binary" in strat.outcome_types
@@ -738,7 +740,8 @@ def plot_strat(
 
     if target_level is not None and not hasattr(strat.model, "monotonic_idxs"):
         warnings.warn(
-            "Threshold estimation may not be accurate for non-monotonic models."
+            "Threshold estimation may not be accurate for non-monotonic models.",
+            stacklevel=2,
         )
 
     if ax is None:
@@ -1081,6 +1084,7 @@ def plot_strat_3d(
     warnings.warn(
         "Plotting directly from strategy is deprecated, plots should be composed manually using the Matplotlib API, AEPsych specific helper functions are available in the plotting submodule.",
         DeprecationWarning,
+        stacklevel=2,
     )
     assert strat.model is not None, "Cannot plot without a model!"
 

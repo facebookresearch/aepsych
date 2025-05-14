@@ -143,7 +143,9 @@ class IndependentGPsModel(AEPsychModelMixin):
         """
         if transformed_posterior_cls is not None:
             warnings.warn(
-                "transformed_posterior_cls is set but will be ignored.", UserWarning
+                "transformed_posterior_cls is set but will be ignored.",
+                UserWarning,
+                stacklevel=2,
             )
         means = []
         vars = []

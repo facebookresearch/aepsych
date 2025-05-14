@@ -93,7 +93,8 @@ class OptimizeAcqfGenerator(AcqfGenerator):
 
         if isinstance(acqf, LookaheadAcquisitionFunction) and num_points > 1:
             warnings.warn(
-                f"{num_points} points were requested, but `{acqf.__class__.__name__}` can only generate one point at a time, returning only 1."
+                f"{num_points} points were requested, but `{acqf.__class__.__name__}` can only generate one point at a time, returning only 1.",
+                stacklevel=2,
             )
             num_points = 1
 
