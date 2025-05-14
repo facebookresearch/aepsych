@@ -22,7 +22,6 @@ from aepsych.models.inducing_points import (
 )
 from aepsych.strategy import SequentialStrategy, Strategy
 from aepsych.transforms.parameters import ParameterTransforms, transform_options
-from sklearn.datasets import make_classification
 
 
 class TestBaseAllocator(unittest.TestCase):
