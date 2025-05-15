@@ -352,7 +352,7 @@
                         <span class="sa">f</span><span class="s2">"Object </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2"> is deprecated and no longer supported!"</span>
                     <span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s1">'No known object "</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s1">"!'</span><span class="p">)</span>
+                    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s1">'No known object "</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s1">"!'</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 
             <span class="k">return</span> <span class="n">fallback_type</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
 
@@ -467,7 +467,8 @@
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">"Registering </span><span class="si">{</span><span class="n">obj</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> but already"</span>
                 <span class="o">+</span> <span class="sa">f</span><span class="s2">"have </span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="n">registered_names</span><span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="vm">__name__</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
-                <span class="o">+</span> <span class="s2">"registered under that name!"</span>
+                <span class="o">+</span> <span class="s2">"registered under that name!"</span><span class="p">,</span>
+                <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">registered_names</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">obj</span><span class="o">.</span><span class="vm">__name__</span><span class="p">:</span> <span class="n">obj</span><span class="p">})</span></div>
 
