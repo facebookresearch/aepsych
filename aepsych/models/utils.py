@@ -266,7 +266,8 @@ def inv_query(
             weights = torch.Tensor([1] * model._num_outputs)
     if probability_space:
         warnings.warn(
-            "Inverse querying with probability_space=True assumes that the model uses Probit-Bernoulli likelihood!"
+            "Inverse querying with probability_space=True assumes that the model uses Probit-Bernoulli likelihood!",
+            stacklevel=2,
         )
         posterior_transform = TargetProbabilityDistancePosteriorTransform(y, weights)
     else:

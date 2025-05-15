@@ -513,7 +513,11 @@ class Strategy(ConfigurableMixin):
                         "Failed to fit model! Predictions may not be accurate!"
                     )
         else:
-            warnings.warn("Cannot fit: no model has been initialized!", RuntimeWarning)
+            warnings.warn(
+                "Cannot fit: no model has been initialized!",
+                RuntimeWarning,
+                stacklevel=2,
+            )
 
     def update(self) -> None:
         """Update the model."""
@@ -537,7 +541,11 @@ class Strategy(ConfigurableMixin):
                         "Failed to fit model! Predictions may not be accurate!"
                     )
         else:
-            warnings.warn("Cannot fit: no model has been initialized!", RuntimeWarning)
+            warnings.warn(
+                "Cannot fit: no model has been initialized!",
+                RuntimeWarning,
+                stacklevel=2,
+            )
 
     @classmethod
     def get_config_options(

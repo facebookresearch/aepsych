@@ -333,7 +333,8 @@ def _get_default_mean_function(
         if fixed_mean:
             if zero_mean:
                 warnings.warn(
-                    "Specified both `zero_mean = True` and `fixed_mean = True`. Deferring to fixed_mean!"
+                    "Specified both `zero_mean = True` and `fixed_mean = True`. Deferring to fixed_mean!",
+                    stacklevel=2,
                 )
             try:
                 target = config.getfloat("default_mean_covar_factory", "target")
