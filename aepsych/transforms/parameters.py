@@ -691,18 +691,19 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
         )
 
     @_promote_1d
-    def sample(self, x: torch.Tensor, num_samples: int) -> torch.Tensor:
+    def sample(self, x: torch.Tensor, num_samples: int, **kwargs) -> torch.Tensor:
         """Sample from underlying model given transformed x.
 
         Args:
             x (torch.Tensor): Points at which to sample, which will be transformed.
             num_samples (int): Number of samples to return.
+            **kwargs: Keyword arguments to pass to the model.sample() call.
 
         Returns:
             torch.Tensor: Posterior samples [num_samples x dim]
         """
         x = self.transforms.transform(x)
-        return self._base_obj.sample(x, num_samples)
+        return self._base_obj.sample(x, num_samples, **kwargs)
 
     def posterior(self, X: torch.Tensor, **kwargs) -> Posterior:
         """Return the model's posterior given a transformed X. Notice that this specific

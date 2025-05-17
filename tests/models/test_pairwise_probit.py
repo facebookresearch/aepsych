@@ -755,6 +755,64 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
         except Exception:
             self.fail()
 
+    def test_rereference_smoketest(self):
+        """Test that a parameter-transformed pairwise probit model works correctly with sample and predict methods."""
+        seed = 1
+        torch.manual_seed(seed)
+        np.random.seed(seed)
+
+        # Create a simple 1D model with parameter transforms
+        lb = torch.tensor([-4.0])
+        ub = torch.tensor([4.0])
+        transforms = ParameterTransforms(
+            normalize=NormalizeScale(d=1, bounds=torch.stack([lb, ub]))
+        )
+
+        # Create the transformed model
+        base_model = PairwiseProbitModel(lb=lb, ub=ub)
+        transformed_model = ParameterTransformedModel(
+            model=base_model, transforms=transforms
+        )
+
+        # Generate some simple training data
+        gen = SobolGenerator(lb=lb, ub=ub, seed=seed, stimuli_per_trial=2)
+        x = torch.Tensor(gen.gen(num_points=20))
+        y = torch.Tensor(f_pairwise(f_1d, x) > 0.5).int()
+
+        # Fit the model
+        transformed_model.fit(x, y)
+
+        # Test points
+        test_x = torch.linspace(-3, 3, 10).reshape(-1, 1)
+
+        # Test sample method with different rereference values
+        for rereference in ["x_min", "x_max", "f_min", "f_max"]:
+            # Transformed model sample - should pass rereference to base model
+            transformed_samples = transformed_model.sample(
+                test_x, num_samples=5, rereference=rereference
+            )
+            self.assertEqual(transformed_samples.shape[0], 5)  # 5 samples
+            self.assertEqual(transformed_samples.shape[1], 10)  # 10 test points
+
+        # Test predict method which uses sample internally
+        for rereference in ["x_min", "x_max", "f_min", "f_max"]:
+            # Transformed model predict - should pass rereference to base model's sample method
+            transformed_mean, _ = transformed_model.predict(
+                test_x, rereference=rereference
+            )
+            self.assertEqual(transformed_mean.shape[0], 10)  # 10 test points
+
+        # Test predict with probability_space=True
+        for rereference in ["x_min", "x_max", "f_min", "f_max"]:
+            # Transformed model predict_probability
+            transformed_mean, _ = transformed_model.predict_probability(
+                test_x, rereference=rereference
+            )
+            self.assertEqual(transformed_mean.shape[0], 10)  # 10 test points
+            self.assertTrue(
+                torch.all(transformed_mean >= 0) and torch.all(transformed_mean <= 1)
+            )  # Probabilities should be between 0 and 1
+
     def test_config_to_tensor(self):
         config_str = """
             [common]
