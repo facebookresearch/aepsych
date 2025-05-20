@@ -12,6 +12,7 @@ import torch
 from aepsych.config import Config
 from aepsych.factory import DefaultMeanCovarFactory
 from aepsych.models.base import AEPsychModelMixin
+from aepsych.models.utils import get_max, get_min
 from aepsych.utils import _process_bounds, promote_0d
 from aepsych.utils_logging import getLogger
 from botorch.fit import fit_gpytorch_mll
@@ -230,9 +231,9 @@ class PairwiseProbitModel(PairwiseGP, AEPsychModelMixin):
         elif rereference == "x_max":
             x_ref = self.ub
         elif rereference == "f_max":
-            x_ref = torch.Tensor(self.get_max()[1])
+            x_ref = get_max(model=self, bounds=torch.stack((self.lb, self.ub)))[1]
         elif rereference == "f_min":
-            x_ref = torch.Tensor(self.get_min()[1])
+            x_ref = get_min(model=self, bounds=torch.stack((self.lb, self.ub)))[1]
         else:
             raise RuntimeError(
                 f"Unknown rereference type {rereference}! Options: x_min, x_max, f_min, f_max."
