@@ -263,6 +263,55 @@ class TestClassificationPlotting(unittest.TestCase):
 
         self.assertTrue(plotted_ax != ax)
 
+    def test_plot_points_1d_line_args(self):
+        """Test that line_args parameter correctly modifies the connecting lines in pairwise plots."""
+        _, ax = plt.subplots()
+
+        # Simulate pair by stacking half
+        x = torch.concatenate(
+            [
+                self.x[0 : self.x.shape[0] // 2, 0].unsqueeze(-1).unsqueeze(-1),
+                self.x[self.x.shape[0] // 2 :, 0].unsqueeze(-1).unsqueeze(-1),
+            ],
+            axis=2,
+        )
+        y = self.y[: self.y.shape[0] // 2]
+        post_grid = self.post_grid_1d[:, 0]
+
+        # Define custom line arguments
+        custom_linestyle = ":"
+        custom_color = (1.0, 0.9, 0.5, 1.0)
+        custom_alpha = 0.8
+        custom_linewidth = 2.0
+
+        line_args = {
+            "linestyle": custom_linestyle,
+            "c": custom_color,
+            "alpha": custom_alpha,
+            "linewidth": custom_linewidth,
+        }
+
+        # Plot with custom line arguments
+        plotted_ax = plot_points_1d(
+            ax=ax,
+            x=x,
+            y=y,
+            pred_x=post_grid,
+            pred_y=self.post_mean_1d,
+            line_args=line_args,
+        )
+
+        # Get all lines from the plot
+        lines = plotted_ax.get_lines()
+
+        # Check that all connecting lines have the custom properties
+        for i in range(0, len(lines), 3):
+            line = lines[i]
+            self.assertEqual(line.get_linestyle(), custom_linestyle)
+            self.assertEqual(line.get_color(), custom_color)
+            self.assertEqual(line.get_alpha(), custom_alpha)
+            self.assertEqual(line.get_linewidth(), custom_linewidth)
+
     def test_plot_predict_2d(self):
         fig, ax = plt.subplots()
 
@@ -444,6 +493,53 @@ class TestClassificationPlotting(unittest.TestCase):
         self.assertTrue(len(plotted_ax.get_lines()) == 150)
 
         self.assertTrue(plotted_ax != ax)
+
+    def test_plot_points_2d_line_args(self):
+        """Test that line_args parameter correctly modifies the connecting lines in pairwise plots."""
+        _, ax = plt.subplots()
+
+        # Simulate pair by stacking half
+        x = torch.concatenate(
+            [
+                self.x[0 : self.x.shape[0] // 2, :].unsqueeze(-1),
+                self.x[self.x.shape[0] // 2 :, :].unsqueeze(-1),
+            ],
+            axis=2,
+        )
+        y = self.y[: self.y.shape[0] // 2]
+
+        # Define custom line arguments
+        custom_linestyle = ":"
+        custom_color = (1.0, 0.5, 0.1, 1.0)
+        custom_alpha = 0.8
+        custom_linewidth = 2.0
+
+        line_args = {
+            "linestyle": custom_linestyle,
+            "c": custom_color,
+            "alpha": custom_alpha,
+            "linewidth": custom_linewidth,
+        }
+
+        # Plot with custom line arguments
+        plotted_ax = plot_points_2d(
+            ax=ax,
+            x=x,
+            y=y,
+            axis=[1, 2],
+            line_args=line_args,
+        )
+
+        # Get all lines from the plot
+        lines = plotted_ax.get_lines()
+
+        # Check that all connecting lines have the custom properties
+        for i in range(0, len(lines), 3):
+            line = lines[i]
+            self.assertEqual(line.get_linestyle(), custom_linestyle)
+            self.assertEqual(line.get_color(), custom_color)
+            self.assertEqual(line.get_alpha(), custom_alpha)
+            self.assertEqual(line.get_linewidth(), custom_linewidth)
 
     def test_plot_contours(self):
         fig, ax = plt.subplots()
