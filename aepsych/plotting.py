@@ -90,6 +90,7 @@ def plot_points_1d(
     cmap_colors: list[ColorType] = ["r", "b"],
     label_points: bool = True,
     legend_loc: str = "best",
+    line_args: dict[str, Any] | None = None,
     **kwargs,
 ) -> Axes:
     r"""Return the ax with the points plotted based on x and y in a 1D plot. If
@@ -117,6 +118,8 @@ def plot_points_1d(
             legend for cases there are 6 or less unique responses or a colorbar for
             7 or more unique responses. Defaults to True.
         legend_loc (str): If a legend is added, where should it be placed.
+        line_args (dict[str, Any], optional): If the inputs are from an experiment with
+            2 stimuli per trial, extra arguments to pass to the lines.
         **kwargs: Extra kwargs passed to the ax.plot() call, note that every point is
             plotted with an individual call so these kwargs must be applicable to single
             points.
@@ -137,6 +140,9 @@ def plot_points_1d(
 
     if len(x.shape) == 3:  # Multi dim case
         if pred_x is not None and pred_y is not None:
+            connect_args = {"linestyle": "-", "alpha": 0.5, "c": "gray"}
+            connect_args.update(line_args or {})
+
             for pair, response in zip(x, y):
                 x1 = pair[:, 0]
                 x2 = pair[:, 1]
@@ -146,9 +152,7 @@ def plot_points_1d(
                 ax.plot(
                     [np.array(x1), np.array(x2)],
                     [np.array(y1), np.array(y2)],
-                    "-",
-                    c="gray",
-                    alpha=0.5,
+                    **connect_args,  # type: ignore
                 )
                 ax.plot(
                     x1,
@@ -334,6 +338,7 @@ def plot_points_2d(
     cmap_colors: list[ColorType] = ["r", "b"],
     label_points: bool = True,
     legend_loc: str = "best",
+    line_args: dict[str, Any] | None = None,
     **kwargs,
 ) -> Axes:
     r"""Return the axes with the points defined by the parameters (x) and the outcomes
@@ -366,6 +371,8 @@ def plot_points_2d(
             legend for cases there are 6 or less unique responses or a colorbar for
             7 or more unique responses. Defaults to True.
         legend_loc (str): If a legend is added, where should it be placed.
+        line_args (dict[str, Any], optional): If the inputs are from an experiment with
+            2 stimuli per trial, extra arguments to pass to the lines.
         **kwargs: Extra kwargs passed to the ax.plot() call, note that every point is
             plotted with an individual call so these kwargs must be applicable to single
             points.
@@ -420,9 +427,11 @@ def plot_points_2d(
         point_alphas = torch.ones_like(xcoords)
 
     if len(x.shape) == 3:  # n-wise experiment
+        connect_args = {"linestyle": "-", "alpha": 0.5, "c": "gray"}
+        connect_args.update(line_args or {})
         # Plot everything in pairs and add lines
         for xcoord, ycoord, y_, point_alpha in zip(xcoords, ycoords, y, point_alphas):
-            ax.plot(xcoord, ycoord, "-", c="gray", alpha=0.5)
+            ax.plot(xcoord, ycoord, **connect_args)  # type: ignore
             ax.plot(
                 xcoord[0],
                 ycoord[0],
