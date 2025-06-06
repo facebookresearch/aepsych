@@ -48,7 +48,11 @@ def getLogger(level=logging.INFO, log_path: str = "logs") -> logging.Logger:
     Returns:
         logger: a logger object.
     """
-    os.makedirs(log_path, exist_ok=True)
+    try:
+        os.makedirs(log_path, exist_ok=True)
+    except FileExistsError:  # Fallback
+        log_path = log_path + "_aepsych"
+        os.makedirs(log_path, exist_ok=True)
 
     logging_config: dict[str, Any] = {
         "version": 1,
