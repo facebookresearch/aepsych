@@ -19,7 +19,7 @@ REQUIRES = [
     "pandas",
     "aepsych_client",
     "statsmodels",
-    "botorch==0.13.0",
+    "botorch",
 ]
 
 BENCHMARK_REQUIRES = ["tqdm", "pathos", "multiprocess", "torcheval"]

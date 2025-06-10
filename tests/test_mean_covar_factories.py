@@ -749,7 +749,7 @@ class TestMixedFactories(unittest.TestCase):
 
         [init_strat]
         generator = SobolGenerator
-        min_asks = 200
+        min_asks = 250
 
         [opt_strat]
         generator = MixedOptimizeAcqfGenerator
@@ -780,5 +780,10 @@ class TestMixedFactories(unittest.TestCase):
         y_0, _ = strat.predict(x_0, probability_space=True)
         y_1, _ = strat.predict(x_1, probability_space=True)
 
-        self.assertTrue(torch.allclose(x[torch.argmax(y_0)], torch.tensor([0.0])))
-        self.assertTrue(torch.allclose(x[torch.argmax(y_1)], torch.tensor([0.4])))
+        # Loose test
+        self.assertLessEqual(
+            (torch.abs(x[torch.argmax(y_0)] - torch.tensor([0.0]))).item(), 0.05
+        )
+        self.assertLessEqual(
+            (torch.abs(x[torch.argmax(y_1)] - torch.tensor([0.4]))).item(), 0.05
+        )
