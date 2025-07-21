@@ -15,7 +15,10 @@ from botorch.acquisition.objective import MCAcquisitionObjective
 from botorch.models.model import Model
 from botorch.sampling.base import MCSampler
 from botorch.sampling.normal import SobolQMCNormalSampler
-from botorch.utils.transforms import t_batch_mode_transform
+from botorch.utils.transforms import (
+    average_over_ensemble_models,
+    t_batch_mode_transform,
+)
 
 
 def balv_acq(obj_samps: torch.Tensor) -> torch.Tensor:
@@ -61,6 +64,7 @@ class MCPosteriorVariance(MCAcquisitionFunction):
         self.objective = objective
 
     @t_batch_mode_transform()
+    @average_over_ensemble_models
     def forward(self, X: torch.Tensor) -> torch.Tensor:
         r"""Evaluate MCPosteriorVariance on the candidate set `X`.
 
