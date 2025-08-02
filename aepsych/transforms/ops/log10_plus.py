@@ -112,11 +112,11 @@ class Log10Plus(Log10, Transform):
         if "constant" not in options:
             lb = options["bounds"][0, options["indices"]]
             if lb < 0.0:
-                constant = np.abs(lb) + 1.0
+                constant = torch.abs(lb) + 1.0
             elif lb < 1.0:
-                constant = 1.0
+                constant = torch.tensor(1.0, dtype=torch.long)
             else:
-                constant = 0.0
+                constant = torch.tensor(0.0, dtype=torch.long)
 
             options["constant"] = constant
 

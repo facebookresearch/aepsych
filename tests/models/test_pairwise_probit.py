@@ -261,7 +261,7 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
 
         zhat, _ = strat.predict(x)
         # true max is 0, very loose test
-        self.assertTrue(np.abs(x[np.argmax(zhat.detach().numpy())]) < 0.5)
+        self.assertTrue(torch.abs(x[np.argmax(zhat.detach().numpy())]) < 0.5)
 
     def test_1d_pairwise_probit_pure_exploration(self):
         seed = 1
@@ -444,7 +444,7 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
     def test_sobolmodel_pairwise(self):
         # test that SobolModel correctly gets bounds
 
-        sobol_x = np.zeros((10, 3, 2))
+        sobol_x = torch.zeros((10, 3, 2))
         mod = Strategy(
             lb=[1, 2, 3],
             ub=[2, 3, 4],
@@ -459,12 +459,12 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
         for i in range(10):
             sobol_x[i, ...] = mod.gen()
 
-        self.assertTrue(np.all(sobol_x[:, 0, :] > 1))
-        self.assertTrue(np.all(sobol_x[:, 1, :] > 2))
-        self.assertTrue(np.all(sobol_x[:, 2, :] > 3))
-        self.assertTrue(np.all(sobol_x[:, 0, :] < 2))
-        self.assertTrue(np.all(sobol_x[:, 1, :] < 3))
-        self.assertTrue(np.all(sobol_x[:, 2, :] < 4))
+        self.assertTrue(torch.all(sobol_x[:, 0, :] > 1))
+        self.assertTrue(torch.all(sobol_x[:, 1, :] > 2))
+        self.assertTrue(torch.all(sobol_x[:, 2, :] > 3))
+        self.assertTrue(torch.all(sobol_x[:, 0, :] < 2))
+        self.assertTrue(torch.all(sobol_x[:, 1, :] < 3))
+        self.assertTrue(torch.all(sobol_x[:, 2, :] < 4))
 
     def test_hyperparam_consistency(self):
         # verify that creating the model `from_config` or with `__init__` has the same hyperparams
@@ -567,7 +567,7 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
 
         x = torch.linspace(-4, 4, 100)
         zhat, _ = server.strat.predict(x)
-        self.assertTrue(np.abs(x[np.argmax(zhat.detach().numpy())]) < 0.5)
+        self.assertTrue(torch.abs(x[np.argmax(zhat.detach().numpy())]) < 0.5)
 
     def test_2d_pairwise_server(self):
         seed = 1

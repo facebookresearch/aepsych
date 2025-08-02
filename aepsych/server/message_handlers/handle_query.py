@@ -120,19 +120,19 @@ def query(
         )
         response["x"] = x
         y = mean.item() if isinstance(mean, torch.Tensor) else mean[0]
-        response["y"] = np.array(y)  # mean.item()
+        response["y"] = np.asarray(y)  # mean.item()
 
     elif query_type == "inverse":
         nearest_y, nearest_loc = server.strat.inv_query(
             y, constraints, probability_space=probability_space, **kwargs
         )
-        response["y"] = np.array(nearest_y)
+        response["y"] = np.asarray(nearest_y)
         response["x"] = server._tensor_to_config(nearest_loc)
     else:
         raise RuntimeError("unknown query type!")
     # ensure all x values are arrays
     response["x"] = {
-        k: np.array([v]) if np.array(v).ndim == 0 else v
+        k: np.asarray([v]) if np.asarray(v).ndim == 0 else v
         for k, v in response["x"].items()
     }
 

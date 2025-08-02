@@ -150,8 +150,8 @@ def plot_points_1d(
                 y2 = pred_y[torch.argmin(torch.abs(x2 - pred_x))]
 
                 ax.plot(
-                    [np.array(x1), np.array(x2)],
-                    [np.array(y1), np.array(y2)],
+                    [np.asarray(x1), np.asarray(x2)],
+                    [np.asarray(y1), np.asarray(y2)],
                     **connect_args,  # type: ignore
                 )
                 ax.plot(
@@ -188,8 +188,8 @@ def plot_points_1d(
                     mid[1].item() if isinstance(mid[1], torch.Tensor) else mid[1],
                 )
 
-                poly_x = np.array(x_coords).squeeze()
-                poly_y = np.array(y_coords).squeeze()
+                poly_x = np.asarray(x_coords).squeeze()
+                poly_y = np.asarray(y_coords).squeeze()
                 f = np.poly1d(np.polyfit(poly_x, poly_y, 2))
                 x = np.linspace(start[0], end[0], 100)
                 return x, f(x)
@@ -204,7 +204,9 @@ def plot_points_1d(
 
                 # Create a curvey line between the hatches
                 mid_x = torch.min(pair) + (torch.abs(x1 - x2) / 2)
-                line_x, line_y = curve([x1, hatch_y], [x2, hatch_y], [mid_x, mid_y])
+                line_x, line_y = curve(
+                    [x1.numpy(), hatch_y], [x2.numpy(), hatch_y], [mid_x.numpy(), mid_y]
+                )
                 ax.plot(line_x, line_y, "-", c="gray", alpha=0.5)
                 ax.plot(
                     x1,
@@ -302,7 +304,7 @@ def plot_predict_2d(
     lb = lb.double()
     ub = ub.double()
 
-    diff = np.abs(ub - lb)
+    diff = torch.abs(ub - lb)
     edge_bumps = (diff - (diff * (1 - edge_multiplier))) / 2
     lb -= edge_bumps
     ub += edge_bumps
@@ -310,7 +312,7 @@ def plot_predict_2d(
     prediction = prediction.T
     prediction = torch.flip(prediction, dims=[0])
     mappable = ax.imshow(
-        prediction,
+        np.asarray(prediction),
         origin="upper",
         aspect=((ub[0] - lb[0]) / (ub[1] - lb[1])).item(),
         extent=extent,
@@ -519,7 +521,7 @@ def plot_contours(
     lb = lb.double()
     ub = ub.double()
 
-    diff = np.abs(ub - lb)
+    diff = torch.abs(ub - lb)
     edge_bumps = (diff - (diff * (1 - edge_multiplier))) / 2
     lb -= edge_bumps
     ub += edge_bumps
@@ -534,7 +536,7 @@ def plot_contours(
         )
 
     contours = ax.contour(
-        prediction,
+        np.asarray(prediction),
         levels=levels,
         extent=extent,
         origin="upper",
@@ -1126,7 +1128,7 @@ def plot_strat_3d(
     elif not isinstance(slice_vals, list):
         raise TypeError("slice_vals must be either an integer or a list of values")
     else:
-        slices = np.array(slice_vals)
+        slices = np.asarray(slice_vals)
 
     # make mypy happy, note that this can't be more specific
     # because of https://github.com/numpy/numpy/issues/24738
@@ -1140,7 +1142,7 @@ def plot_strat_3d(
             strat,
             parnames,
             slice_dim,
-            dim_val,
+            dim_val,  # type: ignore
             vmin,
             vmax,
             gridsize,
@@ -1170,7 +1172,7 @@ def plot_slice(
     strat: Strategy,
     parnames: list[str],
     slice_dim: int,
-    slice_val: int,
+    slice_val: float,
     vmin: float,
     vmax: float,
     gridsize: int = 30,
@@ -1184,7 +1186,7 @@ def plot_slice(
         start (Strategy): Strategy object to be plotted. Must have a dimensionality of 3.
         parnames (list[str]): list of the parameter names.
         slice_dim (int): dimension to slice on.
-        slice_val (int): value to take the slice along that dimension.
+        slice_val (float): value to take the slice along that dimension.
         vmin (float): global model minimum to use for plotting.
         vmax (float): global model maximum to use for plotting.
         gridsize (int): The number of points to sample each dimension at. Default: 30.

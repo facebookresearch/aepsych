@@ -60,8 +60,8 @@ class TestSobolGenerator(unittest.TestCase):
         config = Config()
         config.update(config_str=config_str)
         gen = SobolGenerator.from_config(config)
-        npt.assert_equal(gen.lb.numpy(), np.array([0]))
-        npt.assert_equal(gen.ub.numpy(), np.array([1]))
+        npt.assert_equal(gen.lb.numpy(), np.asarray([0]))
+        npt.assert_equal(gen.ub.numpy(), np.asarray([1]))
         self.assertEqual(gen.seed, 12345)
         self.assertEqual(gen.stimuli_per_trial, 1)
 

@@ -269,7 +269,7 @@ class TestSequenceGenerators(unittest.TestCase):
         ]
 
         strat = SequentialStrategy(strat_list)
-        out = np.zeros((8, 2))
+        out = torch.zeros((8, 2))
         for i in range(8):
             next_x = strat.gen()
             strat.add_data(next_x, [1])
@@ -278,10 +278,10 @@ class TestSequenceGenerators(unittest.TestCase):
         gen1 = out[:3]
         gen2 = out[3:]
 
-        self.assertTrue(np.min(gen2) >= -10)
-        self.assertTrue(np.min(gen1) >= -1)
-        self.assertTrue(np.max(gen1) <= 1)
-        self.assertTrue(np.max(gen2) <= -8)
+        self.assertTrue(torch.min(gen2) >= -10)
+        self.assertTrue(torch.min(gen1) >= -1)
+        self.assertTrue(torch.max(gen1) <= 1)
+        self.assertTrue(torch.max(gen2) <= -8)
 
     def test_strategy_asserts(self):
         class MockModel(object):

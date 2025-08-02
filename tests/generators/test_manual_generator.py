@@ -55,8 +55,8 @@ class TestManualGenerator(unittest.TestCase):
         config = Config()
         config.update(config_str=config_str)
         gen = ParameterTransformedGenerator.from_config(config, "ManualGenerator")
-        npt.assert_equal(gen.lb.numpy(), np.array([0, 0]))
-        npt.assert_equal(gen.ub.numpy(), np.array([1, 1]))
+        npt.assert_equal(gen.lb.numpy(), np.asarray([0, 0]))
+        npt.assert_equal(gen.ub.numpy(), np.asarray([1, 1]))
         self.assertFalse(gen.finished)
 
         p1 = list(gen.gen()[0])
@@ -115,8 +115,8 @@ class TestSampleAroundPointsGenerator(unittest.TestCase):
         config = Config()
         config.update(config_str=config_str)
         gen = SampleAroundPointsGenerator.from_config(config)
-        npt.assert_equal(gen.lb.numpy(), np.array([0, 0]))
-        npt.assert_equal(gen.ub.numpy(), np.array([1, 1]))
+        npt.assert_equal(gen.lb.numpy(), np.asarray([0, 0]))
+        npt.assert_equal(gen.ub.numpy(), np.asarray([1, 1]))
         self.assertEqual(gen.max_asks, len(points * samples_per_point))
         self.assertEqual(gen.seed, 123)
         self.assertFalse(gen.finished)
@@ -124,8 +124,8 @@ class TestSampleAroundPointsGenerator(unittest.TestCase):
         points = gen.gen(gen.max_asks)
         for i in range(len(window)):
             npt.assert_array_less(points[:, i], points[:, i] + window[i])
-            npt.assert_array_less(np.array([0] * len(points)), points[:, i])
-            npt.assert_array_less(points[:, i], np.array([1] * len(points)))
+            npt.assert_array_less(np.asarray([0] * len(points)), points[:, i])
+            npt.assert_array_less(points[:, i], np.asarray([1] * len(points)))
 
         self.assertTrue(gen.finished)
 
@@ -154,8 +154,8 @@ class TestSampleAroundPointsGenerator(unittest.TestCase):
         config = Config()
         config.update(config_str=config_str)
         gen = SampleAroundPointsGenerator.from_config(config)
-        npt.assert_equal(gen.lb.numpy(), np.array(lb))
-        npt.assert_equal(gen.ub.numpy(), np.array(ub))
+        npt.assert_equal(gen.lb.numpy(), np.asarray(lb))
+        npt.assert_equal(gen.ub.numpy(), np.asarray(ub))
         self.assertEqual(gen.max_asks, len(points * samples_per_point))
         self.assertEqual(gen.seed, 123)
         self.assertFalse(gen.finished)

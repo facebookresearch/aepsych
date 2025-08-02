@@ -211,7 +211,7 @@ def _tell_to_record(
         # Correct for multi stimuli in old databases
         for key, value in config_dict.items():
             if isinstance(value, list):
-                value = np.array(value)
+                value = np.asarray(value)
             if value.ndim == 1:
                 value = np.expand_dims(value, axis=0)
                 config_dict[key] = value
