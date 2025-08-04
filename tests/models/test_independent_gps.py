@@ -22,7 +22,7 @@ def f_1d(x, mu=0):
     """
     latent is just a gaussian bump at mu
     """
-    return np.exp(-((x - mu) ** 2))
+    return torch.exp(-((x - mu) ** 2))
 
 
 def f_2d(x, target=None):
@@ -284,7 +284,7 @@ class IndependentGPStratTest(unittest.TestCase):
         pred_y = strat.model.predict(x_grid)
 
         norm = torch.distributions.Normal(0, 1)
-        baz_target = f_2d(x_grid[np.argmin((norm.cdf(pred_y[0][:, 0]) - 0.75) ** 2)])
+        baz_target = f_2d(x_grid[torch.argmin((norm.cdf(pred_y[0][:, 0]) - 0.75) ** 2)])
         qux_max = x_grid[torch.argmax(pred_y[0][:, 1])]
 
         # Pretty wide check on binary, but that's the nature of it

@@ -338,7 +338,7 @@ class TestClassificationPlotting(unittest.TestCase):
 
         bumped_lb = lb.double()
         bumped_ub = ub.double()
-        diff = np.abs(ub - lb)
+        diff = torch.abs(ub - lb)
         edge_bumps = (diff - (diff * (1 - edge_multiplier))) / 2
         bumped_lb -= edge_bumps
         bumped_ub += edge_bumps

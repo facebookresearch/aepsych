@@ -9,6 +9,7 @@ import unittest
 
 import numpy as np
 import numpy.testing as npt
+import torch
 from aepsych.config import Config
 from aepsych.generators import RandomGenerator
 
@@ -17,19 +18,19 @@ class TestRandomGenerator(unittest.TestCase):
     def test_randomgen_single(self):
         # test that RandomGenerator doesn't mess with shapes
         n = 100
-        rand = np.zeros((n, 3))
+        rand = torch.zeros((n, 3))
         mod = RandomGenerator(lb=[1, 2, 3], ub=[2, 3, 4], dim=3)
 
         for i in range(n):
             rand[i, :] = mod.gen()
 
         # check that bounds are right
-        self.assertTrue(np.all(rand[:, 0] > 1))
-        self.assertTrue(np.all(rand[:, 1] > 2))
-        self.assertTrue(np.all(rand[:, 2] > 3))
-        self.assertTrue(np.all(rand[:, 0] < 2))
-        self.assertTrue(np.all(rand[:, 1] < 3))
-        self.assertTrue(np.all(rand[:, 2] < 4))
+        self.assertTrue(torch.all(rand[:, 0] > 1))
+        self.assertTrue(torch.all(rand[:, 1] > 2))
+        self.assertTrue(torch.all(rand[:, 2] > 3))
+        self.assertTrue(torch.all(rand[:, 0] < 2))
+        self.assertTrue(torch.all(rand[:, 1] < 3))
+        self.assertTrue(torch.all(rand[:, 2] < 4))
 
     def test_randomgen_batch(self):
         # test that RandomGenerator doesn't mess with shapes
@@ -56,8 +57,8 @@ class TestRandomGenerator(unittest.TestCase):
         """
         config = Config(config_str=config_str)
         gen = RandomGenerator.from_config(config)
-        npt.assert_equal(gen.lb.numpy(), np.array(lb))
-        npt.assert_equal(gen.ub.numpy(), np.array(ub))
+        npt.assert_equal(gen.lb.numpy(), np.asarray(lb))
+        npt.assert_equal(gen.ub.numpy(), np.asarray(ub))
         self.assertEqual(gen.dim, len(lb))
 
     def test_randomgen_fixed(self):

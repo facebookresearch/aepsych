@@ -172,7 +172,11 @@ def interpolate_monotonic(
     # basic idea is find the nearest two points to the LSE and
     # linearly interpolate between them (I think this is bisection
     # root-finding)
-    idx = np.searchsorted(y, z)
+    if isinstance(y, np.ndarray):
+        y = torch.tensor(y)
+    if isinstance(z, np.ndarray):
+        z = torch.tensor(z)
+    idx = torch.searchsorted(y, z)
     if idx == len(y):
         return float(max_x)
     elif idx == 0:
@@ -324,7 +328,7 @@ def get_jnd_1d(
     interpolate_to = post_mean + df
     return torch.tensor(
         (
-            np.array(
+            np.asarray(
                 [
                     interpolate_monotonic(mono_grid, post_mean, ito)
                     for ito in interpolate_to

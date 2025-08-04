@@ -474,8 +474,8 @@ class TransformsLog10Test(unittest.TestCase):
         x = torch.linspace(lower_bound, upper_bound, 100)
 
         zhat, _ = strat.predict(x, probability_space=True)
-        est_max = x[np.argmin((zhat - target) ** 2)]
-        diff = np.abs((est_max / 100) - target)
+        est_max = x[torch.argmin((zhat - target) ** 2)]
+        diff = torch.abs((est_max / 100) - target)
         self.assertTrue(diff < 0.15, f"Diff = {diff}, est_max = {est_max}")
 
 
@@ -621,8 +621,8 @@ class TransformsInteger(unittest.TestCase):
         x = torch.linspace(lower_bound, upper_bound, 100)
 
         zhat, _ = strat.predict(x)
-        est_max = x[np.argmin((zhat - target) ** 2)]
-        diff = np.abs(est_max / 100 - target)
+        est_max = x[torch.argmin((zhat - target) ** 2)]
+        diff = torch.abs(est_max / 100 - target)
         self.assertTrue(diff < 0.15, f"Diff = {diff}")
 
     def test_binary(self):
@@ -809,7 +809,7 @@ class TransformCategorical(unittest.TestCase):
     def test_standalone_transform(self):
         categories = {1: ["red", "green", "blue"], 3: ["big", "small"]}
         input = torch.tensor([[0.2, 2, 4, 0, 1], [0.5, 0, 3, 0, 1], [0.9, 1, 0, 1, 0]])
-        input_cats = np.array(
+        input_cats = np.asarray(
             [
                 [0.2, "blue", 4, "big", "right"],
                 [0.5, "red", 3, "big", "right"],

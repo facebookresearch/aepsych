@@ -246,7 +246,9 @@ class AEPsychServer(object):
         # Check if the values of config are not array, if so make them so
         config_copy = {
             key: (
-                value if isinstance(value, np.ndarray) else np.array(promote_0d(value))
+                value
+                if isinstance(value, np.ndarray)
+                else np.asarray(promote_0d(value))
             )
             for key, value in config.items()
         }
@@ -273,7 +275,7 @@ class AEPsychServer(object):
         for key, value in fixed.items():
             idx = self.parnames.index(key)
             dummy[idx] = value
-        dummy = np.expand_dims(dummy, 0)
+        dummy = np.expand_dims(dummy, 0)  # type: ignore
         dummy = self.strat.transforms.str_to_indices(dummy)[0]
 
         # Turn the dummy back into a dict

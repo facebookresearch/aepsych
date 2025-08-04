@@ -41,19 +41,12 @@ def f_1d(x, mu=0):
     """
     latent is just a gaussian bump at mu
     """
-    return np.exp(-((x - mu) ** 2))
-
-
-def f_2d(x):
-    """
-    a gaussian bump at 0 , 0
-    """
-    return np.exp(-np.linalg.norm(x, axis=-1))
+    return torch.exp(-((x - mu) ** 2))
 
 
 def f_2d_target(x, target=None):
     """
-    Distance to target
+    Distance to target, default is a guassian bump at 0, 0
     """
     if target is None:
         target = torch.tensor([0.0, 0.0])
@@ -406,7 +399,7 @@ class GPClassificationTest(unittest.TestCase):
         zhat, _ = strat.predict(x)
 
         # true max is 0, very loose test
-        self.assertTrue(np.abs(x[np.argmax(zhat.detach().numpy())]) < 0.5)
+        self.assertTrue(torch.abs(x[np.argmax(zhat.detach().numpy())]) < 0.5)
 
     def test_1d_single_probit_batched(self):
         n_init = 50
@@ -452,7 +445,7 @@ class GPClassificationTest(unittest.TestCase):
         zhat, _ = strat.predict(x)
 
         # true max is 0, very loose test
-        self.assertTrue(np.abs(x[np.argmax(zhat.detach().numpy())]) < 0.5)
+        self.assertTrue(torch.abs(x[np.argmax(zhat.detach().numpy())]) < 0.5)
 
     def test_1d_single_probit(self):
         n_init = 50
@@ -497,7 +490,7 @@ class GPClassificationTest(unittest.TestCase):
         zhat, _ = strat.predict(x)
 
         # true max is 0, very loose test
-        self.assertTrue(np.abs(x[np.argmax(zhat.detach().numpy())]) < 0.5)
+        self.assertTrue(torch.abs(x[np.argmax(zhat.detach().numpy())]) < 0.5)
 
     def test_1d_single_probit_pure_exploration(self):
         n_init = 50
@@ -647,7 +640,7 @@ class GPClassificationTest(unittest.TestCase):
         # since target is 0.75, find the point at which f_est is 0.75
         est_max = x[np.argmin((norm.cdf(zhat.detach().numpy()) - 0.75) ** 2)]
         # since true z is just x, the true max is where phi(x)=0.75,
-        self.assertTrue(np.abs(est_max - norm.ppf(0.75)) < 0.5)
+        self.assertTrue(torch.abs(est_max - norm.ppf(0.75)) < 0.5)
 
     def test_1d_jnd(self):
         n_init = 150
@@ -709,7 +702,7 @@ class GPClassificationTest(unittest.TestCase):
         )
         est_jnd_step = jnd_step[50]
         # looser test because step-jnd is hurt more by reverting to the mean
-        self.assertTrue(np.abs(est_jnd_step - 1.5) < 0.5)
+        self.assertTrue(torch.abs(est_jnd_step - 1.5) < 0.5)
 
         jnd_taylor = get_jnd(
             strat.model,
@@ -720,7 +713,7 @@ class GPClassificationTest(unittest.TestCase):
             method="taylor",
         )
         est_jnd_taylor = jnd_taylor[50]
-        self.assertTrue(np.abs(est_jnd_taylor - 1.5) < 0.25)
+        self.assertTrue(torch.abs(est_jnd_taylor - 1.5) < 0.25)
 
     def test_1d_single_lse(self):
         n_init = 50
@@ -770,7 +763,7 @@ class GPClassificationTest(unittest.TestCase):
         # since target is 0.75, find the point at which f_est is 0.75
         est_max = x[np.argmin((norm.cdf(zhat.detach().cpu().numpy()) - 0.75) ** 2)]
         # since true z is just x, the true max is where phi(x)=0.75,
-        self.assertTrue(np.abs(est_max - norm.ppf(0.75)) < 0.5)
+        self.assertTrue(torch.abs(est_max - norm.ppf(0.75)) < 0.5)
 
     def test_2d_single_probit(self):
         n_init = 150
@@ -808,7 +801,7 @@ class GPClassificationTest(unittest.TestCase):
 
         for _i in range(n_init + n_opt):
             next_x = strat.gen()
-            strat.add_data(next_x, [bernoulli.rvs(f_2d(next_x[None, :]))])
+            strat.add_data(next_x, [bernoulli.rvs(f_2d_target(next_x))])
 
         xy = np.mgrid[-1:1:30j, -1:1:30j].reshape(2, -1).T
         zhat, _ = strat.predict(torch.Tensor(xy))

@@ -291,7 +291,7 @@ class Config(configparser.ConfigParser):
             np.ndarray: Numpy array representation of the string.
         """
         v = ast.literal_eval(v)
-        return np.array(v, dtype=float)
+        return np.asarray(v, dtype=float)
 
     def _str_to_tensor(self, v: str) -> torch.Tensor:
         """Convert a string to a torch tensor.

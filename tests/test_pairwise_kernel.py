@@ -62,8 +62,8 @@ class PairwiseKernelTest(unittest.TestCase):
         )
         npt.assert_allclose(c12, pwc, atol=1e-6)
 
-        shape = np.array(c12.shape)
-        npt.assert_equal(shape, np.array([2, 2]))
+        shape = np.asarray(c12.shape)
+        npt.assert_equal(shape, np.asarray([2, 2]))
 
         x3 = torch.rand(torch.Size([3, 4]))
         x4 = torch.rand(torch.Size([6, 4]))
@@ -84,8 +84,8 @@ class PairwiseKernelTest(unittest.TestCase):
         )
         npt.assert_allclose(c34, pwc, atol=1e-6)
 
-        shape = np.array(c34.shape)
-        npt.assert_equal(shape, np.array([3, 6]))
+        shape = np.asarray(c34.shape)
+        npt.assert_equal(shape, np.asarray([3, 6]))
 
     def test_latent_diag(self):
         """
@@ -112,15 +112,15 @@ class PairwiseKernelTest(unittest.TestCase):
         x2 = torch.rand(torch.Size([2, 2, 4]))
 
         diag = self.kernel(x1, x2, diag=True)
-        shape = np.array(diag.shape)
-        npt.assert_equal(shape, np.array([2, 2]))
+        shape = np.asarray(diag.shape)
+        npt.assert_equal(shape, np.asarray([2, 2]))
 
         x1 = torch.rand(torch.Size([2, 4]))
         x2 = torch.rand(torch.Size([2, 4]))
 
         diag = self.kernel(x1, x2, diag=True)
-        shape = np.array(diag.shape)
-        npt.assert_equal(shape, np.array([2]))
+        shape = np.asarray(diag.shape)
+        npt.assert_equal(shape, np.asarray([2]))
 
 
 if __name__ == "__main__":

@@ -854,7 +854,7 @@ def transform_options(
         for option, value in options.items():
             if option in _TRANSFORMABLE:
                 value = ast.literal_eval(value)
-                value = np.array(value, dtype=float)
+                value = np.asarray(value, dtype=float)
                 value = torch.tensor(value).to(torch.float64)
 
                 if option in ["ub", "lb"]:
@@ -881,8 +881,8 @@ def transform_options(
                     value = transforms.transform(value)
 
                 def _arr_to_list(iter):
-                    if hasattr(iter, "__iter__"):
-                        iter = list(iter)
+                    if isinstance(iter, np.ndarray):
+                        iter = iter.tolist()
                         iter = [_arr_to_list(element) for element in iter]
                         return iter
                     return iter

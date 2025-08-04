@@ -557,6 +557,7 @@ class TestMixedFactories(unittest.TestCase):
         locs, scale = TestMixedFactories.new_novel_det_channels_params(
             channel, scale_factor, wave_freq, target
         )
+
         return (x - locs) / scale
 
     @staticmethod
@@ -582,7 +583,7 @@ class TestMixedFactories(unittest.TestCase):
         generator = SobolGenerator(lb=[-1], ub=[1], dim=1)
         x = generator.gen(n_train)
         channel = np.random.choice(2, n_train)
-        f = TestMixedFactories.new_novel_det_channels(x.squeeze(), channel)
+        f = TestMixedFactories.new_novel_det_channels(x.squeeze().numpy(), channel)
         y = bernoulli.rvs(norm.cdf(f))
         self.xtest = generator.gen(n_test)
         self.x = torch.concatenate([x, torch.tensor(channel).unsqueeze(1)], axis=1)

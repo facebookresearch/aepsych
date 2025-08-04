@@ -9,6 +9,7 @@ import logging
 import logging.config
 import os
 import re
+import sys
 import warnings
 from typing import Any
 
@@ -102,6 +103,7 @@ _IGNORED_WARNINGS = [
     r"Matplotlib is building the font cache; this may take a moment\.",
     r"Skipping device Apple Paravirtual device that does not support Metal 2\.0",
     r"Found Intel OpenMP \('libiomp'\) and LLVM OpenMP \('libomp'\) loaded",
+    r"numpy\.core\.numeric is deprecated and has been renamed to numpy\._core\.numeric\.",  # Old SqlAlchemy + NumPy2.0 warning
 ]
 
 
@@ -124,11 +126,19 @@ def _set_test_warning_filters():
             if compiled_warnings.search(str(msg)) is not None:
                 return
 
+            # TODO: BoTorch + numpy deprecation warning for python 3.10, remove with deprecation
+            if (
+                sys.version.startswith("3.10")
+                and msg.category == DeprecationWarning
+                and "botorch" in msg.filename
+                and "__array__ implementation doesn't accept a copy keyword" in str(msg)
+            ):
+                return
+
             warnings._showwarnmsg_impl(msg)
             raise message
 
         warnings.showwarning = raise_warnings
-        # warnings.simplefilter("ignore")
 
 
 class TestFilter(logging.Filter):
