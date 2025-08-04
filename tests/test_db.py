@@ -696,6 +696,7 @@ class DBUtilityTestCase(unittest.TestCase):
             )
 
         combined_db.cleanup()
+        out_path.unlink()
 
 
 if __name__ == "__main__":
