@@ -27,6 +27,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging.config</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
@@ -120,6 +121,7 @@
     <span class="sa">r</span><span class="s2">"Matplotlib is building the font cache; this may take a moment\."</span><span class="p">,</span>
     <span class="sa">r</span><span class="s2">"Skipping device Apple Paravirtual device that does not support Metal 2\.0"</span><span class="p">,</span>
     <span class="sa">r</span><span class="s2">"Found Intel OpenMP \('libiomp'\) and LLVM OpenMP \('libomp'\) loaded"</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s2">"numpy\.core\.numeric is deprecated and has been renamed to numpy\._core\.numeric\."</span><span class="p">,</span>  <span class="c1"># Old SqlAlchemy + NumPy2.0 warning</span>
 <span class="p">]</span>
 
 
@@ -142,11 +144,19 @@
             <span class="k">if</span> <span class="n">compiled_warnings</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">msg</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">return</span>
 
+            <span class="c1"># TODO: BoTorch + numpy deprecation warning for python 3.10, remove with deprecation</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">version</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"3.10"</span><span class="p">)</span>
+                <span class="ow">and</span> <span class="n">msg</span><span class="o">.</span><span class="n">category</span> <span class="o">==</span> <span class="ne">DeprecationWarning</span>
+                <span class="ow">and</span> <span class="s2">"botorch"</span> <span class="ow">in</span> <span class="n">msg</span><span class="o">.</span><span class="n">filename</span>
+                <span class="ow">and</span> <span class="s2">"__array__ implementation doesn't accept a copy keyword"</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="p">):</span>
+                <span class="k">return</span>
+
             <span class="n">warnings</span><span class="o">.</span><span class="n">_showwarnmsg_impl</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
             <span class="k">raise</span> <span class="n">message</span>
 
         <span class="n">warnings</span><span class="o">.</span><span class="n">showwarning</span> <span class="o">=</span> <span class="n">raise_warnings</span>
-        <span class="c1"># warnings.simplefilter("ignore")</span>
 
 
 <div class="viewcode-block" id="TestFilter"><a class="viewcode-back" href="../../utils_logging.html#aepsych.utils_logging.TestFilter">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">TestFilter</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">Filter</span><span class="p">):</span>
