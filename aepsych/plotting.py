@@ -611,7 +611,7 @@ def facet_slices(
         **kwargs,
     )
 
-    slice_template = [
+    slice_template: list[Any] = [
         None if idx in not_axes else slice(0, prediction.shape[idx])
         for idx in range(len(lb))
     ]
