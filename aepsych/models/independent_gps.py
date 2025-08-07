@@ -22,7 +22,10 @@ class IndependentGPsModel(AEPsychModelMixin):
         # https://github.com/pytorch/pytorch/issues/80821
         self.models: Mapping[str, AEPsychModelMixin] = model_dict  # type: ignore
         self.model_names = list(self.models.keys())
-        self._num_outputs = sum([model._num_outputs for model in model_dict.values()])
+        tmp = torch.tensor(
+            [model._num_outputs for model in model_dict.values()], dtype=torch.int
+        )
+        self._num_outputs = sum(tmp)
 
     def __getitem__(self, key):
         # Allow both integer and string indices to access model directly
