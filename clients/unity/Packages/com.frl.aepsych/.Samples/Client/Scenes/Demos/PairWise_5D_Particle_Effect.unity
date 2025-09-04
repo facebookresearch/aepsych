@@ -239,8 +239,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 25e9decfe19fc314da1a282b8cec8838, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
   stimulus_presentation: 1
   response_type: 0
   experiment_method: 1
@@ -303,8 +303,6 @@ MonoBehaviour:
 
     generator = PairwiseOptimizeAcqfGenerator
 
-    acqf
-    = qNoisyExpectedImprovement
 
     model = PairwiseProbitModel
 
@@ -323,6 +321,9 @@ MonoBehaviour:
     = 10
 
     samps = 3000
+
+    acqf
+    = qNoisyExpectedImprovement
 
 
     [qNoisyExpectedImprovement]
@@ -345,8 +346,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d19c36bbf23f46e4fbbd2198aaa949b5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
   ResponseKey0: 49
   ResponseKey1: 50
   startKey: 32
@@ -502,8 +503,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 66678f3fd91e1bc4c9b8b60968b5a725, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
   currentStrat: 0
   server_address: localhost
   server_port: 5555
@@ -551,8 +552,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4f231c4fb786f3946a6b90b886c48677, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
   m_HorizontalAxis: Horizontal
   m_VerticalAxis: Vertical
   m_SubmitButton: Submit
@@ -570,8 +571,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 76c392e42b5098c458856cdf6ecaaaa1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
   m_FirstSelected: {fileID: 0}
   m_sendNavigationEvents: 1
   m_DragThreshold: 10
@@ -775,7 +776,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2416200128082496200, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
       propertyPath: m_Camera
-      value: 
+      value:
       objectReference: {fileID: 414714582}
     - target: {fileID: 2416200128082496200, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
       propertyPath: m_PlaneDistance

@@ -351,8 +351,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6da7f1d8cf145a244974cf085de2b167, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
   experiment: {fileID: 720461321}
 --- !u!4 &494520667
 Transform:
@@ -395,8 +395,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 66678f3fd91e1bc4c9b8b60968b5a725, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
   currentStrat: 0
   server_address: localhost
   server_port: 5555
@@ -444,8 +444,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 25e9decfe19fc314da1a282b8cec8838, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
   stimulus_presentation: 0
   response_type: 0
   experiment_method: 0
@@ -454,7 +454,7 @@ MonoBehaviour:
     upperBound: 1.5
     name: pitch
   manualConfig: {fileID: 0}
-  relativeFilePath: 
+  relativeFilePath:
   experiment_idx: 0
   target: 0.5
   initialization_trials: 3
@@ -497,7 +497,6 @@ MonoBehaviour:
 
     generator = OptimizeAcqfGenerator
 
-    acqf = MCLevelSetEstimation
 
     model
     = GPClassificationModel
@@ -517,6 +516,8 @@ MonoBehaviour:
 
     samps
     = 1000
+
+    acqf = MCLevelSetEstimation
 
 
     [MCLevelSetEstimation]
@@ -541,8 +542,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 24d82a6a05e51af49a74662bb1937413, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
   ResponseKey0: 108
   ResponseKey1: 121
   startKey: 32
@@ -815,8 +816,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4f231c4fb786f3946a6b90b886c48677, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
   m_HorizontalAxis: Horizontal
   m_VerticalAxis: Vertical
   m_SubmitButton: Submit
@@ -834,8 +835,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 76c392e42b5098c458856cdf6ecaaaa1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
   m_FirstSelected: {fileID: 0}
   m_sendNavigationEvents: 1
   m_DragThreshold: 10
