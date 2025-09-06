@@ -19,7 +19,7 @@ using Newtonsoft.Json.Converters;
 
 namespace AEPsych
 {
-    public enum RequestType { setup, ask, tell, resume, query, parameters, can_model, exit };
+    public enum RequestType { setup, ask, tell, resume, query, parameters, info, exit };
     public enum QueryType { min, max, prediction, inverse }
 
 
@@ -101,6 +101,46 @@ namespace AEPsych
             this.constraints = constraints;
             this.probability_space = probability_space;
         }
+    }
+
+    public class InfoMessage
+    {
+        public string db_name;
+        public string exp_id;
+
+        public int strat_count;
+
+        public List<string> all_strat_names;
+
+        public int current_strat_index;
+
+        public string current_strat_name;
+
+        public int current_strat_data_pts;
+
+        public string current_strat_model;
+
+        public string current_strat_acqf;
+
+        public bool current_strat_finished;
+
+        public bool current_strat_can_fit;
+
+        public InfoMessage(string db_name, string exp_id, int strat_count, List<string> all_strat_names, int current_strat_index, string current_strat_name, int current_strat_data_pts, string current_strat_model, string current_strat_acqf, bool current_strat_finished, bool current_strat_can_fit)
+        {
+            this.db_name = db_name;
+            this.exp_id = exp_id;
+            this.strat_count = strat_count;
+            this.all_strat_names = all_strat_names;
+            this.current_strat_index = current_strat_index;
+            this.current_strat_name = current_strat_name;
+            this.current_strat_data_pts = current_strat_data_pts;
+            this.current_strat_model = current_strat_model;
+            this.current_strat_acqf = current_strat_acqf;
+            this.current_strat_finished = current_strat_finished;
+            this.current_strat_can_fit = current_strat_can_fit;
+        }
+
     }
 
     public class ResumeMessage
@@ -443,7 +483,7 @@ namespace AEPsych
 
         public IEnumerator CheckForModel()
         {
-            Request req = new Request("", RequestType.can_model);
+            Request req = new Request("", RequestType.info);
             yield return StartCoroutine(this.SendRequest(JsonConvert.SerializeObject(req)));
         }
 
@@ -454,8 +494,8 @@ namespace AEPsych
                 Debug.Log("Error! Called GetModelResponse() when there is no reply available! Current status is " + status);
             }
             SetStatus(ClientStatus.Ready);
-            Dictionary<string, bool> modelReply = JsonConvert.DeserializeObject<Dictionary<string, bool>>(reply);
-            return modelReply["can_model"];
+            InfoMessage modelReply = JsonConvert.DeserializeObject<InfoMessage>(reply);
+            return modelReply.current_strat_can_fit;
         }
 
         public void CloseServer()
