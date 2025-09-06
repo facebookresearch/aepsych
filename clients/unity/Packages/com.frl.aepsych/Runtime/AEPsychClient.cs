@@ -372,7 +372,7 @@ namespace AEPsych
             }
             SetStatus(ClientStatus.Ready);
             Debug.Log(reply);
-            currentStrat = JsonConvert.DeserializeObject<int>(reply);
+            currentStrat = JsonConvert.DeserializeObject<Dictionary<string, int>>(reply)["strat_id"];
             return currentStrat;
         }
 
