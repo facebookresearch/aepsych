@@ -52,7 +52,7 @@ public class Ex1DSingleDetection : Experiment
         SetText("Now presenting stimulus.");
         circleInstance = Instantiate(circlePrefab);
         FlashSprite fs = circleInstance.GetComponent<FlashSprite>();
-        fs.alpha = config["alpha"][0];
+        fs.alpha = config.GetFlatList("alpha")[0];
         StartCoroutine(EndShowStimuliAfterSeconds(fs.flashDuration));
     }
 
@@ -107,7 +107,7 @@ public class Ex1DSingleDetection : Experiment
         TrialConfig maxLoc = m.x;
         circleInstance = Instantiate(circlePrefab);
         FlashSprite fs = circleInstance.GetComponent<FlashSprite>();
-        fs.alpha = maxLoc["alpha"][0];
+        fs.alpha = maxLoc.GetFlatList("alpha")[0];
         fs.flashDuration = -1.0f; //never destroy
         SetText("Experiment complete! Displaying 75% threshold color: ");
     }

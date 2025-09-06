@@ -49,7 +49,7 @@ public class Ex1DContinuousOpt : Experiment
             particle_0.transform.localScale *= scaleFactor;
         }
 
-        Color color = Color.HSVToRGB(config["hue"][0], 1, 1);
+        Color color = Color.HSVToRGB(config.GetFlatList("hue")[0], 1, 1);
         color.a = fixedAlpha;
 
 #pragma warning disable CS0618 // Type or member is obsolete

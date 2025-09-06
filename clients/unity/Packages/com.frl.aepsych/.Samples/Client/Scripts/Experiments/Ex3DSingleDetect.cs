@@ -48,8 +48,8 @@ public class Ex3DSingleDetect : Experiment
     {
         circleInstance = Instantiate(circlePrefab);
         FlashSprite fs = circleInstance.GetComponent<FlashSprite>();
-        Color c = Color.HSVToRGB(config["hue"][0], config["saturation"][0], 0.2f);
-        fs.SetColor(c.r, c.g, c.b, config["alpha"][0]);
+        Color c = Color.HSVToRGB(config.GetFlatList("hue")[0], config.GetFlatList("saturation")[0], 0.2f);
+        fs.SetColor(c.r, c.g, c.b, config.GetFlatList("alpha")[0]);
         StartCoroutine(EndShowStimuliAfterSeconds(fs.flashDuration));
         SetText("Now presenting stimulus.");
     }
@@ -118,8 +118,8 @@ public class Ex3DSingleDetect : Experiment
         circleInstance = Instantiate(circlePrefab);
         FlashSprite fs = circleInstance.GetComponent<FlashSprite>();
         fs.flashDuration = -1.0f; //never destroy
-        Color c = Color.HSVToRGB(maxLoc["hue"][0], maxLoc["saturation"][0], 0.2f);
-        fs.SetColor(c.r, c.g, c.b, maxLoc["alpha"][0]);
+        Color c = Color.HSVToRGB(maxLoc.GetFlatList("hue")[0], maxLoc.GetFlatList("saturation")[0], 0.2f);
+        fs.SetColor(c.r, c.g, c.b, maxLoc.GetFlatList("alpha")[0]);
         SetText("Experiment complete! Displaying 75% threshold color: ");
     }
 

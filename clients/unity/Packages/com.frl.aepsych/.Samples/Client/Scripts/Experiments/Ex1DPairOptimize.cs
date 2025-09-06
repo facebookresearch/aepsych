@@ -45,8 +45,8 @@ public class Ex1DPairOptimize : Experiment
         GameObject circle2 = Instantiate(circlePrefab, new Vector3(1.2f, 2.0f), Quaternion.identity);
         FlashSprite fs = circle1.GetComponent<FlashSprite>();
         FlashSprite fs2 = circle2.GetComponent<FlashSprite>();
-        fs.SetGrayscaleColor(config["gsColor"][0]);
-        fs2.SetGrayscaleColor(config["gsColor"][1]);
+        fs.SetGrayscaleColor(config.GetNestedList("gsColor")[0][0]);
+        fs2.SetGrayscaleColor(config.GetNestedList("gsColor")[0][1]);
         fs.flashDuration = 1.0f;
         fs2.flashDuration = 1.0f;
 
@@ -131,7 +131,7 @@ public class Ex1DPairOptimize : Experiment
         circleInstance = Instantiate(circlePrefab);
         FlashSprite fs = circleInstance.GetComponent<FlashSprite>();
         fs.flashDuration = -1.0f; //never destroy
-        fs.SetGrayscaleColor(maxLoc["gsColor"][0]);
+        fs.SetGrayscaleColor(maxLoc.GetFlatList("gsColor")[0]);
         SetText("Experiment complete! Displaying optimal color: ");
     }
 

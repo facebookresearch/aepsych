@@ -49,7 +49,7 @@ public class Ex2DSingleDetect : Experiment
         SetText("Now presenting stimulus.");
         circleInstance = Instantiate(circlePrefab);
         FlashSprite fs = circleInstance.GetComponent<FlashSprite>();
-        fs.SetGrayscaleColor(config["gsColor"][0], config["alpha"][0]);
+        fs.SetGrayscaleColor(config.GetFlatList("gsColor")[0], config.GetFlatList("alpha")[0]);
         StartCoroutine(EndShowStimuliAfterSeconds(fs.flashDuration));
     }
 
@@ -119,7 +119,7 @@ public class Ex2DSingleDetect : Experiment
         TrialConfig maxLoc = m.x;
         circleInstance = Instantiate(circlePrefab);
         FlashSprite fs = circleInstance.GetComponent<FlashSprite>();
-        fs.SetGrayscaleColor(maxLoc["gsColor"][0], maxLoc["alpha"][0]);
+        fs.SetGrayscaleColor(maxLoc.GetFlatList("gsColor")[0], maxLoc.GetFlatList("alpha")[0]);
         fs.flashDuration = -1.0f; //never destroy
         SetText("Experiment complete! Displaying 75% threshold color: ");
     }

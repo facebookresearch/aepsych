@@ -48,16 +48,16 @@ public class ContinuousDemo : Experiment
 
         var light_0 = particle_0.lights;
 
-        Color color = Color.HSVToRGB(config["hue"][0], 1, 1);
+        Color color = Color.HSVToRGB(config.GetFlatList("hue")[0], 1, 1);
         color.a = fixedAlpha;
 
 #pragma warning disable CS0618 // Type or member is obsolete
 
-        light_0.intensityMultiplier = config["light"][0];
+        light_0.intensityMultiplier = config.GetFlatList("light")[0];
         particle_0.startColor = color;
-        particle_0.gravityModifier = config["gravity"][0];
-        particle_0.startSpeed = config["speed"][0];
-        particle_0.startLifetime = config["lifetime"][0];
+        particle_0.gravityModifier = config.GetFlatList("gravity")[0];
+        particle_0.startSpeed = config.GetFlatList("speed")[0];
+        particle_0.startLifetime = config.GetFlatList("lifetime")[0];
 
         // Play particle systems
         particle_0.Play();

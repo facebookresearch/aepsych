@@ -76,8 +76,8 @@ public class Ex3DPairOptimize : Experiment
         GameObject circle2 = Instantiate(circlePrefab, new Vector3(1.8f, 1.5f), Quaternion.identity);
         FlashSprite fs = circle1.GetComponent<FlashSprite>();
         FlashSprite fs2 = circle2.GetComponent<FlashSprite>();
-        fs.SetColor(config["R"][0], config["G"][0], config["B"][0], 1.0f);
-        fs2.SetColor(config["R"][1], config["G"][1], config["B"][1], 1.0f);
+        fs.SetColor(config.GetNestedList("R")[0][0], config.GetNestedList("G")[0][0], config.GetNestedList("B")[0][0], 1.0f);
+        fs2.SetColor(config.GetNestedList("R")[0][1], config.GetNestedList("G")[0][1], config.GetNestedList("B")[0][1], 1.0f);
         fs.flashDuration = 1.4f;
         fs2.flashDuration = 1.4f;
 
@@ -141,7 +141,7 @@ public class Ex3DPairOptimize : Experiment
         TrialConfig maxLoc = m.x;
         circleInstance = Instantiate(circlePrefab);
         FlashSprite fs = circleInstance.GetComponent<FlashSprite>();
-        fs.SetColor(maxLoc["R"][0], maxLoc["G"][0], maxLoc["B"][0], 1.0f);
+        fs.SetColor(maxLoc.GetFlatList("R")[0], maxLoc.GetFlatList("G")[0], maxLoc.GetFlatList("B")[0], 1.0f);
         fs.flashDuration = -1.0f; //never destroy
         SetText("Experiment complete! Displaying optimal color: ");
     }

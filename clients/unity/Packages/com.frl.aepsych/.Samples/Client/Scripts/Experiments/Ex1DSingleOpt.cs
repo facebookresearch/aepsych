@@ -51,7 +51,7 @@ public class Ex1DSingleOpt : Experiment
         SetText("Now presenting stimulus.");
         circleInstance = Instantiate(circlePrefab);
         FlashSprite fs = circleInstance.GetComponent<FlashSprite>();
-        fs.SetGrayscaleColor(config["gsColor"][0]);
+        fs.SetGrayscaleColor(config.GetFlatList("gsColor")[0]);
         StartCoroutine(EndShowStimuliAfterSeconds(fs.flashDuration));
     }
 
@@ -109,7 +109,7 @@ public class Ex1DSingleOpt : Experiment
         circleInstance = Instantiate(circlePrefab);
         FlashSprite fs = circleInstance.GetComponent<FlashSprite>();
         fs.flashDuration = -1.0f; //never destroy
-        fs.SetGrayscaleColor(maxLoc["gsColor"][0]);
+        fs.SetGrayscaleColor(maxLoc.GetFlatList("gsColor")[0]);
     }
 
 
