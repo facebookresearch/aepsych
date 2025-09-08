@@ -38,7 +38,7 @@ public class Ex1DContinuousDetection : Experiment
     public override void ShowStimuli(TrialConfig config)
     {
         SetText("Showing Stimuli:");
-        StartCoroutine(ShowStimulusH(config["hue"][0]));
+        StartCoroutine(ShowStimulusH(config.GetFlatList("hue")[0]));
     }
 
     public IEnumerator ShowStimulusH(float hue)

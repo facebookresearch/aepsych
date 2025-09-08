@@ -57,7 +57,7 @@ public class Ex3DPairExplore : Experiment
     public override void ShowStimuli(TrialConfig config)
     {
         SetText("Showing Stimuli:");
-        StartCoroutine(ShowStimulusHSV(config["hue"][0], config["hue"][1], config["saturation"][0], config["saturation"][1], config["value"][0], config["value"][1]));
+        StartCoroutine(ShowStimulusHSV(config.GetNestedList("hue")[0][0], config.GetNestedList("hue")[0][1], config.GetNestedList("saturation")[0][0], config.GetNestedList("saturation")[0][1], config.GetNestedList("value")[0][0], config.GetNestedList("value")[0][1]));
     }
 
     // BeginExperiment (optional)

@@ -47,13 +47,13 @@ public class Ex2DContinuousOpt : Experiment
             particle_0.transform.localScale *= scaleFactor;
         }
 
-        Color color = Color.HSVToRGB(config["hue"][0], 1, 1);
+        Color color = Color.HSVToRGB(config.GetFlatList("hue")[0], 1, 1);
         color.a = fixedAlpha;
 
 #pragma warning disable CS0618 // Type or member is obsolete
 
         particle_0.startColor = color;
-        particle_0.gravityModifier = config["gravity"][0];
+        particle_0.gravityModifier = config.GetFlatList("gravity")[0];
         particle_0.startSpeed = fixedSpeed;
         particle_0.startLifetime = fixedLifetime;
 

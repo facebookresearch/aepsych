@@ -38,7 +38,7 @@ public class Ex2DContinuousDetection : Experiment
     public override void ShowStimuli(TrialConfig config)
     {
         SetText("Showing Stimuli:");
-        StartCoroutine(ShowStimulusSV(config["saturation"][0], config["value"][0]));
+        StartCoroutine(ShowStimulusSV(config.GetFlatList("saturation")[0], config.GetFlatList("value")[0]));
     }
 
     public IEnumerator ShowStimulusSV(float sat1, float val1)

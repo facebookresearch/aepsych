@@ -60,7 +60,7 @@ public class Ex2DSingleOptimize : Experiment
         SetText("Now presenting stimulus.");
         circleInstance = Instantiate(circlePrefab);
         FlashSprite fs = circleInstance.GetComponent<FlashSprite>();
-        fs.SetColor(config["R"][0], 0.2f, config["B"][0], 1.0f);
+        fs.SetColor(config.GetFlatList("R")[0], 0.2f, config.GetFlatList("B")[0], 1.0f);
         StartCoroutine(EndShowStimuliAfterSeconds(fs.flashDuration));
     }
 
@@ -127,7 +127,7 @@ public class Ex2DSingleOptimize : Experiment
         circleInstance = Instantiate(circlePrefab);
         FlashSprite fs = circleInstance.GetComponent<FlashSprite>();
         fs.flashDuration = -1.0f; //never destroy
-        fs.SetColor(maxLoc["R"][0], 0.2f, maxLoc["B"][0], 1.0f);
+        fs.SetColor(maxLoc.GetFlatList("R")[0], 0.2f, maxLoc.GetFlatList("B")[0], 1.0f);
     }
 
     public override string GetName()

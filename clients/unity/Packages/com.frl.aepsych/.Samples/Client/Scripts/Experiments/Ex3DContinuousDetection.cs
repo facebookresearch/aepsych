@@ -38,7 +38,7 @@ public class Ex3DContinuousDetection : Experiment
     public override void ShowStimuli(TrialConfig config)
     {
         SetText("Showing Stimuli:");
-        StartCoroutine(ShowStimulusHSV(config["hue"][0], config["saturation"][0], config["value"][0]));
+        StartCoroutine(ShowStimulusHSV(config.GetFlatList("hue")[0], config.GetFlatList("saturation")[0], config.GetFlatList("value")[0]));
     }
 
     public IEnumerator ShowStimulusHSV(float hue1, float sat1, float val1)

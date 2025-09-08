@@ -37,7 +37,7 @@ public class Ex2DPairwiseExplore : Experiment
     //      dict value is a list of floats.
     public override void ShowStimuli(TrialConfig config)
     {
-        StartCoroutine(ShowStimulusHSV(config["saturation"][0], config["saturation"][1], config["value"][0], config["value"][1]));
+        StartCoroutine(ShowStimulusHSV(config.GetNestedList("saturation")[0][0], config.GetNestedList("saturation")[0][1], config.GetNestedList("value")[0][0], config.GetNestedList("value")[0][1]));
     }
     public IEnumerator ShowStimulusHSV(float sat1, float sat2, float val1, float val2)
     {

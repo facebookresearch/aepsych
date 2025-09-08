@@ -54,7 +54,7 @@ public class Ex1DPairExplore : Experiment
     public override void ShowStimuli(TrialConfig config)
     {
         SetText("");
-        StartCoroutine(ShowStimulusSizes(config["width"][0], config["width"][1]));
+        StartCoroutine(ShowStimulusSizes(config.GetNestedList("width")[0][0], config.GetNestedList("width")[0][1]));
     }
 
     // BeginExperiment (optional)

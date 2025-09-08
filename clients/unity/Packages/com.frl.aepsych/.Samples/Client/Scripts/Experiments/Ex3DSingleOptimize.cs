@@ -53,7 +53,7 @@ public class Ex3DSingleOptimize : Experiment
         SetText("Now presenting stimulus.");
         circleInstance = Instantiate(circlePrefab);
         FlashSprite fs = circleInstance.GetComponent<FlashSprite>();
-        fs.SetColor(config["R"][0], config["G"][0], config["B"][0], 1.0f);
+        fs.SetColor(config.GetFlatList("R")[0], config.GetFlatList("G")[0], config.GetFlatList("B")[0], 1.0f);
         StartCoroutine(EndShowStimuliAfterSeconds(fs.flashDuration));
     }
 
@@ -123,7 +123,7 @@ public class Ex3DSingleOptimize : Experiment
         TrialConfig maxLoc = m.x;
         circleInstance = Instantiate(circlePrefab);
         FlashSprite fs = circleInstance.GetComponent<FlashSprite>();
-        fs.SetColor(maxLoc["R"][0], maxLoc["G"][0], maxLoc["B"][0], 1.0f);
+        fs.SetColor(maxLoc.GetFlatList("R")[0], maxLoc.GetFlatList("G")[0], maxLoc.GetFlatList("B")[0], 1.0f);
         fs.flashDuration = -1.0f; //never destroy
     }
 }
