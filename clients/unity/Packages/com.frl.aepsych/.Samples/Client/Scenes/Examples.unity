@@ -443,7 +443,7 @@ MonoBehaviour:
   autoDisableOtherCanvases: 0
   recordToCSV: 0
   recordResponseTime: 1
-  startMode: 1
+  startMode: 2
   client: {fileID: 0}
   strategy: {fileID: 0}
   configGenerator: {fileID: 0}
