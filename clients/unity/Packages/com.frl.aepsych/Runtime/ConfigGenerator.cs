@@ -373,7 +373,6 @@ public class ConfigGenerator: MonoBehaviour
         sb.Append("min_asks = " + optimization_trials + "\n");
         sb.Append("refit_every = 5\n");
         sb.Append("generator = " + opt_generator + "\n");
-        sb.Append("acqf = " + acqf + "\n");
         sb.Append("model = " + model + "\n");
         sb.Append("\n");
 
@@ -388,6 +387,7 @@ public class ConfigGenerator: MonoBehaviour
         sb.Append("[" + opt_generator + "]\n");
         sb.Append("restarts = " + restarts + "\n");
         sb.Append("samps = " + samps + "\n");
+        sb.Append("acqf = " + acqf + "\n");
         sb.Append("\n");
 
         if (specifyAcqf)
