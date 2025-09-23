@@ -53,6 +53,7 @@ class Strategy(ConfigurableMixin):
         max_asks: int | None = None,
         keep_most_recent: int | None = None,
         min_post_range: float | None = None,
+        log_post_var: bool = False,
         name: str = "",
         run_indefinitely: bool = False,
         transforms: ChainedInputTransform = ChainedInputTransform(**{}),
@@ -82,6 +83,7 @@ class Strategy(ConfigurableMixin):
                 as data collected from later trials. When None, the model is fitted on all data.
             min_post_range (float, optional): Experimental. The required difference between the posterior's minimum and maximum value in
                 probablity space before the strategy will finish. Ignored if None (default).
+            log_post_var (bool): Whether to log the posterior prediction variance (as it would be used for min_post_range). Defaults to False.
             name (str): The name of the strategy. Defaults to the empty string.
             run_indefinitely (bool): If true, the strategy will run indefinitely until finish() is explicitly called. Other stopping criteria will
                 be ignored. Defaults to False.
@@ -161,8 +163,11 @@ class Strategy(ConfigurableMixin):
         self.transforms = transforms
 
         self.min_post_range = min_post_range
-        if self.min_post_range is not None:
-            assert model is not None, "min_post_range must be None if model is None!"
+        self.log_post_var = log_post_var
+        if self.min_post_range is not None or self.log_post_var:
+            assert (
+                model is not None
+            ), "posterior range cannot be evaluated if model is None!"
             self.eval_grid = make_scaled_sobol(
                 lb=self.lb, ub=self.ub, size=self._n_eval_points
             )
@@ -429,16 +434,23 @@ class Strategy(ConfigurableMixin):
         else:
             sufficient_outcomes = True
 
-        if self.min_post_range is not None:
+        if self.min_post_range is not None or self.log_post_var:
             assert (
                 self.model is not None
             ), "model is None! Cannot predict without a model!"
-            fmean, _ = self.model.predict(self.eval_grid, probability_space=True)
-            meets_post_range = bool(
-                ((fmean.max() - fmean.min()) >= self.min_post_range).item()
-            )
+            fmean, fvar = self.model.predict(self.eval_grid, probability_space=True)
+            post_range = fmean.max() - fmean.min()
+        else:
+            post_range = None
+
+        if post_range is not None:
+            logger.info(f"Mean posterior variance = {fvar.mean().item()}")
+
+            if self.min_post_range:
+                meets_post_range = bool((post_range >= self.min_post_range).item())
         else:
             meets_post_range = True
+
         finished = (
             self._count >= self.min_asks
             and self.n >= self.min_total_tells

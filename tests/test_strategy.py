@@ -227,6 +227,42 @@ class TestSequenceGenerators(unittest.TestCase):
         self.strat.finish()
         self.assertTrue(self.strat.finished)
 
+    def test_log_post_var(self):
+        seed = 1
+        torch.manual_seed(seed)
+        np.random.seed(seed)
+        lb = [0]
+        ub = [1]
+
+        self.strat = Strategy(
+            model=GPClassificationModel(
+                dim=1,
+            ),
+            generator=SobolGenerator(lb=lb, ub=ub),
+            min_asks=10,
+            lb=lb,
+            ub=ub,
+            stimuli_per_trial=1,
+            outcome_types=["binary"],
+            log_post_var=True,
+        )
+
+        # Add some initial data
+        for _ in range(5):
+            points = self.strat.gen(1)
+            response = int(np.random.rand() < 0.5)
+            self.strat.add_data(points, torch.tensor([response]))
+
+        # Check that the log prints the expected message when checking finished status
+        with self.assertLogs() as log:
+            _ = self.strat.finished
+
+        # Look for the log message about mean posterior variance
+        log_found = any("Mean posterior variance" in msg for msg in log.output)
+        self.assertTrue(
+            log_found, "Expected log message about mean posterior variance not found"
+        )
+
     def test_batchsobol_pairwise(self):
         lb = [1, 2, 3]
         ub = [2, 3, 4]
