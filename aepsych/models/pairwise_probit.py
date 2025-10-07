@@ -17,7 +17,6 @@ from aepsych.utils import _process_bounds, promote_0d
 from aepsych.utils_logging import getLogger
 from botorch.fit import fit_gpytorch_mll
 from botorch.models import PairwiseGP, PairwiseLaplaceMarginalLogLikelihood
-from botorch.models.transforms.input import Normalize
 from torch.distributions import Normal
 
 logger = getLogger()
@@ -93,8 +92,6 @@ class PairwiseProbitModel(PairwiseGP, AEPsychModelMixin):
 
         self.max_fit_time = max_fit_time
 
-        bounds = torch.stack((self.lb, self.ub))
-        input_transform = Normalize(d=dim, bounds=bounds)
         if covar_module is None:
             factory = DefaultMeanCovarFactory(
                 dim=dim, stimuli_per_trial=self.stimuli_per_trial
@@ -106,7 +103,6 @@ class PairwiseProbitModel(PairwiseGP, AEPsychModelMixin):
             comparisons=None,
             covar_module=covar_module,
             jitter=1e-3,
-            input_transform=input_transform,
         )
 
         self.dim = dim  # The Pairwise constructor sets self.dim = None.
