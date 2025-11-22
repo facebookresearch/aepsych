@@ -106,21 +106,23 @@ class Strategy(ConfigurableMixin):
             )
 
         if model is not None:
-            assert (
-                len(outcome_types) == model._num_outputs
-            ), f"Strategy has {len(outcome_types)} outcomes, but model {type(model).__name__} supports {model._num_outputs}!"
-            assert (
-                stimuli_per_trial == model.stimuli_per_trial
-            ), f"Strategy has {stimuli_per_trial} stimuli_per_trial, but model {type(model).__name__} supports {model.stimuli_per_trial}!"
+            assert len(outcome_types) == model._num_outputs, (
+                f"Strategy has {len(outcome_types)} outcomes, but model {type(model).__name__} supports {model._num_outputs}!"
+            )
+            assert stimuli_per_trial == model.stimuli_per_trial, (
+                f"Strategy has {stimuli_per_trial} stimuli_per_trial, but model {type(model).__name__} supports {model.stimuli_per_trial}!"
+            )
 
             if isinstance(model.outcome_type, str):
                 assert (
                     len(outcome_types) == 1 and outcome_types[0] == model.outcome_type
-                ), f"Strategy outcome types is {outcome_types} but model outcome type is {model.outcome_type}!"
+                ), (
+                    f"Strategy outcome types is {outcome_types} but model outcome type is {model.outcome_type}!"
+                )
             else:
-                assert (
-                    set(outcome_types) == set(model.outcome_type)
-                ), f"Strategy outcome types is {outcome_types} but model outcome type is {model.outcome_type}!"
+                assert set(outcome_types) == set(model.outcome_type), (
+                    f"Strategy outcome types is {outcome_types} but model outcome type is {model.outcome_type}!"
+                )
 
             if use_gpu_modeling:
                 if not torch.cuda.is_available():
@@ -165,9 +167,9 @@ class Strategy(ConfigurableMixin):
         self.min_post_range = min_post_range
         self.log_post_var = log_post_var
         if self.min_post_range is not None or self.log_post_var:
-            assert (
-                model is not None
-            ), "posterior range cannot be evaluated if model is None!"
+            assert model is not None, (
+                "posterior range cannot be evaluated if model is None!"
+            )
             self.eval_grid = make_scaled_sobol(
                 lb=self.lb, ub=self.ub, size=self._n_eval_points
             )
@@ -218,9 +220,9 @@ class Strategy(ConfigurableMixin):
             y (torch.Tensor): training outputs, normalized
             n (int): number of observations
         """
-        assert (
-            x.shape == self.event_shape or x.shape[1:] == self.event_shape
-        ), f"x shape should be {self.event_shape} or batch x {self.event_shape}, instead got {x.shape}"
+        assert x.shape == self.event_shape or x.shape[1:] == self.event_shape, (
+            f"x shape should be {self.event_shape} or batch x {self.event_shape}, instead got {x.shape}"
+        )
 
         # Handle scalar y values
         if y.ndim == 0:
@@ -284,9 +286,9 @@ class Strategy(ConfigurableMixin):
         Returns:
             tuple[torch.Tensor, torch.Tensor]: Tuple containing the max and its location (argmax).
         """
-        assert (
-            self.model is not None
-        ), "model is None! Cannot get the max without a model!"
+        assert self.model is not None, (
+            "model is None! Cannot get the max without a model!"
+        )
         self.model.to(self.model_device)
 
         val, arg = get_max(
@@ -316,9 +318,9 @@ class Strategy(ConfigurableMixin):
         Returns:
             tuple[torch.Tensor, torch.Tensor]: Tuple containing the min and its location (argmin).
         """
-        assert (
-            self.model is not None
-        ), "model is None! Cannot get the min without a model!"
+        assert self.model is not None, (
+            "model is None! Cannot get the min without a model!"
+        )
         self.model.to(self.model_device)
 
         val, arg = get_min(
@@ -350,9 +352,9 @@ class Strategy(ConfigurableMixin):
         Returns:
             tuple[torch.Tensor, torch.Tensor]: The input that corresponds to the given output value and the corresponding output.
         """
-        assert (
-            self.model is not None
-        ), "model is None! Cannot get the inv_query without a model!"
+        assert self.model is not None, (
+            "model is None! Cannot get the inv_query without a model!"
+        )
         self.model.to(self.model_device)
 
         val, arg = inv_query(
@@ -435,9 +437,9 @@ class Strategy(ConfigurableMixin):
             sufficient_outcomes = True
 
         if self.min_post_range is not None or self.log_post_var:
-            assert (
-                self.model is not None
-            ), "model is None! Cannot predict without a model!"
+            assert self.model is not None, (
+                "model is None! Cannot predict without a model!"
+            )
             fmean, fvar = self.model.predict(self.eval_grid, probability_space=True)
             post_range = fmean.max() - fmean.min()
         else:

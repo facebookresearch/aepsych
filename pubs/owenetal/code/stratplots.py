@@ -411,9 +411,9 @@ def plot_acquisition_examples(sobol_trials, opt_trials, target_level=0.75):
     plotting_axes = [ax[0, 1], ax[1, 0], ax[1, 1]]
 
     titles = [
-        f"Monotonic RBF Model,\n BALV, after {sobol_trials+opt_trials} total trials",
-        f"Monotonic RBF Model,\n BALD, after {sobol_trials+opt_trials} total trials",
-        f"Monotonic RBF Model,\n LSE (ours) after {sobol_trials+opt_trials} total trials",
+        f"Monotonic RBF Model,\n BALV, after {sobol_trials + opt_trials} total trials",
+        f"Monotonic RBF Model,\n BALD, after {sobol_trials + opt_trials} total trials",
+        f"Monotonic RBF Model,\n LSE (ours) after {sobol_trials + opt_trials} total trials",
     ]
 
     _ = [
