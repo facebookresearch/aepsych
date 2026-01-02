@@ -452,11 +452,12 @@ class TargetDistancePosteriorTransform(PosteriorTransform):
         self.target_value = target_value
         self.weights = weights
 
-    def evaluate(self, Y: torch.Tensor) -> torch.Tensor:
+    def evaluate(self, Y: torch.Tensor, X: torch.Tensor | None = None) -> torch.Tensor:
         """Evaluate the squared distance from the target value.
 
         Args:
             Y (torch.Tensor): The tensor to evaluate.
+            X (torch.Tensor | None): Optional input tensor. Ignored here.
 
         Returns:
             torch.Tensor: The squared distance from the target value.
@@ -486,11 +487,14 @@ class TargetDistancePosteriorTransform(PosteriorTransform):
         mvn = MultivariateNormal(new_mean, var)
         return GPyTorchPosterior(mvn)
 
-    def forward(self, posterior: GPyTorchPosterior) -> GPyTorchPosterior:
+    def forward(
+        self, posterior: GPyTorchPosterior, X: torch.Tensor | None = None
+    ) -> GPyTorchPosterior:
         """Transform the given posterior distribution to reflect the target distance.
 
         Args:
             posterior (GPyTorchPosterior): The posterior to transform.
+            X (torch.Tensor | None): Optional input tensor. Ignored here.
 
         Returns:
             GPyTorchPosterior: The transformed posterior.
@@ -502,11 +506,14 @@ class TargetDistancePosteriorTransform(PosteriorTransform):
 
 # Requires botorch approximate model to accept posterior transforms
 class TargetProbabilityDistancePosteriorTransform(TargetDistancePosteriorTransform):
-    def forward(self, posterior: GPyTorchPosterior) -> GPyTorchPosterior:
+    def forward(
+        self, posterior: GPyTorchPosterior, X: torch.Tensor | None = None
+    ) -> GPyTorchPosterior:
         """Transform the given posterior distribution to reflect the target probability distance.
 
         Args:
             posterior (GPyTorchPosterior): The posterior to transform.
+            X (torch.Tensor | None): Optional input tensor. Ignored here.
 
         Returns:
             GPyTorchPosterior: The transformed posterior distribution reflecting the target probability distance.
