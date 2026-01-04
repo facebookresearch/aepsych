@@ -56,5 +56,5 @@ class AcqfThompsonSamplerGenerator(GridEvalAcqfGenerator):
         )
         new_candidate = grid[candidate_idx]
 
-        logger.info(f"Gen done, time={time.time()-starttime}")
+        logger.info(f"Gen done, time={time.time() - starttime}")
         return new_candidate

@@ -282,9 +282,9 @@ def default_mean_covar_factory(
         stacklevel=2,
     )
 
-    assert (config is not None) or (
-        dim is not None
-    ), "Either config or dim must be provided!"
+    assert (config is not None) or (dim is not None), (
+        "Either config or dim must be provided!"
+    )
 
     assert stimuli_per_trial in (1, 2), "stimuli_per_trial must be 1 or 2!"
 

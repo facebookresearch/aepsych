@@ -70,9 +70,9 @@ class SequentialStrategy(ConfigurableMixin):
             return
 
         # populate new model with final data from last model
-        assert (
-            self.x is not None and self.y is not None
-        ), "Cannot initialize next strategy; no data has been given!"
+        assert self.x is not None and self.y is not None, (
+            "Cannot initialize next strategy; no data has been given!"
+        )
         self.strat_list[self._strat_idx + 1].add_data(self.x, self.y)
 
         self._suggest_count = 0
@@ -146,9 +146,9 @@ class SequentialStrategy(ConfigurableMixin):
         strat_names = config.getlist("common", "strategy_names", element_type=str)
 
         # ensure strat_names are unique
-        assert len(strat_names) == len(
-            set(strat_names)
-        ), f"Strategy names {strat_names} are not all unique!"
+        assert len(strat_names) == len(set(strat_names)), (
+            f"Strategy names {strat_names} are not all unique!"
+        )
 
         strats = []
         for name in strat_names:

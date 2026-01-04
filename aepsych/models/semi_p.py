@@ -308,9 +308,9 @@ class SemiParametricGPModel(VariationalGPModel):
             )
 
         likelihood = likelihood or LinearBernoulliLikelihood()
-        assert isinstance(
-            likelihood, LinearBernoulliLikelihood
-        ), "SemiP model only supports linear Bernoulli likelihoods!"
+        assert isinstance(likelihood, LinearBernoulliLikelihood), (
+            "SemiP model only supports linear Bernoulli likelihoods!"
+        )
 
         super().__init__(
             dim=dim,

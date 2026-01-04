@@ -191,9 +191,9 @@ class AEPsychClient:
             with open(config_path, "r") as f:
                 config_str = f.read()
         elif config_str is not None:
-            assert (
-                config_path is None
-            ), "if config_str is passed, don't pass config_path"
+            assert config_path is None, (
+                "if config_str is passed, don't pass config_path"
+            )
         request = {
             "type": "setup",
             "message": {"config_str": config_str},
@@ -221,14 +221,14 @@ class AEPsychClient:
         """
         if config_id is not None:
             assert config_name is None, "if config_id is passed, don't pass config_name"
-            assert (
-                config_id in self.configs
-            ), f"No strat with index {config_id} was created!"
+            assert config_id in self.configs, (
+                f"No strat with index {config_id} was created!"
+            )
         elif config_name is not None:
             assert config_id is None, "if config_name is passed, don't pass config_id"
-            assert (
-                config_name in self.config_names.keys()
-            ), f"{config_name} not known, know {self.config_names.keys()}!"
+            assert config_name in self.config_names.keys(), (
+                f"{config_name} not known, know {self.config_names.keys()}!"
+            )
             config_id = self.config_names[config_name]
         request = {
             "type": "resume",
