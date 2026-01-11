@@ -272,9 +272,9 @@ class GlobalLookaheadAcquisitionFunction(LookaheadAcquisitionFunction):
         """
         super().__init__(model=model, target=target, lookahead_type=lookahead_type)
         self.posterior_transform = posterior_transform
-        assert (
-            Xq is not None or query_set_size is not None
-        ), "Must pass either query set size or a query set!"
+        assert Xq is not None or query_set_size is not None, (
+            "Must pass either query set size or a query set!"
+        )
         if Xq is not None and query_set_size is not None:
             assert Xq.shape[0] == query_set_size, (
                 "If passing both Xq and query_set_size,"
@@ -360,9 +360,9 @@ class ApproxGlobalSUR(GlobalSUR):
             query_set_size (int, optional): Number of points in the query set.
             Xq (torch.Tensor, optional): (m x d) global reference set.
         """
-        assert (
-            lookahead_type == "levelset"
-        ), f"ApproxGlobalSUR only supports lookahead on level set, got {lookahead_type}!"
+        assert lookahead_type == "levelset", (
+            f"ApproxGlobalSUR only supports lookahead on level set, got {lookahead_type}!"
+        )
         super().__init__(
             lb=lb,
             ub=ub,

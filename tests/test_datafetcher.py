@@ -54,10 +54,10 @@ class DataFetcherTestCase(unittest.TestCase):
                   participant_id = pid3
 
                   [common]
-                  parnames = [{', '.join(name for name in par_data)}]
+                  parnames = [{", ".join(name for name in par_data)}]
                   stimuli_per_trial = {num_stim}
-                  outcome_names = [{', '.join(name for name in outcome_names)}]
-                  outcome_types = [{', '.join(type for type in outcome_types)}]
+                  outcome_names = [{", ".join(name for name in outcome_names)}]
+                  outcome_types = [{", ".join(type for type in outcome_types)}]
                   strategy_names = [my_strat]
 
                   {print_par_data(par_data)}

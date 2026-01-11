@@ -155,9 +155,9 @@ class Problem:
         # always eval f
         f_hat = self.f_hat(model)
         p_hat = self.p_hat(model)
-        assert (
-            self.f_true.shape == f_hat.shape
-        ), f"self.f_true.shape=={self.f_true.shape} != f_hat.shape=={f_hat.shape}"
+        assert self.f_true.shape == f_hat.shape, (
+            f"self.f_true.shape=={self.f_true.shape} != f_hat.shape=={f_hat.shape}"
+        )
 
         mae_f = torch.mean(torch.abs(self.f_true - f_hat))
         mse_f = torch.mean((self.f_true - f_hat) ** 2)
