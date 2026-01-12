@@ -14,7 +14,10 @@ from botorch.acquisition import AcquisitionFunction
 from botorch.acquisition.input_constructors import acqf_input_constructor
 from botorch.acquisition.objective import PosteriorTransform
 from botorch.models.gpytorch import GPyTorchModel
-from botorch.utils.transforms import t_batch_mode_transform
+from botorch.utils.transforms import (
+    average_over_ensemble_models,
+    t_batch_mode_transform,
+)
 from scipy.stats import norm
 from torch import Tensor
 
@@ -171,6 +174,7 @@ class LocalLookaheadAcquisitionFunction(LookaheadAcquisitionFunction):
         self.posterior_transform = posterior_transform
 
     @t_batch_mode_transform(expected_q=1)
+    @average_over_ensemble_models
     def forward(self, X: torch.Tensor) -> torch.Tensor:
         """
         Evaluate acquisition function at X.
@@ -291,6 +295,7 @@ class GlobalLookaheadAcquisitionFunction(LookaheadAcquisitionFunction):
         self.register_buffer("Xq", Xq)
 
     @t_batch_mode_transform(expected_q=1)
+    @average_over_ensemble_models
     def forward(self, X: torch.Tensor) -> torch.Tensor:
         """
         Evaluate acquisition function at X.
