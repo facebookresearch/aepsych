@@ -47,5 +47,5 @@ class AcqfGridSearchGenerator(GridEvalAcqfGenerator):
         _, idxs = torch.topk(acqf_vals, num_points)
         new_candidate = grid[idxs]
 
-        logger.info(f"Gen done, time={time.time()-starttime}")
+        logger.info(f"Gen done, time={time.time() - starttime}")
         return new_candidate

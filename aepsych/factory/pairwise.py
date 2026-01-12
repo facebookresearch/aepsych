@@ -125,9 +125,9 @@ def pairwise_mean_covar_factory(
         stacklevel=2,
     )
 
-    assert (
-        stimuli_per_trial == 1
-    ), f"pairwise_mean_covar_factory must have stimuli_per_trial == 1, but {stimuli_per_trial} was passed instead!"
+    assert stimuli_per_trial == 1, (
+        f"pairwise_mean_covar_factory must have stimuli_per_trial == 1, but {stimuli_per_trial} was passed instead!"
+    )
     lb = config.gettensor("common", "lb")
     ub = config.gettensor("common", "ub")
     assert lb.shape[0] == ub.shape[0], "bounds shape mismatch!"
@@ -162,9 +162,9 @@ def pairwise_mean_covar_factory(
 
     if len(shared_dims) > 0:
         active_dims = [i for i in range(config_dim) if i not in shared_dims]
-        assert (
-            len(active_dims) % 2 == 0
-        ), "dimensionality of non-shared dims must be even!"
+        assert len(active_dims) % 2 == 0, (
+            "dimensionality of non-shared dims must be even!"
+        )
         mean = _get_default_mean_function(config, zero_mean)
         cov1 = _get_default_cov_function(
             config, len(active_dims) // 2, stimuli_per_trial=1

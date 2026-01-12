@@ -745,9 +745,9 @@ def plot_strat(
         DeprecationWarning,
         stacklevel=2,
     )
-    assert (
-        "binary" in strat.outcome_types
-    ), f"Plotting not supported for outcome_type {strat.outcome_types[0]}"
+    assert "binary" in strat.outcome_types, (
+        f"Plotting not supported for outcome_type {strat.outcome_types[0]}"
+    )
 
     if target_level is not None and not hasattr(strat.model, "monotonic_idxs"):
         warnings.warn(
@@ -873,7 +873,7 @@ def _plot_strat_1d(
             alpha=0.3,
             hatch="///",
             edgecolor="gray",
-            label=f"{cred_level*100:.0f}% posterior mass",
+            label=f"{cred_level * 100:.0f}% posterior mass",
         )
     if target_level is not None:
         from aepsych.utils import interpolate_monotonic
@@ -892,7 +892,7 @@ def _plot_strat_1d(
             xerr=np.r_[thresh_med - thresh_lower, thresh_upper - thresh_med][:, None],
             capsize=5,
             elinewidth=1,
-            label=f"Est. {target_level*100:.0f}% threshold \n(with {cred_level*100:.0f}% posterior \nmass marked)",
+            label=f"Est. {target_level * 100:.0f}% threshold \n(with {cred_level * 100:.0f}% posterior \nmass marked)",
         )
 
     if true_testfun is not None:
@@ -911,7 +911,7 @@ def _plot_strat_1d(
                 true_thresh,
                 target_level,
                 "o",
-                label=f"True {target_level*100:.0f}% threshold",
+                label=f"True {target_level * 100:.0f}% threshold",
             )
 
     ax.scatter(
@@ -1031,7 +1031,7 @@ def _plot_strat_2d(
         ax.plot(
             context_grid,
             thresh_75.cpu().numpy(),
-            label=f"Est. {target_level*100:.0f}% threshold \n(with {cred_level*100:.0f}% posterior \nmass shaded)",
+            label=f"Est. {target_level * 100:.0f}% threshold \n(with {cred_level * 100:.0f}% posterior \nmass shaded)",
         )
         ax.fill_between(
             context_grid,

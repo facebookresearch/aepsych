@@ -264,7 +264,7 @@ def run_benchmarks_with_checkpoints(
                     temp_results["rep"] = temp_results["rep"] + n_reps_per_chunk * chunk
                     temp_results.to_csv(intermediate_fname)
                 print(
-                    f"Collate done in {time.time()-collate_start} seconds, {len(bench.futures)}/{bench.num_benchmarks} left"
+                    f"Collate done in {time.time() - collate_start} seconds, {len(bench.futures)}/{bench.num_benchmarks} left"
                 )
 
             print(f"{benchmark_name} chunk {chunk} fully done!")
