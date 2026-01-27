@@ -715,6 +715,10 @@ class TestMixedFactories(unittest.TestCase):
             self.assertEqual(kernel.covar_factor.shape[1], rank)
 
     def test_mixed_acquisition(self):
+        seed = 1
+        torch.manual_seed(seed)
+        np.random.seed(seed)
+
         def f_1d(x):
             """
             latent is just a gaussian bump at mu
@@ -750,7 +754,7 @@ class TestMixedFactories(unittest.TestCase):
 
         [init_strat]
         generator = SobolGenerator
-        min_asks = 250
+        min_asks = 1000
 
         [opt_strat]
         generator = MixedOptimizeAcqfGenerator
