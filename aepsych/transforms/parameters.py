@@ -788,6 +788,48 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
                 stacklevel=2,
             )
 
+    @property
+    def train_inputs(self) -> tuple[torch.Tensor, ...] | None:
+        inputs = self._base_obj.train_inputs
+        if inputs is not None:
+            return tuple(self.transforms.untransform(x) for x in inputs)
+        return None
+
+    @train_inputs.setter
+    def train_inputs(self, value: tuple[torch.Tensor, ...] | None) -> None:
+        if value is not None:
+            value = tuple(self.transforms.transform(x) for x in value)
+        self._base_obj.train_inputs = value
+
+    @property
+    def _train_inputs(self) -> tuple[torch.Tensor, ...] | None:
+        inputs = self._base_obj._train_inputs
+        if inputs is not None:
+            return tuple(self.transforms.untransform(x) for x in inputs)
+        return None
+
+    @_train_inputs.setter
+    def _train_inputs(self, value: tuple[torch.Tensor, ...] | None) -> None:
+        if value is not None:
+            value = tuple(self.transforms.transform(x) for x in value)
+        self._base_obj._train_inputs = value
+
+    @property
+    def train_targets(self) -> torch.Tensor | None:
+        return self._base_obj.train_targets
+
+    @train_targets.setter
+    def train_targets(self, value: torch.Tensor | None) -> None:
+        self._base_obj.train_targets = value
+
+    @property
+    def _train_targets(self) -> torch.Tensor | None:
+        return self._base_obj._train_targets
+
+    @_train_targets.setter
+    def _train_targets(self, value: torch.Tensor | None) -> None:
+        self._base_obj._train_targets = value
+
     def __reduce__(self):
         # Helps pickle work (not dill)
         return (ParameterTransformedModel, (self._base_obj, self.transforms))
