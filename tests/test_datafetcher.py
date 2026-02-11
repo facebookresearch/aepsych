@@ -28,15 +28,22 @@ from aepsych.database.data_fetcher import (
 class DataFetcherTestCase(unittest.TestCase):
     def default_config(
         self,
-        outcome_names=["outcome"],
-        outcome_types=["binary"],
-        par_data={
-            "par1": ["continuous", 0, 1, False],
-            "par2": ["continuous", 0, 1, False],
-        },
+        outcome_names=None,
+        outcome_types=None,
+        par_data=None,
         model_name="GPClassificationModel",
         num_stim=1,
     ):
+        if outcome_names is None:
+            outcome_names = ["outcome"]
+        if outcome_types is None:
+            outcome_types = ["binary"]
+        if par_data is None:
+            par_data = {
+                "par1": ["continuous", 0, 1, False],
+                "par2": ["continuous", 0, 1, False],
+            }
+
         def print_par_data(data):
             par_string = ""
             for k, v in data.items():
