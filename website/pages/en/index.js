@@ -119,7 +119,7 @@ class Index extends React.Component {
     `;
 
     const runServerBlock = `${pre}bash
-    aepsych_server --port 5555 --ip 0.0.0.0 database --db mydatabase.db
+    aepsych_server --port 5555 --ip 0.0.0.0 --db mydatabase.db
     `;
 
     const messageTemplateBlock = `${pre}json
