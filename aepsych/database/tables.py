@@ -21,10 +21,10 @@ from sqlalchemy import (
     Integer,
     PickleType,
     String,
+    text,
 )
 from sqlalchemy.engine import Engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import declarative_base, relationship
 
 logger = logging.getLogger()
 
@@ -116,14 +116,17 @@ class DBMasterTable(Base):
         Returns:
             bool: True if the column exists, False otherwise.
         """
-        result = engine.execute(
-            "SELECT COUNT(*) FROM pragma_table_info('master') WHERE name='{0}'".format(
-                column
+        with engine.connect() as conn:
+            result = conn.execute(
+                text(
+                    "SELECT COUNT(*) FROM pragma_table_info('master') WHERE name='{0}'".format(
+                        column
+                    )
+                )
             )
-        )
-        rows = result.fetchall()
-        count = rows[0][0]
-        return count != 0
+            rows = result.fetchall()
+            count = rows[0][0]
+            return count != 0
 
     @staticmethod
     def _add_column(engine: Engine, column: str) -> None:
@@ -134,22 +137,25 @@ class DBMasterTable(Base):
             column (str): The column name.
         """
         try:
-            result = engine.execute(
-                "SELECT COUNT(*) FROM pragma_table_info('master') WHERE name='{0}'".format(
-                    column
+            with engine.connect() as conn:
+                result = conn.execute(
+                    text(
+                        "SELECT COUNT(*) FROM pragma_table_info('master') WHERE name='{0}'".format(
+                            column
+                        )
+                    )
                 )
-            )
-            rows = result.fetchall()
-            count = rows[0][0]
+                rows = result.fetchall()
+                count = rows[0][0]
 
-            if 0 == count:
-                logger.debug(
-                    "Altering the master table to add the {0} column".format(column)
-                )
-                engine.execute(
-                    "ALTER TABLE master ADD COLUMN {0} VARCHAR".format(column)
-                )
-                engine.commit()
+                if 0 == count:
+                    logger.debug(
+                        "Altering the master table to add the {0} column".format(column)
+                    )
+                    conn.execute(
+                        text("ALTER TABLE master ADD COLUMN {0} VARCHAR".format(column))
+                    )
+                    conn.commit()
         except Exception as e:
             logger.debug(f"Column already exists, no need to alter. [{e}]")
 
@@ -163,8 +169,8 @@ class DBMasterTable(Base):
             spec (str): The new column spec.
         """
         logger.debug(f"Altering the master table column: {column} to this spec {spec}")
-        engine.execute(f"ALTER TABLE master MODIFY {column} {spec}")
-        engine.commit()
+        with engine.begin() as conn:
+            conn.execute(text(f"ALTER TABLE master MODIFY {column} {spec}"))
 
 
 class DbReplayTable(Base):
@@ -234,12 +240,15 @@ class DbReplayTable(Base):
         Returns:
             bool: True if the extra_info column exists, False otherwise.
         """
-        result = engine.execute(
-            "SELECT COUNT(*) FROM pragma_table_info('replay_data') WHERE name='extra_info'"
-        )
-        rows = result.fetchall()
-        count = rows[0][0]
-        return count != 0
+        with engine.connect() as conn:
+            result = conn.execute(
+                text(
+                    "SELECT COUNT(*) FROM pragma_table_info('replay_data') WHERE name='extra_info'"
+                )
+            )
+            rows = result.fetchall()
+            count = rows[0][0]
+            return count != 0
 
     @staticmethod
     def update(engine: Engine) -> None:
@@ -270,18 +279,23 @@ class DbReplayTable(Base):
             engine (Engine): The sqlalchemy engine.
         """
         try:
-            result = engine.execute(
-                "SELECT COUNT(*) FROM pragma_table_info('replay_data') WHERE name='extra_info'"
-            )
-            rows = result.fetchall()
-            count = rows[0][0]
-
-            if 0 == count:
-                logger.debug(
-                    "Altering the replay_data table to add the extra_info column"
+            with engine.connect() as conn:
+                result = conn.execute(
+                    text(
+                        "SELECT COUNT(*) FROM pragma_table_info('replay_data') WHERE name='extra_info'"
+                    )
                 )
-                engine.execute("ALTER TABLE replay_data ADD COLUMN extra_info BLOB")
-                engine.commit()
+                rows = result.fetchall()
+                count = rows[0][0]
+
+                if 0 == count:
+                    logger.debug(
+                        "Altering the replay_data table to add the extra_info column"
+                    )
+                    conn.execute(
+                        text("ALTER TABLE replay_data ADD COLUMN extra_info BLOB")
+                    )
+                    conn.commit()
         except Exception as e:
             logger.debug(f"Column already exists, no need to alter. [{e}]")
 
@@ -466,7 +480,8 @@ class DbRawTable(Base):
         if not DbRawTable._has_column(engine, "extra_data"):
             DbRawTable._add_column(engine, "extra_data")
 
-        n_raws = engine.execute("SELECT COUNT (*) FROM raw_data").fetchone()[0]
+        with engine.connect() as conn:
+            n_raws = conn.execute(text("SELECT COUNT (*) FROM raw_data")).fetchone()[0]
         # If raws are not made yet:
         if n_raws == 0:
             # Get every master table
@@ -577,11 +592,11 @@ class DbRawTable(Base):
         if not DbRawTable._has_column(engine, "extra_data"):
             return True
 
-        n_raws = engine.execute("SELECT COUNT (*) FROM raw_data").fetchone()[0]
-        n_tells = engine.execute(
-            "SELECT COUNT (*) FROM replay_data \
-            WHERE message_type = 'tell'"
-        ).fetchone()[0]
+        with engine.connect() as conn:
+            n_raws = conn.execute(text("SELECT COUNT (*) FROM raw_data")).fetchone()[0]
+            n_tells = conn.execute(
+                text("SELECT COUNT (*) FROM replay_data WHERE message_type = 'tell'")
+            ).fetchone()[0]
 
         if n_raws == 0 and n_tells != 0:
             return True
@@ -598,14 +613,17 @@ class DbRawTable(Base):
         Returns:
             bool: True if the column exists, False otherwise.
         """
-        result = engine.execute(
-            "SELECT COUNT(*) FROM pragma_table_info('raw_data') WHERE name='{0}'".format(
-                column
+        with engine.connect() as conn:
+            result = conn.execute(
+                text(
+                    "SELECT COUNT(*) FROM pragma_table_info('raw_data') WHERE name='{0}'".format(
+                        column
+                    )
+                )
             )
-        )
-        rows = result.fetchall()
-        count = rows[0][0]
-        return count != 0
+            rows = result.fetchall()
+            count = rows[0][0]
+            return count != 0
 
     @staticmethod
     def _add_column(engine: Engine, column: str) -> None:
@@ -616,22 +634,29 @@ class DbRawTable(Base):
             column (str): The column name.
         """
         try:
-            result = engine.execute(
-                "SELECT COUNT(*) FROM pragma_table_info('raw_data') WHERE name='{0}'".format(
-                    column
+            with engine.connect() as conn:
+                result = conn.execute(
+                    text(
+                        "SELECT COUNT(*) FROM pragma_table_info('raw_data') WHERE name='{0}'".format(
+                            column
+                        )
+                    )
                 )
-            )
-            rows = result.fetchall()
-            count = rows[0][0]
+                rows = result.fetchall()
+                count = rows[0][0]
 
-            if 0 == count:
-                logger.debug(
-                    "Altering the raw_data table to add the {0} column".format(column)
-                )
-                engine.execute(
-                    "ALTER TABLE raw_data ADD COLUMN {0} VARCHAR".format(column)
-                )
-                engine.commit()
+                if 0 == count:
+                    logger.debug(
+                        "Altering the raw_data table to add the {0} column".format(
+                            column
+                        )
+                    )
+                    conn.execute(
+                        text(
+                            "ALTER TABLE raw_data ADD COLUMN {0} VARCHAR".format(column)
+                        )
+                    )
+                    conn.commit()
         except Exception as e:
             logger.debug(f"Column already exists, no need to alter. [{e}]")
 
