@@ -104,6 +104,7 @@ _IGNORED_WARNINGS = [
     r"Skipping device Apple Paravirtual device that does not support Metal 2\.0",
     r"Found Intel OpenMP \('libiomp'\) and LLVM OpenMP \('libomp'\) loaded",
     r"numpy\.core\.numeric is deprecated and has been renamed to numpy\._core\.numeric\.",  # Old SqlAlchemy + NumPy2.0 warning
+    r"\[Errno 1\] Operation not permitted\.\s+joblib will operate in serial mode",
 ]
 
 

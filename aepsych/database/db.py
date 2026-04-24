@@ -23,7 +23,7 @@ import pandas as pd
 import torch
 from aepsych.config import Config
 from aepsych.strategy import Strategy
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.session import close_all_sessions
 
@@ -171,7 +171,7 @@ class Database:
             list[Any]: The results of the query.
         """
         with self.session_scope() as session:
-            return session.execute(query, vals).all()
+            return session.execute(text(query), vals).all()
 
     def get_master_records(self) -> list[tables.DBMasterTable]:
         """Grab the list of master records.

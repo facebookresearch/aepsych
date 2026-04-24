@@ -177,38 +177,37 @@ class DBTestCase(unittest.TestCase):
             outcome_dict_expected[i]["outcome_1"] = outcomes[i - 1][1]
 
         # Check that the number of entries in each table is correct
-        n_iterations = (
-            test_database.get_engine()
-            .execute("SELECT COUNT(*) FROM raw_data")
-            .fetchone()[0]
-        )
+        with test_database.get_engine().connect() as conn:
+            n_iterations = conn.execute(
+                sqlalchemy.text("SELECT COUNT(*) FROM raw_data")
+            ).fetchone()[0]
         self.assertEqual(n_iterations, 7)
-        n_params = (
-            test_database.get_engine()
-            .execute("SELECT COUNT(*) FROM param_data")
-            .fetchone()[0]
-        )
+        with test_database.get_engine().connect() as conn:
+            n_params = conn.execute(
+                sqlalchemy.text("SELECT COUNT(*) FROM param_data")
+            ).fetchone()[0]
         self.assertEqual(n_params, 28)
-        n_outcomes = (
-            test_database.get_engine()
-            .execute("SELECT COUNT(*) FROM outcome_data")
-            .fetchone()[0]
-        )
+        with test_database.get_engine().connect() as conn:
+            n_outcomes = conn.execute(
+                sqlalchemy.text("SELECT COUNT(*) FROM outcome_data")
+            ).fetchone()[0]
         self.assertEqual(n_outcomes, 14)
 
         # Check that the data is correct
-        param_data = (
-            test_database.get_engine().execute("SELECT * FROM param_data").fetchall()
-        )
+        with test_database.get_engine().connect() as conn:
+            param_data = conn.execute(
+                sqlalchemy.text("SELECT * FROM param_data")
+            ).fetchall()
         param_dict = {x: {} for x in range(1, 8)}
         for param in param_data:
             param_dict[param.iteration_id][param.param_name] = float(param.param_value)
 
         self.assertEqual(param_dict, param_dict_expected)
 
-        outcome_data = (
-            test_database.get_engine().execute("SELECT * FROM outcome_data").fetchall()
-        )
+        with test_database.get_engine().connect() as conn:
+            outcome_data = conn.execute(
+                sqlalchemy.text("SELECT * FROM outcome_data")
+            ).fetchall()
         outcome_dict = {x: {} for x in range(1, 8)}
         for outcome in outcome_data:
             outcome_dict[outcome.iteration_id][outcome.outcome_name] = (
@@ -218,13 +217,12 @@ class DBTestCase(unittest.TestCase):
         self.assertEqual(outcome_dict, outcome_dict_expected)
 
         # Check if we have the extra_data column
-        pragma = (
-            test_database.get_engine()
-            .execute(
-                "SELECT * FROM pragma_table_info('raw_data') WHERE name='extra_data'"
-            )
-            .fetchall()
-        )
+        with test_database.get_engine().connect() as conn:
+            pragma = conn.execute(
+                sqlalchemy.text(
+                    "SELECT * FROM pragma_table_info('raw_data') WHERE name='extra_data'"
+                )
+            ).fetchall()
         self.assertTrue(len(pragma) == 1)
 
         # Make sure that update is no longer required

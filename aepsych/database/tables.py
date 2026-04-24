@@ -46,10 +46,18 @@ class DBMasterTable(Base):
 
     extra_metadata = Column(String(4096))  # JSON-formatted metadata
 
-    children_replay = relationship("DbReplayTable", back_populates="parent")
-    children_strat = relationship("DbStratTable", back_populates="parent")
-    children_config = relationship("DbConfigTable", back_populates="parent")
-    children_raw = relationship("DbRawTable", back_populates="parent")
+    children_replay = relationship(
+        "DbReplayTable", back_populates="parent", cascade_backrefs=False
+    )
+    children_strat = relationship(
+        "DbStratTable", back_populates="parent", cascade_backrefs=False
+    )
+    children_config = relationship(
+        "DbConfigTable", back_populates="parent", cascade_backrefs=False
+    )
+    children_raw = relationship(
+        "DbRawTable", back_populates="parent", cascade_backrefs=False
+    )
 
     @classmethod
     def from_sqlite(cls, row: dict[str, Any]) -> "DBMasterTable":
@@ -137,7 +145,7 @@ class DBMasterTable(Base):
             column (str): The column name.
         """
         try:
-            with engine.connect() as conn:
+            with engine.begin() as conn:
                 result = conn.execute(
                     text(
                         "SELECT COUNT(*) FROM pragma_table_info('master') WHERE name='{0}'".format(
@@ -155,7 +163,6 @@ class DBMasterTable(Base):
                     conn.execute(
                         text("ALTER TABLE master ADD COLUMN {0} VARCHAR".format(column))
                     )
-                    conn.commit()
         except Exception as e:
             logger.debug(f"Column already exists, no need to alter. [{e}]")
 
@@ -279,7 +286,7 @@ class DbReplayTable(Base):
             engine (Engine): The sqlalchemy engine.
         """
         try:
-            with engine.connect() as conn:
+            with engine.begin() as conn:
                 result = conn.execute(
                     text(
                         "SELECT COUNT(*) FROM pragma_table_info('replay_data') WHERE name='extra_info'"
@@ -295,7 +302,6 @@ class DbReplayTable(Base):
                     conn.execute(
                         text("ALTER TABLE replay_data ADD COLUMN extra_info BLOB")
                     )
-                    conn.commit()
         except Exception as e:
             logger.debug(f"Column already exists, no need to alter. [{e}]")
 
@@ -432,8 +438,12 @@ class DbRawTable(Base):
 
     master_table_id = Column(Integer, ForeignKey("master.unique_id"))
     parent = relationship("DBMasterTable", back_populates="children_raw")
-    children_param = relationship("DbParamTable", back_populates="parent")
-    children_outcome = relationship("DbOutcomeTable", back_populates="parent")
+    children_param = relationship(
+        "DbParamTable", back_populates="parent", cascade_backrefs=False
+    )
+    children_outcome = relationship(
+        "DbOutcomeTable", back_populates="parent", cascade_backrefs=False
+    )
 
     @classmethod
     def from_sqlite(cls, row: dict[str, Any]) -> "DbRawTable":
@@ -634,7 +644,7 @@ class DbRawTable(Base):
             column (str): The column name.
         """
         try:
-            with engine.connect() as conn:
+            with engine.begin() as conn:
                 result = conn.execute(
                     text(
                         "SELECT COUNT(*) FROM pragma_table_info('raw_data') WHERE name='{0}'".format(
@@ -656,7 +666,6 @@ class DbRawTable(Base):
                             "ALTER TABLE raw_data ADD COLUMN {0} VARCHAR".format(column)
                         )
                     )
-                    conn.commit()
         except Exception as e:
             logger.debug(f"Column already exists, no need to alter. [{e}]")
 
