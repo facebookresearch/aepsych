@@ -46,10 +46,18 @@ class DBMasterTable(Base):
 
     extra_metadata = Column(String(4096))  # JSON-formatted metadata
 
-    children_replay = relationship("DbReplayTable", back_populates="parent")
-    children_strat = relationship("DbStratTable", back_populates="parent")
-    children_config = relationship("DbConfigTable", back_populates="parent")
-    children_raw = relationship("DbRawTable", back_populates="parent")
+    children_replay = relationship(
+        "DbReplayTable", back_populates="parent", cascade_backrefs=False
+    )
+    children_strat = relationship(
+        "DbStratTable", back_populates="parent", cascade_backrefs=False
+    )
+    children_config = relationship(
+        "DbConfigTable", back_populates="parent", cascade_backrefs=False
+    )
+    children_raw = relationship(
+        "DbRawTable", back_populates="parent", cascade_backrefs=False
+    )
 
     @classmethod
     def from_sqlite(cls, row: dict[str, Any]) -> "DBMasterTable":
@@ -188,7 +196,9 @@ class DbReplayTable(Base):
     extra_info = Column(PickleType(pickler=pickle))
 
     master_table_id = Column(Integer, ForeignKey("master.unique_id"))
-    parent = relationship("DBMasterTable", back_populates="children_replay")
+    parent = relationship(
+        "DBMasterTable", back_populates="children_replay", cascade_backrefs=False
+    )
 
     __mapper_args__ = {}
 
@@ -308,7 +318,9 @@ class DbStratTable(Base):
     strat = Column(PickleType(pickler=pickle))
 
     master_table_id = Column(Integer, ForeignKey("master.unique_id"))
-    parent = relationship("DBMasterTable", back_populates="children_strat")
+    parent = relationship(
+        "DBMasterTable", back_populates="children_strat", cascade_backrefs=False
+    )
 
     @classmethod
     def from_sqlite(cls, row: dict[str, Any]) -> "DbStratTable":
@@ -367,7 +379,9 @@ class DbConfigTable(Base):
     config = Column(PickleType(pickler=pickle))
 
     master_table_id = Column(Integer, ForeignKey("master.unique_id"))
-    parent = relationship("DBMasterTable", back_populates="children_config")
+    parent = relationship(
+        "DBMasterTable", back_populates="children_config", cascade_backrefs=False
+    )
 
     @classmethod
     def from_sqlite(cls, row: dict[str, Any]) -> "DbConfigTable":
@@ -431,9 +445,15 @@ class DbRawTable(Base):
     extra_data = Column(PickleType(pickler=pickle))
 
     master_table_id = Column(Integer, ForeignKey("master.unique_id"))
-    parent = relationship("DBMasterTable", back_populates="children_raw")
-    children_param = relationship("DbParamTable", back_populates="parent")
-    children_outcome = relationship("DbOutcomeTable", back_populates="parent")
+    parent = relationship(
+        "DBMasterTable", back_populates="children_raw", cascade_backrefs=False
+    )
+    children_param = relationship(
+        "DbParamTable", back_populates="parent", cascade_backrefs=False
+    )
+    children_outcome = relationship(
+        "DbOutcomeTable", back_populates="parent", cascade_backrefs=False
+    )
 
     @classmethod
     def from_sqlite(cls, row: dict[str, Any]) -> "DbRawTable":
@@ -674,7 +694,9 @@ class DbParamTable(Base):
     param_value = Column(String(50))
 
     iteration_id = Column(Integer, ForeignKey("raw_data.unique_id"))
-    parent = relationship("DbRawTable", back_populates="children_param")
+    parent = relationship(
+        "DbRawTable", back_populates="children_param", cascade_backrefs=False
+    )
 
     @classmethod
     def from_sqlite(cls, row: dict[str, Any]) -> "DbParamTable":
@@ -740,7 +762,9 @@ class DbOutcomeTable(Base):
     outcome_value = Column(Float)
 
     iteration_id = Column(Integer, ForeignKey("raw_data.unique_id"))
-    parent = relationship("DbRawTable", back_populates="children_outcome")
+    parent = relationship(
+        "DbRawTable", back_populates="children_outcome", cascade_backrefs=False
+    )
 
     @classmethod
     def from_sqlite(cls, row: dict[str, Any]) -> "DbOutcomeTable":

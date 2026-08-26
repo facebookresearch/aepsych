@@ -14,7 +14,7 @@ REQUIRES = [
     "matplotlib",
     "torch",
     "scipy",
-    "SQLAlchemy==1.4.46",
+    "SQLAlchemy==1.4.54",
     "dill",
     "pandas",
     "aepsych_client",
