@@ -104,7 +104,7 @@ _IGNORED_WARNINGS = [
     r"Skipping device Apple Paravirtual device that does not support Metal 2\.0",
     r"Found Intel OpenMP \('libiomp'\) and LLVM OpenMP \('libomp'\) loaded",
     r"numpy\.core\.numeric is deprecated and has been renamed to numpy\._core\.numeric\.",  # Old SqlAlchemy + NumPy2.0 warning
-    r"torch\.jit\.script.*is deprecated.*torch\.compile.*",
+    r"torch\.jit\.script.*(is deprecated|is not supported).*torch\.compile.*",
     r"NCCL_DEBUG.*is .*None",
     r"pkg_resources is deprecated as an API.*",
     r"_register_pytree_node is deprecated.*register_pytree_node.*",
